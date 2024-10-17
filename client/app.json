@@ -1,14 +1,4 @@
 {
-  "expo": {
-    "name": "analock",
-    "slug": "analock",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "scheme": "analock",
-    "userInterfaceStyle": "automatic",
-    "plugins": ["expo-router"],
-    "experiments": {
-      "typedRoutes": true
-    }
-  }
+  "name": "analock",
+  "displayName": "analock"
 }

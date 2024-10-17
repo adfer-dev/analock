@@ -5,19 +5,17 @@ export const GENERAL_STYLES = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 30,
   },
+  horizontalPadding: {
+    paddingHorizontal: 20,
+  },
   flexCol: {
-    display: 'flex',
     flexDirection: 'column',
   },
   flexRow: {
-    display: 'flex',
     flexDirection: 'row',
   },
   flexGap: {
     gap: 10,
-  },
-  textCenter: {
-    textAlign: 'center',
   },
   flexGrow: {
     flex: 1,
@@ -25,12 +23,17 @@ export const GENERAL_STYLES = StyleSheet.create({
   title: {
     fontSize: 22,
   },
+  textCenter: {
+    textAlign: 'center',
+  },
   navBar: {
-    paddingHorizontal: 10,
-    marginBottom: 20,
+    marginBottom: 10,
+    paddingHorizontal: 20,
     height: '20%',
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  navBarRigth: {
+    flexGrow: 0.1,
   },
 })

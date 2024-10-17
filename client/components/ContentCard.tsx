@@ -1,27 +1,38 @@
-import { GENERAL_STYLES } from "@/constants/general.styles"
-import { HOME_STYLES } from "@/constants/home.styles"
-import { Link, Href } from "expo-router"
-import { Text, View } from "react-native"
+import {NativeStackNavigationProp} from '@react-navigation/native-stack'
+import {GENERAL_STYLES} from '../constants/general.styles'
+import {Text, TouchableOpacity, View} from 'react-native'
+import {useNavigation} from '@react-navigation/native'
+
+type RootStackParamList = {
+  Home: undefined
+  BooksScreen: undefined
+  MediaScreen: undefined
+  GamesScreen: undefined
+  DiaryScreen: undefined
+}
 
 interface ContentCardProps {
   name: string
-  linkPath: Href<string | object>
+  screenName: keyof RootStackParamList
   Icon: React.FC
 }
 
 export const ContentCard: React.FC<ContentCardProps> = ({
   name,
-  linkPath,
+  screenName,
   Icon,
 }: ContentCardProps) => {
+  const navigation: NativeStackNavigationProp<RootStackParamList> =
+    useNavigation()
   return (
-    <View style={[HOME_STYLES.contentCard]}>
-      <Link href={linkPath}>
-        <View style={[GENERAL_STYLES.flexCol, GENERAL_STYLES.flexGap]}>
-          <Icon />
-          <Text>{name}</Text>
-        </View>
-      </Link>
-    </View>
+    <TouchableOpacity
+      onPress={() => {
+        navigation.navigate(screenName)
+      }}>
+      <View>
+        <Icon />
+        <Text style={[GENERAL_STYLES.textCenter]}>{name}</Text>
+      </View>
+    </TouchableOpacity>
   )
 }

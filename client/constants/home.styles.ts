@@ -1,27 +1,27 @@
-import { StyleSheet } from "react-native"
+import { StyleSheet } from 'react-native'
 
 export const HOME_STYLES = StyleSheet.create({
   contentCard: {
-    padding: 55,
-    width: "48%",
-    marginBottom: 20,
-    borderStyle: "solid",
-    borderColor: "black",
+    padding: 60,
+    width: '47%',
+    borderStyle: 'solid',
+    borderColor: 'black',
     borderWidth: 1,
     borderRadius: 5,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   contentCardContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 20,
   },
   statusBar: {
     marginBottom: 20,
     padding: 20,
-    borderStyle: "solid",
-    borderColor: "black",
+    borderStyle: 'solid',
+    borderColor: 'black',
     borderWidth: 1,
     borderRadius: 5,
   },
