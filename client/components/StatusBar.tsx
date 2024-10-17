@@ -1,5 +1,5 @@
-import { HOME_STYLES } from "@/constants/home.styles"
-import { Text, View } from "react-native"
+import {HOME_STYLES} from '../constants/home.styles'
+import {Text, View} from 'react-native'
 
 export const StatusBar: React.FC = () => {
   return (
