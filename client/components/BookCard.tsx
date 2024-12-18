@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native'
 import {NativeStackNavigationProp} from '@react-navigation/native-stack'
-import {Button, Image, Text, TouchableOpacity} from 'react-native'
+import {Image, Text, TouchableOpacity} from 'react-native'
 
 type BookStackParamList = {
   Books: undefined

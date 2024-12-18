@@ -1,5 +1,4 @@
-import React, {useState} from 'react'
-import {Button, View, Text, StyleSheet, ScrollView} from 'react-native'
+import React from 'react'
 import EpubReader from './EPUBReader'
 
 export const BookDetailScreen: React.FC = ({route}) => {

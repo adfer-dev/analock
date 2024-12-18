@@ -14,7 +14,6 @@ export async function getOpenLibraryBooksBySubject(
     .then(response => {
       const res = response.data.response as OpenLibraryResponse
       books = res.docs
-      console.log(response.data)
     })
     .catch(err => {
       console.error(err)
