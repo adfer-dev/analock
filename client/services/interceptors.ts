@@ -2,7 +2,8 @@ import axios from 'axios'
 import {useContext} from 'react'
 import {getAccessToken, setAccessToken} from '../constants/auth'
 import {refreshToken} from './auth.services'
-import {AuthInfoContext} from '../contexts/authInfoContext'
+import {UserDataContext} from '../contexts/authInfoContext'
+import {setUserData} from './user.services'
 
 export const AXIOS_INSTANCE = axios.create()
 
@@ -32,12 +33,14 @@ AXIOS_INSTANCE.interceptors.request.use(async request => {
           error.description === API_ERRORS.TOKEN_EXPIRED ||
           error.description === API_ERRORS.COOKIE_NOT_SET
         ) {
-          const authInfoContext = useContext(AuthInfoContext)
+          const authInfoContext = useContext(UserDataContext)
 
           if (authInfoContext != null) {
-            const authInfo = {...authInfoContext.userData}
-            authInfo.authenticated = false
-            authInfoContext.setUserData(authInfo)
+            const userData = {...authInfoContext.userData}
+            // set user data's authenticated param to false
+            // this will make the app to ask the user to log in again.
+            userData.authenticated = false
+            authInfoContext.setUserData(userData)
             console.error(err)
           }
         }
