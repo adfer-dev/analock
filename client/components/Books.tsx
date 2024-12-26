@@ -24,7 +24,6 @@ const BooksScreen = () => {
 
 const Books: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true)
-  const [downloadedBooksCount, setDownloadedBooksCount] = useState<number>(0)
   const res: useOpenLibraryBooksBySubjectResult = useOpenLibraryBooksBySubject({
     subject: 'fantasy',
     sort: 'rating desc',
@@ -35,7 +34,6 @@ const Books: React.FC = () => {
     if (res.openLibraryBooksBySubject) {
       for (const book of res.openLibraryBooksBySubject) {
         await downloadAndUnzipEpub(book.identifier)
-        setDownloadedBooksCount(downloadedBooksCount + 1)
       }
       setLoading(false)
     }
@@ -56,7 +54,11 @@ const Books: React.FC = () => {
             style={{
               textAlign: 'center',
               color: 'black',
-            }}>{`Downloading books ${downloadedBooksCount}/${BOOKS_NUMBER}`}</Text>
+            }}>
+            {
+              'We are downloading the required content.\nYou can minimize the app and check the progress on the notification bar.'
+            }
+          </Text>
         </View>
       )}
       {!loading &&
