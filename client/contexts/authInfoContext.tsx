@@ -1,32 +1,39 @@
-import {createContext, useState, type ReactNode} from 'react'
+import {createContext, useState, type ReactNode, useEffect} from 'react'
+import {getUserData} from '../services/user.services'
 
-export const AuthInfoContext = createContext<AuthInfoContext | null>(null)
+export const UserDataContext = createContext<UserDataContext | null>(null)
 
 export interface AuthInfo {
   authenticated: boolean
 }
 
-interface AuthInfoContext {
-  userData: AuthInfo
-  setUserData: React.Dispatch<React.SetStateAction<AuthInfo>>
+interface UserDataContext {
+  userData: UserData
+  setUserData: React.Dispatch<React.SetStateAction<UserData>>
 }
 
 interface AuthInfoProviderProps {
   children: ReactNode
 }
 
-export const AuthInfoProvider: React.FC<AuthInfoProviderProps> = ({
+export const UserDataProvider: React.FC<AuthInfoProviderProps> = ({
   children,
 }) => {
-  const [userData, setUserData] = useState<AuthInfo>({authenticated: true})
+  const [userData, setUserData] = useState<UserData>(getUserData()!)
+
+  //every time the context data is updated,
+  //update the locally stored user data aswell.
+  useEffect(() => {
+    setUserData(userData)
+  }, [userData])
 
   return (
-    <AuthInfoContext.Provider
+    <UserDataContext.Provider
       value={{
         userData,
         setUserData,
       }}>
       {children}
-    </AuthInfoContext.Provider>
+    </UserDataContext.Provider>
   )
 }

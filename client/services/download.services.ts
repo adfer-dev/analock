@@ -3,7 +3,7 @@ import RNFS from 'react-native-fs'
 import {NativeModules} from 'react-native'
 import {getBookMetadata} from './books.services'
 // Holds the root path where downloaded files are stored
-export const APP_DOWNLOAD_PATH = `${RNFS.ExternalDirectoryPath}/Documents`
+export const APP_DOCUMENTS_PATH = `${RNFS.ExternalDirectoryPath}/Documents`
 
 /*
  * Downloads and unzips the EPUB file corresponding to the given
@@ -14,7 +14,7 @@ export async function downloadAndUnzipEpub(ebookId: string) {
   const metadata = await getBookMetadata({id: ebookId})
   const fileName = metadata?.files.find(file => file.format === 'EPUB')?.name
   const epubUrl = `https://archive.org/download/${ebookId}`
-  const unzipPath = `${APP_DOWNLOAD_PATH}/${ebookId}`
+  const unzipPath = `${APP_DOCUMENTS_PATH}/${ebookId}`
   const {BackgroundDownloadModule} = NativeModules
 
   if (epubUrl !== undefined && fileName !== undefined) {

@@ -9,11 +9,13 @@ import {ContentCard} from './ContentCard'
 import {StatusBar} from './StatusBar'
 import {GoogleSignin} from '@react-native-google-signin/google-signin'
 import {registerUser} from '../services/auth.services'
-import {AuthInfoProvider} from '../contexts/authInfoContext'
+import {UserDataProvider} from '../contexts/authInfoContext'
+import {setUserData} from '../services/user.services'
+import {REACT_APP_GOOGLE_WEB_CLIENT_ID} from '@env'
 
 export const Home: React.FC = () => {
   return (
-    <AuthInfoProvider>
+    <UserDataProvider>
       <View
         style={[
           GENERAL_STYLES.generalPadding,
@@ -24,8 +26,7 @@ export const Home: React.FC = () => {
           title={'Sign in with Google'}
           onPress={() => {
             GoogleSignin.configure({
-              webClientId:
-                '638717415469-uif7dr8c54ikqipk86hmnvdlm7m34vfd.apps.googleusercontent.com',
+              webClientId: REACT_APP_GOOGLE_WEB_CLIENT_ID,
               offlineAccess: true,
               scopes: ['email'],
             })
@@ -41,7 +42,14 @@ export const Home: React.FC = () => {
                           providerToken: userInfo.data.idToken as string,
                         }
                         registerUser(registerUserRequest)
-                          .then(response => console.log(response))
+                          .then(response => {
+                            setUserData({
+                              userId: registerUserRequest.providerId,
+                              idToken: registerUserRequest.providerToken,
+                              authenticated: true,
+                            })
+                            console.log(response)
+                          })
                           .catch(err => console.error(err))
                       }
                     })
@@ -63,6 +71,6 @@ export const Home: React.FC = () => {
           <ContentCard name="diary" screenName="DiaryScreen" Icon={DiaryIcon} />
         </View>
       </View>
-    </AuthInfoProvider>
+    </UserDataProvider>
   )
 }

@@ -3,7 +3,7 @@ import {MixedStyleDeclaration} from 'react-native-render-html'
 import RNFS from 'react-native-fs'
 import xml2js from 'react-native-xml2js'
 import {Dimensions} from 'react-native'
-import {APP_DOWNLOAD_PATH} from '../services/download.services'
+import {APP_DOCUMENTS_PATH} from '../services/download.services'
 
 interface ProcessEpubResult {
   htmlContent: string
@@ -64,7 +64,7 @@ async function processEpub(
     >
   >,
 ): Promise<void> {
-  const unzipPath = `${APP_DOWNLOAD_PATH}/${ebookId}`
+  const unzipPath = `${APP_DOCUMENTS_PATH}/${ebookId}`
   // Get the opf file path, and set the content path
   opfPath = await getOPFPath(unzipPath)
   contentPath = opfPath.substring(0, opfPath.lastIndexOf('/') + 1)
