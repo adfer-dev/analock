@@ -1,5 +1,5 @@
 import {createContext, useState, type ReactNode, useEffect} from 'react'
-import {getUserData} from '../services/user.services'
+import {getStorageUserData, setStorageUserData} from '../services/user.services'
 
 export const UserDataContext = createContext<UserDataContext | null>(null)
 
@@ -19,12 +19,12 @@ interface AuthInfoProviderProps {
 export const UserDataProvider: React.FC<AuthInfoProviderProps> = ({
   children,
 }) => {
-  const [userData, setUserData] = useState<UserData>(getUserData()!)
+  const [userData, setUserData] = useState<UserData>(getStorageUserData())
 
   //every time the context data is updated,
   //update the locally stored user data aswell.
   useEffect(() => {
-    setUserData(userData)
+    setStorageUserData(userData)
   }, [userData])
 
   return (

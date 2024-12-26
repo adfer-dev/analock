@@ -9,21 +9,26 @@ const storageInstance = new MMKV({
   mode: Mode.SINGLE_PROCESS,
 })
 
-const USER_DATA = 'userData'
+const USER_DATA_STORAGE_KEY = 'userData'
+const DEFAULT_USER_DATA: UserData = {
+  authenticated: false,
+}
 
-export function getUserData(): UserData | null {
-  let userData: UserData | null = null
-  const userDataString = storageInstance.getString(USER_DATA)
+export function getStorageUserData(): UserData {
+  let userData: UserData
+  const userDataString = storageInstance.getString(USER_DATA_STORAGE_KEY)
 
   if (userDataString !== undefined) {
     userData = JSON.parse(userDataString) as UserData
+    console.log(`Loaded user data: ${userDataString}`)
   } else {
-    console.log('No user data was saved')
+    userData = DEFAULT_USER_DATA
+    console.log('No user data was saved. Loading default data...')
   }
 
   return userData
 }
 
-export function setUserData(userData: UserData): void {
-  storageInstance.set(USER_DATA, JSON.stringify(userData))
+export function setStorageUserData(userData: UserData): void {
+  storageInstance.set(USER_DATA_STORAGE_KEY, JSON.stringify(userData))
 }

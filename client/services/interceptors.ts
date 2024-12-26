@@ -3,7 +3,6 @@ import {useContext} from 'react'
 import {getAccessToken, setAccessToken} from '../constants/auth'
 import {refreshToken} from './auth.services'
 import {UserDataContext} from '../contexts/authInfoContext'
-import {setUserData} from './user.services'
 
 export const AXIOS_INSTANCE = axios.create()
 

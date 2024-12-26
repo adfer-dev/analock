@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import com.reactnativegooglesignin.RNGoogleSigninPackage;
 // react-native-fs
 import com.rnfs.RNFSPackage;
+// react-native-mmkv
+import com.mrousavy.mmkv.MmkvPackage;
 // react-native-safe-area-context
 import com.th3rdwave.safeareacontext.SafeAreaContextPackage;
 // react-native-screens
@@ -69,6 +71,7 @@ public class PackageList {
       new MainReactPackage(mConfig),
       new RNGoogleSigninPackage(),
       new RNFSPackage(),
+      new MmkvPackage(),
       new SafeAreaContextPackage(),
       new RNScreensPackage(),
       new SvgPackage(),
