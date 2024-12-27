@@ -8,7 +8,7 @@ import {DiaryIcon} from './DiaryIcon'
 import {ContentCard} from './ContentCard'
 import {StatusBar} from './StatusBar'
 import {useContext} from 'react'
-import {UserDataContext} from '../contexts/authInfoContext'
+import {UserDataContext} from '../contexts/userDataContext'
 import {Login} from './Login'
 
 export const Home: React.FC = () => {

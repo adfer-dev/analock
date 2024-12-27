@@ -2,7 +2,7 @@ import axios from 'axios'
 import {useContext} from 'react'
 import {getAccessToken, setAccessToken} from '../constants/auth'
 import {refreshToken} from './auth.services'
-import {UserDataContext} from '../contexts/authInfoContext'
+import {UserDataContext} from '../contexts/userDataContext'
 
 export const AXIOS_INSTANCE = axios.create()
 
@@ -49,22 +49,3 @@ AXIOS_INSTANCE.interceptors.request.use(async request => {
 
   return request
 })
-
-/*
-AXIOS_INSTANCE.interceptors.response.use(
-  response => {
-    return response
-  }
-  ,
-  error => {
-    if (error.request.status === 401) {
-      refreshToken()
-        .then(tokenPair => {
-          if (tokenPair !== undefined) {
-            setAccessToken(tokenPair.refreshToken)
-          }
-        })
-        .catch(err => { console.log(err) })
-    }
-  }
-) */

@@ -84,3 +84,13 @@ interface InternetArchiveFile {
   name: string
   format: string
 }
+
+interface StorageBook {
+  id: string
+  data: StorageBookData
+}
+
+interface StorageBookData {
+  firstPageIndex: number
+  maxPages: number
+}

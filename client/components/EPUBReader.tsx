@@ -11,6 +11,11 @@ import RenderHTML from 'react-native-render-html'
 import {useProcessEpub} from '../hooks/useProcessEpub'
 import RNFS from 'react-native-fs'
 import {APP_DOCUMENTS_PATH} from '../services/download.services'
+import {
+  addStorageBookData,
+  getStorageBookData,
+  getStorageBooks,
+} from '../services/storage.services'
 
 interface EpubReaderProps {
   ebookId: string
@@ -22,6 +27,7 @@ const AVERAGE_WORDS_PER_MINUTE = 200
 const MAX_MINUTES = 20
 
 const EpubReader: React.FC<EpubReaderProps> = ({ebookId}) => {
+  const unzipPath = `${APP_DOCUMENTS_PATH}/${ebookId}`
   const {width} = Dimensions.get('window')
   const {htmlFiles, contentPath, loading, tagStyles, classStyles} =
     useProcessEpub(ebookId)
@@ -31,13 +37,26 @@ const EpubReader: React.FC<EpubReaderProps> = ({ebookId}) => {
   // Hook to set up the content that can be read
   useEffect(() => {
     if (htmlFiles.length > 0) {
-      const randomIndex = Math.floor(Math.random() * htmlFiles.length)
-      firstFileIndex = randomIndex
-      setCurrentFileIndex(randomIndex)
+      const bookData = getStorageBookData(ebookId)
 
-      setMaxPages(randomIndex)
-        .then(() => {})
-        .catch(error => console.error(error))
+      if (bookData) {
+        setCurrentFileIndex(bookData.firstPageIndex)
+        firstFileIndex = bookData.firstPageIndex
+        MAX_PAGES = bookData.maxPages
+      } else {
+        const randomIndex = Math.floor(Math.random() * htmlFiles.length)
+        firstFileIndex = randomIndex
+        setCurrentFileIndex(randomIndex)
+
+        setMaxPages(randomIndex)
+          .then(() => {
+            addStorageBookData({
+              id: ebookId,
+              data: {maxPages: MAX_PAGES, firstPageIndex: firstFileIndex},
+            })
+          })
+          .catch(error => console.error(error))
+      }
     }
   }, [htmlFiles])
 
@@ -59,7 +78,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({ebookId}) => {
   async function setMaxPages(firstIndex: number) {
     const htmlParagraphRegex = /<p>(.*?)<\/p>/g
     const maxWords = AVERAGE_WORDS_PER_MINUTE * MAX_MINUTES
-    const unzipPath = `${APP_DOCUMENTS_PATH}/${ebookId}`
     let currentWords = 0
 
     for (let i = firstIndex; i < htmlFiles.length; i++) {
@@ -92,10 +110,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({ebookId}) => {
    * @param selectedItem the item to load the HTML content from
    */
   function loadHTMLContent(selectedItem: ParsedItem) {
-    const unzipPath = `${APP_DOCUMENTS_PATH}/${ebookId}`
     RNFS.readFile(`${unzipPath}/${contentPath}${selectedItem.href}`, 'utf8')
       .then(content => {
-        const updatedContent = setImagePaths(content, unzipPath)
+        const updatedContent = setImagePaths(content)
         setHtmlContent(updatedContent)
       })
       .catch(error => {
@@ -109,8 +126,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({ebookId}) => {
    * @param html the HTML content as string
    * @param unzipFolderPath the path where the selected book has been unzipped
    */
-  function setImagePaths(html: string, unzipFolderPath: string): string {
-    const documentDirPath = `file://${unzipFolderPath}/${contentPath}`
+  function setImagePaths(html: string): string {
+    const documentDirPath = `file://${unzipPath}/${contentPath}`
 
     // Match any path starting with "../" followed by any folder or file name
     let updatedHtml = html.replace(
