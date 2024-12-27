@@ -6,9 +6,10 @@ import {Dimensions} from 'react-native'
 import {APP_DOCUMENTS_PATH} from '../services/download.services'
 
 interface ProcessEpubResult {
-  htmlContent: string
+  htmlFiles: ParsedItem[]
+  htmlCurrentFileIndex: number
+  contentPath: string
   loading: boolean
-  errorMessage: string
   tagStyles: Readonly<Record<string, MixedStyleDeclaration>> | undefined
   classStyles: Readonly<Record<string, MixedStyleDeclaration>> | undefined
 }
@@ -17,10 +18,17 @@ const orderedItems: ParsedItem[] = []
 let opfPath: string = ''
 let contentPath: string = ''
 
+/**
+ * Custom hook used to process and load the EPUB file of the ebook
+ * whose identifier matches with the id passed by parameter.
+ *
+ * @param ebookId the identifier of the book to be loaded
+ */
 export function useProcessEpub(ebookId: string): ProcessEpubResult {
-  const [htmlContent, setHtmlContent] = useState<string>('')
+  const [htmlFiles, setHtmlFiles] = useState<ParsedItem[]>([])
+  const [htmlCurrentFileIndex, setHtmlCurrentFileIndex] = useState<number>(0)
+  const [contentPath, setContentPath] = useState<string>('')
   const [loading, setLoading] = useState(true)
-  const [errorMessage, setErrorMessage] = useState<string>('')
   const [tagStyles, setTagStyles] = useState<
     Readonly<Record<string, MixedStyleDeclaration>> | undefined
   >()
@@ -31,27 +39,42 @@ export function useProcessEpub(ebookId: string): ProcessEpubResult {
   useEffect(() => {
     processEpub(
       ebookId,
-      setHtmlContent,
+      setHtmlFiles,
+      setHtmlCurrentFileIndex,
+      setContentPath,
       setLoading,
       setTagStyles,
       setClassStyles,
     )
       .then()
-      .catch(err => setErrorMessage(err))
+      .catch(err => console.error(err))
   }, [])
 
   return {
-    htmlContent,
+    htmlFiles,
+    htmlCurrentFileIndex,
+    contentPath,
     loading,
-    errorMessage,
     tagStyles,
     classStyles,
   }
 }
 
+/**
+ * Parses the EPUB file, setting the values of the variables that contain the
+ * HTML content and css styles in RN format and are returned by useProcessEpub hook.
+ *
+ * @param ebookId the id of the ebook that is going to be processed. This is needed to search the EPUB's content directory
+ * @param setLoading setState function used to set the value of loading state
+ * @param setTagStyles setState function used to set the value of tagStyles state
+ * @param setClassStyles setState function used to set the value of classStyles state
+ * @param setHtmlContent setState function used to set the value of htmlContent state
+ */
 async function processEpub(
   ebookId: string,
-  setHtmlContent: React.Dispatch<React.SetStateAction<string>>,
+  setHtmlFiles: React.Dispatch<React.SetStateAction<ParsedItem[]>>,
+  setHtmlCurrentFileIndex: React.Dispatch<React.SetStateAction<number>>,
+  setContentPath: React.Dispatch<React.SetStateAction<string>>,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
   setTagStyles: React.Dispatch<
     React.SetStateAction<
@@ -68,10 +91,12 @@ async function processEpub(
   // Get the opf file path, and set the content path
   opfPath = await getOPFPath(unzipPath)
   contentPath = opfPath.substring(0, opfPath.lastIndexOf('/') + 1)
+  setContentPath(contentPath)
   // get the items from the opf files
   await getOpfItems(unzipPath + '/' + opfPath)
   const cssPath = orderedItems.find(item => item.mediaType === 'text/css')?.href
-  await loadRandomHtmlFile(setHtmlContent, unzipPath)
+  await loadHtmlFiles(setHtmlFiles)
+  //get the CSS file content and convert it to RN format
   const css = await RNFS.readFile(
     `${unzipPath}/${contentPath}${cssPath}`,
     'utf8',
@@ -80,6 +105,13 @@ async function processEpub(
   setLoading(false)
 }
 
+/**
+ * Gets the OPF file's path. In EPUB files, the OPF file is used as index,
+ * having ordered references of its contents.
+ *
+ * @param unzippedPath the path where the EPUB file was unziped
+ * @returns a Promise encapsulating a string that contains the OPF file's path
+ */
 async function getOPFPath(unzippedPath: string): Promise<string> {
   const containerXMLPath = `${unzippedPath}/META-INF/container.xml`
   let path = ''
@@ -98,7 +130,6 @@ async function getOPFPath(unzippedPath: string): Promise<string> {
         }
 
         path = parsedData.container.rootfiles[0].rootfile[0].$['full-path']
-        console.log('OPF file path:', path)
       },
     )
   } catch (error) {
@@ -108,8 +139,10 @@ async function getOPFPath(unzippedPath: string): Promise<string> {
   return path
 }
 
-/*
+/**
  * Parses the OPF file and sets the Styles, Images and HTML paths
+ *
+ * @param the OPF file's path'
  */
 async function getOpfItems(path: string): Promise<void> {
   // Read the OPF file
@@ -164,8 +197,11 @@ async function getOpfItems(path: string): Promise<void> {
   }
 }
 
-/*
- * Converts the given CSS declarations to React Native format
+/**
+ * Converts the given CSS declarations to React Native format.
+ *
+ * @param declarations a key-value map containing the CSS properties and its values
+ * @returns a MixedStyleDeclarations object that represents the React Native formatted CSS properties
  */
 function convertDeclarationsToReactNative(declarations: {
   [key: string]: string
@@ -254,56 +290,34 @@ function parseCSS(
     }
   })
 
-  // set this so images fit the screen size
+  // default styles for images
   const {width, height} = Dimensions.get('window')
   tagsStyles['img'].resizeMode = 'contain'
   tagsStyles['img'].width = width
   tagsStyles['img'].height = height
 
+  //default styles for paragraphs
+  tagsStyles['p'].lineHeight = 28
+  tagsStyles['p'].textAlign = 'left'
+  tagsStyles['p'].letterSpacing = 0.2
+
   setTagStyles(tagsStyles)
   setClassStyles(classesStyles)
 }
 
-function setImagePaths(html: string, unzipFolderPath: string): string {
-  const documentDirPath = `file://${unzipFolderPath}/${contentPath}`
-
-  let updatedHtml = html.replace(
-    /src="\.\.\/([^"]+)"/g, // Match any path starting with "../" followed by any folder or file name
-    (_, relativePath) => {
-      const newPath = `${documentDirPath}/${relativePath}`
-      return `src="${newPath}"`
-    },
-  )
-
-  // Handle images at the root (e.g., "src="image.jpg" without any "../")
-  updatedHtml = updatedHtml.replace(
-    /src="([^/"]+)"/g, // Match paths that don't start with "../" (i.e., root-level images)
-    (_, imgName) => {
-      const newPath = `${documentDirPath}/${imgName}`
-      return `src="${newPath}"`
-    },
-  )
-
-  return updatedHtml
-}
-
-async function loadRandomHtmlFile(
-  setHtmlContent: React.Dispatch<React.SetStateAction<string>>,
-  unzipFolderPath: string,
+/**
+ * Selects a random HTML file and loads its content.
+ *
+ * @param setHtmlFiles the setState used to set the htmlContent value
+ * @param unzipFolderPath the path where the the EPUB was unzipped
+ */
+async function loadHtmlFiles(
+  setHtmlFiles: React.Dispatch<React.SetStateAction<ParsedItem[]>>,
 ): Promise<void> {
   const htmlItems = orderedItems.filter(
     item =>
       item.mediaType === 'text/html' ||
       item.mediaType === 'application/xhtml+xml',
   )
-  console.log(htmlItems)
-  const randomIndex = Math.floor(Math.random() * htmlItems.length)
-  const selectedItem = htmlItems[randomIndex]
-
-  let content = await RNFS.readFile(
-    `${unzipFolderPath}/${contentPath}${selectedItem.href}`,
-    'utf8',
-  )
-  content = setImagePaths(content, unzipFolderPath)
-  setHtmlContent(content)
+  setHtmlFiles(htmlItems)
 }
