@@ -1,7 +1,6 @@
 import {GoogleSignin} from '@react-native-google-signin/google-signin'
 import {Button, View} from 'react-native'
 import {registerUser} from '../services/auth.services'
-import {setStorageUserData} from '../services/user.services'
 import {REACT_APP_GOOGLE_WEB_CLIENT_ID} from '@env'
 import {GENERAL_STYLES} from '../constants/general.styles'
 import {useContext} from 'react'
@@ -10,7 +9,7 @@ import {UserDataContext} from '../contexts/authInfoContext'
 export const Login: React.FC = () => {
   const userDataContext = useContext(UserDataContext)
   return (
-    <View style={GENERAL_STYLES.flexCol}>
+    <View style={(GENERAL_STYLES.flexCol, GENERAL_STYLES.alignCenter)}>
       <Button
         title={'Sign in with Google'}
         onPress={() => {

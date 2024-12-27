@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import {StyleSheet} from 'react-native'
 
 export const GENERAL_STYLES = StyleSheet.create({
   generalPadding: {
@@ -23,8 +23,12 @@ export const GENERAL_STYLES = StyleSheet.create({
   title: {
     fontSize: 22,
   },
+  alignCenter: {
+    alignItems: 'center',
+  },
   textCenter: {
     textAlign: 'center',
+    justifyContent: 'center',
   },
   navBar: {
     marginBottom: 10,
