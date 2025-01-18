@@ -23,8 +23,8 @@ export function useOpenLibraryBooksBySubject(
     } else {
       getOpenLibraryBooksBySubject(params)
         .then(books => {
-          setSelectedBooks(books)
           setOpenLibraryBooksBySubject(books)
+          setSelectedBooks(books)
         })
         .catch(error =>
           console.error(

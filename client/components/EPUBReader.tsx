@@ -14,7 +14,6 @@ import {APP_DOCUMENTS_PATH} from '../services/download.services'
 import {
   addStorageBookData,
   getStorageBookData,
-  getStorageBooks,
 } from '../services/storage.services'
 
 interface EpubReaderProps {
@@ -28,7 +27,7 @@ const MAX_MINUTES = 20
 
 const EpubReader: React.FC<EpubReaderProps> = ({ebookId}) => {
   const unzipPath = `${APP_DOCUMENTS_PATH}/${ebookId}`
-  const {width} = Dimensions.get('window')
+  const {width} = Dimensions.get('screen')
   const {htmlFiles, contentPath, loading, tagStyles, classStyles} =
     useProcessEpub(ebookId)
   const [htmlContent, setHtmlContent] = useState<string>('')
@@ -39,6 +38,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({ebookId}) => {
     if (htmlFiles.length > 0) {
       const bookData = getStorageBookData(ebookId)
 
+      // if book data has been stored, retrieve it and set the params.
+      // if not, then generate the params and save them to local storage.
       if (bookData) {
         setCurrentFileIndex(bookData.firstPageIndex)
         firstFileIndex = bookData.firstPageIndex
@@ -152,7 +153,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({ebookId}) => {
       <ScrollView
         style={{
           flex: 1,
-          padding: 20,
+          paddingRight: 10,
+          paddingLeft: 20,
+          paddingVertical: 10,
         }}>
         {loading && <ActivityIndicator size="large" color="#0000ff" />}
         {!loading && (

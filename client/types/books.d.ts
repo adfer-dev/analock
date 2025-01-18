@@ -11,6 +11,7 @@ interface InternetArchiveBook {
   identifier: string
   title: string
   creator: string
+  epubFile?: string
 }
 
 interface OpenLibraryBook {

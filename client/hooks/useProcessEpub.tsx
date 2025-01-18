@@ -298,8 +298,9 @@ function parseCSS(
 
   //default styles for paragraphs
   tagsStyles['p'].lineHeight = 28
-  tagsStyles['p'].textAlign = 'left'
+  tagsStyles['p'].textAlign = 'justify'
   tagsStyles['p'].letterSpacing = 0.2
+  tagsStyles['p'].padding = 0
 
   setTagStyles(tagsStyles)
   setClassStyles(classesStyles)

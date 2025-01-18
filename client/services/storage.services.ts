@@ -3,7 +3,7 @@ import {APP_DOCUMENTS_PATH} from './download.services'
 import {REACT_APP_LOCAL_STORAGE_KEY} from '@env'
 
 const storageInstance = new MMKV({
-  id: `user-data-storage`,
+  id: `analock-storage`,
   path: APP_DOCUMENTS_PATH,
   encryptionKey: REACT_APP_LOCAL_STORAGE_KEY,
   mode: Mode.SINGLE_PROCESS,
@@ -47,7 +47,7 @@ export function setStorageUserData(userData: UserData): void {
   storageInstance.set(USER_DATA_STORAGE_KEY, JSON.stringify(userData))
 }
 
-// BOOKS FUNCTIONS
+// SELECTED BOOKS FUNCTIONS
 
 /**
  * Gets the locally stored selected books for the current period.
@@ -72,6 +72,13 @@ export function getSelectedBooks(): InternetArchiveBook[] | undefined {
  */
 export function setSelectedBooks(selectedBooks: InternetArchiveBook[]): void {
   storageInstance.set(BOOKS_STORAGE_KEY, JSON.stringify(selectedBooks))
+}
+
+/**
+ * Deletes the selected books from local storage.
+ */
+export function deleteSelectedBooks(): void {
+  storageInstance.delete(BOOKS_STORAGE_KEY)
 }
 
 // BOOK DATA FUNCTIONS
@@ -130,6 +137,18 @@ export function addStorageBookData(book: StorageBook): void {
   storageInstance.set(BOOKS_DATA_STORAGE_KEY, JSON.stringify(books))
 }
 
+/**
+ * Sets the locally stored book data passed by parameter.
+ *
+ *@param books the book data to be stored
+ */
 export function setStorageBookData(books: StorageBook[]): void {
   storageInstance.set(BOOKS_DATA_STORAGE_KEY, JSON.stringify(books))
+}
+
+/**
+ * Deletes all books' data from local storage
+ */
+export function deleteStorageBookData(): void {
+  storageInstance.delete(BOOKS_DATA_STORAGE_KEY)
 }
