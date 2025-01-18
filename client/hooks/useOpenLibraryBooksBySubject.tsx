@@ -1,6 +1,6 @@
 import {getOpenLibraryBooksBySubject} from '../services/books.services'
 import {useEffect, useState} from 'react'
-import RNFS from 'react-native-fs'
+import {getSelectedBooks, setSelectedBooks} from '../services/storage.services'
 
 export interface useOpenLibraryBooksBySubjectResult {
   openLibraryBooksBySubject: InternetArchiveBook[] | undefined
@@ -14,28 +14,24 @@ export function useOpenLibraryBooksBySubject(
 ): useOpenLibraryBooksBySubjectResult {
   const [openLibraryBooksBySubject, setOpenLibraryBooksBySubject] =
     useState<InternetArchiveBook[]>()
-  const downloadPath = `${RNFS.DocumentDirectoryPath}/dailyBooks.json`
 
   useEffect(() => {
-    RNFS.exists(downloadPath)
-      .then(existsLocalDailyBooks => {
-        if (existsLocalDailyBooks) {
-          RNFS.readFile(downloadPath, 'utf8').then(localBooks => {
-            setOpenLibraryBooksBySubject(JSON.parse(localBooks))
-          })
-        } else {
-          getOpenLibraryBooksBySubject(params)
-            .then(books => {
-              RNFS.writeFile(downloadPath, JSON.stringify(books), 'utf8')
-                .then(() => setOpenLibraryBooksBySubject(books))
-                .catch(err => console.error(err))
-            })
-            .catch(err => {
-              console.error(err)
-            })
-        }
-      })
-      .catch(err => console.error(err))
+    const selectedBooks = getSelectedBooks()
+
+    if (selectedBooks) {
+      setOpenLibraryBooksBySubject(selectedBooks)
+    } else {
+      getOpenLibraryBooksBySubject(params)
+        .then(books => {
+          setOpenLibraryBooksBySubject(books)
+          setSelectedBooks(books)
+        })
+        .catch(error =>
+          console.error(
+            `Error retrieving books from open library API: ${error}`,
+          ),
+        )
+    }
   }, [])
 
   return {openLibraryBooksBySubject, setOpenLibraryBooksBySubject}

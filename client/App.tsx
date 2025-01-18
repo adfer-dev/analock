@@ -4,7 +4,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack'
 import BooksScreen from './components/Books'
 import Media from './components/Media'
 import Diary from './components/Diary'
-import {UserDataProvider} from './contexts/authInfoContext'
+import {UserDataProvider} from './contexts/userDataContext'
 
 function App(): React.JSX.Element {
   const Stack = createNativeStackNavigator()

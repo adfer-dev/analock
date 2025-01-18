@@ -10,7 +10,7 @@ import {useEffect, useState} from 'react'
 import {ActivityIndicator, Text, View} from 'react-native'
 import {downloadAndUnzipEpub} from '../services/download.services'
 
-const BOOKS_NUMBER = 1
+const BOOKS_NUMBER = 2
 
 const BooksScreen = () => {
   const BooksStack = createNativeStackNavigator()
@@ -25,7 +25,7 @@ const BooksScreen = () => {
 const Books: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const res: useOpenLibraryBooksBySubjectResult = useOpenLibraryBooksBySubject({
-    subject: 'fantasy',
+    subject: 'science',
     sort: 'rating desc',
     limit: BOOKS_NUMBER,
   })
@@ -33,15 +33,19 @@ const Books: React.FC = () => {
   const downloadBooks = async () => {
     if (res.openLibraryBooksBySubject) {
       for (const book of res.openLibraryBooksBySubject) {
-        await downloadAndUnzipEpub(book.identifier)
+        await downloadAndUnzipEpub(book)
+        setTimeout(() => {}, 1000)
       }
-      setLoading(false)
     }
   }
 
   useEffect(() => {
-    if (res.openLibraryBooksBySubject !== undefined && loading) {
+    if (res.openLibraryBooksBySubject && loading) {
       downloadBooks()
+        .then(() => {
+          setLoading(false)
+        })
+        .catch(error => console.error(error))
     }
   }, [res])
 

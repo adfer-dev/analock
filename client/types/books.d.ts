@@ -11,6 +11,7 @@ interface InternetArchiveBook {
   identifier: string
   title: string
   creator: string
+  epubFile?: string
 }
 
 interface OpenLibraryBook {
@@ -83,4 +84,14 @@ interface InternetArchiveMetadataResponse {
 interface InternetArchiveFile {
   name: string
   format: string
+}
+
+interface StorageBook {
+  id: string
+  data: StorageBookData
+}
+
+interface StorageBookData {
+  firstPageIndex: number
+  maxPages: number
 }

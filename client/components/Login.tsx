@@ -4,7 +4,7 @@ import {registerUser} from '../services/auth.services'
 import {REACT_APP_GOOGLE_WEB_CLIENT_ID} from '@env'
 import {GENERAL_STYLES} from '../constants/general.styles'
 import {useContext} from 'react'
-import {UserDataContext} from '../contexts/authInfoContext'
+import {UserDataContext} from '../contexts/userDataContext'
 
 export const Login: React.FC = () => {
   const userDataContext = useContext(UserDataContext)
