@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import {
   ActivityIndicator,
   ScrollView,
@@ -32,6 +32,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({ebookId}) => {
     useProcessEpub(ebookId)
   const [htmlContent, setHtmlContent] = useState<string>('')
   const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1)
+  const scrollViewRef = useRef<ScrollView | null>(null)
 
   // Hook to set up the content that can be read
   useEffect(() => {
@@ -115,6 +116,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({ebookId}) => {
       .then(content => {
         const updatedContent = setImagePaths(content)
         setHtmlContent(updatedContent)
+        resetScrollViewPosition()
       })
       .catch(error => {
         console.error(error)
@@ -148,6 +150,14 @@ const EpubReader: React.FC<EpubReaderProps> = ({ebookId}) => {
     return updatedHtml
   }
 
+  /**
+   * Makes the ScrollView scroll to the beginning.
+   */
+  function resetScrollViewPosition() {
+    if (scrollViewRef.current != null)
+      scrollViewRef?.current.scrollTo({y: 0, animated: true})
+  }
+
   return (
     <View style={{flex: 1}}>
       <ScrollView
@@ -156,7 +166,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({ebookId}) => {
           paddingRight: 10,
           paddingLeft: 20,
           paddingVertical: 10,
-        }}>
+        }}
+        ref={scrollViewRef}>
         {loading && <ActivityIndicator size="large" color="#0000ff" />}
         {!loading && (
           <RenderHTML

@@ -5,6 +5,7 @@ import BooksScreen from './components/Books'
 import Media from './components/Media'
 import Diary from './components/Diary'
 import {UserDataProvider} from './contexts/userDataContext'
+import GamesScreen from './components/Games'
 
 function App(): React.JSX.Element {
   const Stack = createNativeStackNavigator()
@@ -22,6 +23,11 @@ function App(): React.JSX.Element {
             name="MediaScreen"
             component={Media}
             options={{title: 'Media'}}
+          />
+          <Stack.Screen
+            name="GamesScreen"
+            component={GamesScreen}
+            options={{headerShown: false}}
           />
           <Stack.Screen
             name="DiaryScreen"

@@ -26,15 +26,11 @@ export async function downloadAndUnzipEpub(book: InternetArchiveBook) {
           console.log(
             `book ${book.epubFile} has been downloaded to ${downloadedFilePath}`,
           )
+
           // Unzip the EPUB file
           await unzip(downloadedFilePath, unzipPath)
           console.log('Unzipped to:', unzipPath)
-          /*
-          await RNFS.downloadFile({
-            fromUrl: `https://archive.org/download/${ebookId}/__ia_thumb.jpg`,
-            toFile: `${unzipPath}/cover.jpg`,
-          }).promise
-          */
+
           // Remove the EPUB file to free space
           await RNFS.unlink(downloadedFilePath)
         } catch (error) {
