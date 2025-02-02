@@ -17,7 +17,13 @@ const BooksScreen = () => {
   return (
     <BooksStack.Navigator initialRouteName="Books">
       <BooksStack.Screen name="Books" component={Books} />
-      <BooksStack.Screen name="Book" component={BookDetailScreen} />
+      <BooksStack.Screen
+        name="Book"
+        component={BookDetailScreen}
+        options={({route}) => ({
+          headerTitle: route.params?.title as string,
+        })}
+      />
     </BooksStack.Navigator>
   )
 }

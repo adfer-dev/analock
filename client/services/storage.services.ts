@@ -1,6 +1,9 @@
 import {MMKV, Mode} from 'react-native-mmkv'
 import {APP_DOCUMENTS_PATH} from './download.services'
 import {REACT_APP_LOCAL_STORAGE_KEY} from '@env'
+import {GamesData} from '../types/game'
+
+export type StorageData = GamesData | StorageBook | StorageBookData | UserData
 
 const storageInstance = new MMKV({
   id: `analock-storage`,
@@ -12,6 +15,7 @@ const storageInstance = new MMKV({
 const USER_DATA_STORAGE_KEY = 'userData'
 const BOOKS_DATA_STORAGE_KEY = 'bookData'
 const BOOKS_STORAGE_KEY = 'books'
+const GAMES_DATA_STORAGE_KEY = 'gameData'
 const DEFAULT_USER_DATA: UserData = {
   authenticated: true,
 }
@@ -151,4 +155,21 @@ export function setStorageBookData(books: StorageBook[]): void {
  */
 export function deleteStorageBookData(): void {
   storageInstance.delete(BOOKS_DATA_STORAGE_KEY)
+}
+
+// GAME STORAGE
+
+export function getStorageGamesData(): GamesData | undefined {
+  const gameDataString = storageInstance.getString(GAMES_DATA_STORAGE_KEY)
+  let gameData: GamesData | undefined
+
+  if (gameDataString) {
+    gameData = JSON.parse(gameDataString) as GamesData
+  }
+
+  return gameData
+}
+
+export function setStorageGamesData(gameData: GamesData): void {
+  storageInstance.set(GAMES_DATA_STORAGE_KEY, JSON.stringify(gameData))
 }

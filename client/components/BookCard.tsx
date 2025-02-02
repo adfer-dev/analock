@@ -1,11 +1,11 @@
 import {useNavigation} from '@react-navigation/native'
 import {NativeStackNavigationProp} from '@react-navigation/native-stack'
-import {Image, Text, TouchableOpacity} from 'react-native'
-import {APP_DOCUMENTS_PATH} from '../services/download.services'
+import {Text, TouchableOpacity} from 'react-native'
+import {BooksIcon} from './BooksIcon'
 
 type BookStackParamList = {
   Books: undefined
-  Book: {id: string}
+  Book: {id: string; title: string}
 }
 
 interface BookCardProps {
@@ -24,16 +24,9 @@ export const BookCard: React.FC<BookCardProps> = ({
   return (
     <TouchableOpacity
       onPress={() => {
-        navigation.push('Book', {id})
+        navigation.push('Book', {id, title})
       }}>
-      {/*
-        <Image
-          source={{
-            uri: `file://${APP_DOCUMENTS_PATH}/${id}/cover.jpg`,
-          }}
-          style={{width: 200, height: 200}}
-        />
-        */}
+      <BooksIcon />
       <Text>{title}</Text>
       {author != undefined && <Text>{author}</Text>}
     </TouchableOpacity>
