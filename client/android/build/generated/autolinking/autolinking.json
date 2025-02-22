@@ -54,6 +54,34 @@
         }
       }
     },
+    "react-native-gesture-handler": {
+      "root": "/home/adferdev-lap/repos/analock/client/node_modules/react-native-gesture-handler",
+      "name": "react-native-gesture-handler",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/home/adferdev-lap/repos/analock/client/node_modules/react-native-gesture-handler/RNGestureHandler.podspec",
+          "version": "2.23.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/home/adferdev-lap/repos/analock/client/node_modules/react-native-gesture-handler/android",
+          "packageImportPath": "import com.swmansion.gesturehandler.RNGestureHandlerPackage;",
+          "packageInstance": "new RNGestureHandlerPackage()",
+          "buildTypes": [],
+          "libraryName": "rngesturehandler_codegen",
+          "componentDescriptors": [
+            "RNGestureHandlerButtonComponentDescriptor",
+            "RNGestureHandlerRootViewComponentDescriptor"
+          ],
+          "cmakeListsPath": "/home/adferdev-lap/repos/analock/client/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
     "react-native-mmkv": {
       "root": "/home/adferdev-lap/repos/analock/client/node_modules/react-native-mmkv",
       "name": "react-native-mmkv",

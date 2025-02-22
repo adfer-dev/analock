@@ -1,23 +1,13 @@
-import React, {useEffect, useState} from 'react'
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  AppState,
-} from 'react-native'
-import {
-  getStorageGamesData,
-  setStorageGamesData,
-} from '../services/storage.services'
+import React, {useState} from 'react'
+import {StyleSheet, View, Text, TouchableOpacity, Alert} from 'react-native'
+import {getStorageGamesData} from '../services/storage.services'
 import {useSaveOnExit} from '../hooks/useSaveOnExit'
 
 // Type definitions
 export type SudokuGrid = SudokuCell[][]
 type Coordinates = {row: number; col: number}
 
-interface SudokuCell {
+export interface SudokuCell {
   value: number | null
   editable: boolean
   valid: boolean
@@ -146,7 +136,7 @@ function hideNumbers(grid: SudokuGrid): void {
 export const SudokuGame = () => {
   const [grid, setGrid] = useState<SudokuGrid>(() => generateSudoku())
   const [selectedCell, setSelectedCell] = useState<Coordinates | null>(null)
-  useSaveOnExit({sudokuGrid: grid})
+  useSaveOnExit(grid)
 
   /**
    * @param row the row where the press action had place

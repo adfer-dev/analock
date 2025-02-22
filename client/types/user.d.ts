@@ -3,4 +3,5 @@ interface UserData {
   userId?: string
   idToken?: string
   lastOpenedAppDate?: string
+  lastOpenedAppWeek?: number
 }

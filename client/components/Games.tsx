@@ -3,6 +3,7 @@ import {View} from 'react-native'
 import {SudokuGame} from './Sudoku'
 import {GameCard} from './GameCard'
 import GameDetailScreen from './Game'
+import {Game2048} from './2048Game'
 
 const GamesScreen = () => {
   const GamesStack = createNativeStackNavigator()
@@ -30,6 +31,10 @@ const Games: React.FC = () => {
     {
       name: 'Sudoku',
       component: <SudokuGame />,
+    },
+    {
+      name: '2048',
+      component: <Game2048 />,
     },
   ]
   return (
