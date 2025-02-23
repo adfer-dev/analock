@@ -1,6 +1,6 @@
 import {GENERAL_STYLES} from '../constants/general.styles'
 import {HOME_STYLES} from '../constants/home.styles'
-import {Alert, BackHandler, View} from 'react-native'
+import {BackHandler, View} from 'react-native'
 import {BooksIcon} from './BooksIcon'
 import {MediaIcon} from './MediaIcon'
 import {GamesIcon} from './GamesIcon'
@@ -10,43 +10,13 @@ import {StatusBar} from './StatusBar'
 import {useContext, useEffect} from 'react'
 import {UserDataContext} from '../contexts/userDataContext'
 import {Login} from './Login'
-import {
-  deleteSelectedBooks,
-  deleteStorageBookData,
-  getStorageUserData,
-  setStorageUserData,
-} from '../services/storage.services'
-import {compareDates, getWeekOfYear} from '../utils/date.utils'
 import {useNavigation} from '@react-navigation/native'
+import {useWipePeriodicContent} from '../hooks/useWipePeriodicContent'
 
 export const Home: React.FC = () => {
   const userDataContext = useContext(UserDataContext)
   const navigation = useNavigation()
-
-  // hook to handle dialy and weekly wipes
-  useEffect(() => {
-    const userData = getStorageUserData()
-
-    // if user opened app on a different day than previous, reset daily progress.
-    if (userData.lastOpenedAppDate) {
-      const currentDate: Date = new Date()
-      const lastDate: Date = new Date(userData.lastOpenedAppDate)
-
-      // execute daily wipe
-      if (compareDates(lastDate, currentDate)) {
-        deleteStorageBookData()
-      }
-
-      // execute weekly wipe
-      if (getWeekOfYear(lastDate) !== getWeekOfYear(currentDate)) {
-        deleteSelectedBooks()
-      }
-    }
-
-    // update last oppened date
-    userData.lastOpenedAppDate = new Date().toString()
-    setStorageUserData(userData)
-  }, [])
+  useWipePeriodicContent()
 
   // hook to handle back button press
   useEffect(() => {

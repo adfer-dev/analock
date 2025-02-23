@@ -6,6 +6,7 @@ INJECTED from /home/adferdev-lap/repos/analock/client/android/app/src/debug/Andr
 INJECTED from /home/adferdev-lap/repos/analock/client/android/app/src/debug/AndroidManifest.xml:2:1-9:12
 INJECTED from /home/adferdev-lap/repos/analock/client/android/app/src/debug/AndroidManifest.xml:2:1-9:12
 MERGED from [:react-native-google-signin_google-signin] /home/adferdev-lap/repos/analock/client/node_modules/@react-native-google-signin/google-signin/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
+MERGED from [:react-native-gesture-handler] /home/adferdev-lap/repos/analock/client/node_modules/react-native-gesture-handler/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
 MERGED from [:react-native-safe-area-context] /home/adferdev-lap/repos/analock/client/node_modules/react-native-safe-area-context/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
 MERGED from [:react-native-screens] /home/adferdev-lap/repos/analock/client/node_modules/react-native-screens/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-7:12
 MERGED from [:react-native-fs] /home/adferdev-lap/repos/analock/client/node_modules/react-native-fs/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-9:12
@@ -186,6 +187,8 @@ INJECTED from /home/adferdev-lap/repos/analock/client/android/app/src/debug/Andr
 INJECTED from /home/adferdev-lap/repos/analock/client/android/app/src/debug/AndroidManifest.xml
 MERGED from [:react-native-google-signin_google-signin] /home/adferdev-lap/repos/analock/client/node_modules/@react-native-google-signin/google-signin/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:5:5-44
 MERGED from [:react-native-google-signin_google-signin] /home/adferdev-lap/repos/analock/client/node_modules/@react-native-google-signin/google-signin/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:5:5-44
+MERGED from [:react-native-gesture-handler] /home/adferdev-lap/repos/analock/client/node_modules/react-native-gesture-handler/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:5:5-44
+MERGED from [:react-native-gesture-handler] /home/adferdev-lap/repos/analock/client/node_modules/react-native-gesture-handler/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:5:5-44
 MERGED from [:react-native-safe-area-context] /home/adferdev-lap/repos/analock/client/node_modules/react-native-safe-area-context/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:5:5-44
 MERGED from [:react-native-safe-area-context] /home/adferdev-lap/repos/analock/client/node_modules/react-native-safe-area-context/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:5:5-44
 MERGED from [:react-native-screens] /home/adferdev-lap/repos/analock/client/node_modules/react-native-screens/android/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:5:5-44

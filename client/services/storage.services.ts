@@ -1,9 +1,15 @@
 import {MMKV, Mode} from 'react-native-mmkv'
 import {APP_DOCUMENTS_PATH} from './download.services'
 import {REACT_APP_LOCAL_STORAGE_KEY} from '@env'
-import {GamesData} from '../types/game'
+import {GamesData, TTFEGameData} from '../types/game'
+import {SudokuGrid} from '../components/Sudoku'
 
-export type StorageData = GamesData | StorageBook | StorageBookData | UserData
+export type StorageData =
+  | SudokuGrid
+  | TTFEGameData
+  | StorageBook
+  | StorageBookData
+  | UserData
 
 const storageInstance = new MMKV({
   id: `analock-storage`,
@@ -172,4 +178,31 @@ export function getStorageGamesData(): GamesData | undefined {
 
 export function setStorageGamesData(gameData: GamesData): void {
   storageInstance.set(GAMES_DATA_STORAGE_KEY, JSON.stringify(gameData))
+}
+
+export function saveStorageGamesSudoku(sudokuGrid: SudokuGrid) {
+  const currentGameData = getStorageGamesData()
+
+  if (currentGameData) {
+    currentGameData.sudokuGrid = sudokuGrid
+    setStorageGamesData(currentGameData)
+  } else {
+    setStorageGamesData({sudokuGrid: sudokuGrid})
+  }
+}
+
+export function saveStorageGamesTTFE(ttfeGameData: TTFEGameData) {
+  const currentGameData = getStorageGamesData()
+
+  if (currentGameData?.ttfeGameData) {
+    currentGameData.ttfeGameData.ttfeBoard = ttfeGameData.ttfeBoard
+    currentGameData.ttfeGameData.ttfeScore = ttfeGameData.ttfeScore
+    setStorageGamesData(currentGameData)
+  } else {
+    setStorageGamesData({ttfeGameData: ttfeGameData})
+  }
+}
+
+export function deleteStorageGamesData(): void {
+  storageInstance.delete(GAMES_DATA_STORAGE_KEY)
 }

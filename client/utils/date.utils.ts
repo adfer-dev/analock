@@ -5,11 +5,11 @@
  * @param date2 the second date to compare
  * @returns a boolean indicating whether dates are equal
  */
-export function compareDates(date1: Date, date2: Date): boolean {
+export function areDatesEqual(date1: Date, date2: Date): boolean {
   return (
-    date1.getDay() !== date2.getDay() &&
-    date1.getMonth() !== date2.getMonth() &&
-    date1.getFullYear() !== date2.getFullYear()
+    date1.getDay() === date2.getDay() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getFullYear() === date2.getFullYear()
   )
 }
 
