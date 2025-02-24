@@ -20,7 +20,7 @@ const (
 		" PRIMARY KEY (`id`), UNIQUE (`provider_client_id`)," +
 		" CONSTRAINT `fk_users_external_login` FOREIGN KEY (`user_id`)" +
 		" REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE);"
-	createActivityEntryTableQuery = "CREATE TABLE IF NOT EXISTS `diary_entry` (`id` integer,`content` text, `user_id` text," +
+	createDiaryEntryTableQuery = "CREATE TABLE IF NOT EXISTS `diary_entry` (`id` integer, `title` text, `content` text, `publishDate` integer, `user_id` text," +
 		" PRIMARY KEY (`id`)," +
 		"CONSTRAINT `fk_users_activity_entry` FOREIGN KEY (`user_id`)" +
 		" REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE);"
@@ -65,7 +65,7 @@ func initDatabase() {
 	createTableQueryMap["user"] = createUsersTableQuery
 	createTableQueryMap["token"] = createTokensTableQuery
 	createTableQueryMap["external_login"] = createExternalLoginTableQuery
-	createTableQueryMap["activity_entry"] = createActivityEntryTableQuery
+	createTableQueryMap["activity_entry"] = createDiaryEntryTableQuery
 
 	for tableName, query := range createTableQueryMap {
 		_, createTableErr := connectionInstance.GetConnection().Exec(query)
