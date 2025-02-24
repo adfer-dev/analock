@@ -5,11 +5,19 @@ import (
 	"github.com/adfer-dev/analock-api/storage"
 )
 
-var diaryEntryStorage storage.Storage = &storage.DiaryEntryStorage{}
+var diaryEntryStorage = &storage.DiaryEntryStorage{}
 
-type DiaryEntryBody struct {
-	Content   string `json:"content" validate:"required"`
-	UserRefer uint   `json:"user_id" validate:"required"`
+type SaveDiaryEntryBody struct {
+	Title       string `json:"title" validate:"required"`
+	Content     string `json:"content" validate:"required"`
+	PublishDate int64  `json:"publishDate" validate:"required"`
+	UserRefer   uint   `json:"user_id" validate:"required"`
+}
+
+type UpdateDiaryEntryBody struct {
+	Title       string `json:"title" validate:"required"`
+	Content     string `json:"content" validate:"required"`
+	PublishDate int64  `json:"publishDate" validate:"required"`
 }
 
 func GetDiaryEntryById(id uint) (*models.DiaryEntry, error) {
@@ -22,9 +30,21 @@ func GetDiaryEntryById(id uint) (*models.DiaryEntry, error) {
 	return diaryEntry.(*models.DiaryEntry), nil
 }
 
-func SaveDiaryEntry(diaryEntryBody *DiaryEntryBody) (*models.DiaryEntry, error) {
+func GetUserEntries(userId uint) ([]*models.DiaryEntry, error) {
+	diaryEntry, err := diaryEntryStorage.GetByUserId(userId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return diaryEntry.([]*models.DiaryEntry), nil
+}
+
+func SaveDiaryEntry(diaryEntryBody *SaveDiaryEntryBody) (*models.DiaryEntry, error) {
 	dbEntry := &models.DiaryEntry{
+		Title:     diaryEntryBody.Title,
 		Content:   diaryEntryBody.Content,
+		Date:      diaryEntryBody.PublishDate,
 		UserRefer: diaryEntryBody.UserRefer,
 	}
 	err := diaryEntryStorage.Create(dbEntry)
@@ -36,14 +56,20 @@ func SaveDiaryEntry(diaryEntryBody *DiaryEntryBody) (*models.DiaryEntry, error) 
 	return dbEntry, nil
 }
 
-func UpdateDiaryEntry(diaryEntryBody *models.DiaryEntry) (*models.DiaryEntry, error) {
-	err := diaryEntryStorage.Update(diaryEntryBody)
+func UpdateDiaryEntry(diaryEntryId uint, diaryEntryBody *UpdateDiaryEntryBody) (*models.DiaryEntry, error) {
+	dbEntry := &models.DiaryEntry{
+		Id:      diaryEntryId,
+		Title:   diaryEntryBody.Title,
+		Content: diaryEntryBody.Content,
+		Date:    diaryEntryBody.PublishDate,
+	}
+	err := diaryEntryStorage.Update(dbEntry)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return diaryEntryBody, nil
+	return dbEntry, nil
 }
 
 func DeleteDiaryEntry(id uint) error {
