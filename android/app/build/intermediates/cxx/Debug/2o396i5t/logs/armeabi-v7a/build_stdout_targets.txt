@@ -1,0 +1,3 @@
+ninja: Entering directory `/home/adferdev-lap/repos/analock/android/app/.cxx/Debug/2o396i5t/armeabi-v7a'
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
