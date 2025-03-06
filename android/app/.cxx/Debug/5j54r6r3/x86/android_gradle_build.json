@@ -1,0 +1,263 @@
+{
+  "buildFiles": [
+    "/home/adferdev-lap/repos/analock/client/node_modules/@react-native-google-signin/google-signin/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/home/adferdev-lap/repos/analock/client/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/home/adferdev-lap/repos/analock/client/node_modules/react-native-mmkv/MMKV/Core/CMakeLists.txt",
+    "/home/adferdev-lap/repos/analock/client/node_modules/react-native-mmkv/android/CMakeLists.txt",
+    "/home/adferdev-lap/repos/analock/client/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/home/adferdev-lap/repos/analock/client/node_modules/react-native-safe-area-context/android/src/main/jni/CMakeLists.txt",
+    "/home/adferdev-lap/repos/analock/client/node_modules/react-native-screens/android/src/main/jni/CMakeLists.txt",
+    "/home/adferdev-lap/repos/analock/client/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt",
+    "/home/adferdev-lap/repos/analock/client/node_modules/react-native/ReactAndroid/cmake-utils/default-app-setup/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/adferdev-lap/Android/Sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/home/adferdev-lap/repos/analock/client/android/app/.cxx/Debug/5j54r6r3/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/adferdev-lap/Android/Sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/home/adferdev-lap/repos/analock/client/android/app/.cxx/Debug/5j54r6r3/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "appmodules::@6890427a1f51a3e7e1df": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "appmodules",
+      "output": "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libappmodules.so",
+      "runtimeFiles": [
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/fabricjni/libs/android.x86/libfabricjni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/mapbufferjni/libs/android.x86/libmapbufferjni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_newarchdefaults/libs/android.x86/libreact_newarchdefaults.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_textinput/libs/android.x86/librrc_textinput.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_legacyviewmanagerinterop/libs/android.x86/librrc_legacyviewmanagerinterop.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/runtimeexecutor/libs/android.x86/libruntimeexecutor.so",
+        "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact_codegen_RNGoogleSignInCGen.so",
+        "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact_codegen_rngesturehandler_codegen.so",
+        "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact-native-mmkv.so",
+        "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact_codegen_safeareacontext.so",
+        "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact_codegen_rnscreens.so",
+        "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact_codegen_rnsvg.so",
+        "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact_codegen_RNMmkvSpec.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/fb92af41f860783fe60d03c1e1dbd7ef/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.x86/libfbjni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/folly_runtime/libs/android.x86/libfolly_runtime.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/glog/libs/android.x86/libglog.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/jsi/libs/android.x86/libjsi.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_codegen_rncore/libs/android.x86/libreact_codegen_rncore.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_debug/libs/android.x86/libreact_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_utils/libs/android.x86/libreact_utils.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_nativemodule_core/libs/android.x86/libreact_nativemodule_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_componentregistry/libs/android.x86/libreact_render_componentregistry.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_core/libs/android.x86/libreact_render_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_debug/libs/android.x86/libreact_render_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_graphics/libs/android.x86/libreact_render_graphics.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_imagemanager/libs/android.x86/libreact_render_imagemanager.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_mapbuffer/libs/android.x86/libreact_render_mapbuffer.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_image/libs/android.x86/librrc_image.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_view/libs/android.x86/librrc_view.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/turbomodulejsijni/libs/android.x86/libturbomodulejsijni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/yoga/libs/android.x86/libyoga.so"
+      ]
+    },
+    "core::@1b9a7d546b295b7d0867": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "core",
+      "output": "/home/adferdev-lap/repos/analock/client/android/app/.cxx/Debug/5j54r6r3/x86/RNMmkvSpec_cxxmodule_autolinked_build/core/libcore.a"
+    },
+    "react-native-mmkv::@4ae6a1e65d3e68ba0197": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "react-native-mmkv",
+      "output": "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact-native-mmkv.so",
+      "runtimeFiles": [
+        "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact_codegen_RNMmkvSpec.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/fb92af41f860783fe60d03c1e1dbd7ef/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.x86/libfbjni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/folly_runtime/libs/android.x86/libfolly_runtime.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/glog/libs/android.x86/libglog.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/jsi/libs/android.x86/libjsi.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_codegen_rncore/libs/android.x86/libreact_codegen_rncore.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_debug/libs/android.x86/libreact_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_nativemodule_core/libs/android.x86/libreact_nativemodule_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_componentregistry/libs/android.x86/libreact_render_componentregistry.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_core/libs/android.x86/libreact_render_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_debug/libs/android.x86/libreact_render_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_graphics/libs/android.x86/libreact_render_graphics.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_imagemanager/libs/android.x86/libreact_render_imagemanager.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_mapbuffer/libs/android.x86/libreact_render_mapbuffer.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_utils/libs/android.x86/libreact_utils.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_image/libs/android.x86/librrc_image.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_view/libs/android.x86/librrc_view.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/turbomodulejsijni/libs/android.x86/libturbomodulejsijni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/yoga/libs/android.x86/libyoga.so"
+      ]
+    },
+    "react_codegen_RNGoogleSignInCGen::@337b7b353bd94a4215c0": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "react_codegen_RNGoogleSignInCGen",
+      "output": "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact_codegen_RNGoogleSignInCGen.so",
+      "runtimeFiles": [
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/fb92af41f860783fe60d03c1e1dbd7ef/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.x86/libfbjni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/folly_runtime/libs/android.x86/libfolly_runtime.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/glog/libs/android.x86/libglog.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/jsi/libs/android.x86/libjsi.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_codegen_rncore/libs/android.x86/libreact_codegen_rncore.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_debug/libs/android.x86/libreact_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_nativemodule_core/libs/android.x86/libreact_nativemodule_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_componentregistry/libs/android.x86/libreact_render_componentregistry.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_core/libs/android.x86/libreact_render_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_debug/libs/android.x86/libreact_render_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_graphics/libs/android.x86/libreact_render_graphics.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_imagemanager/libs/android.x86/libreact_render_imagemanager.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_mapbuffer/libs/android.x86/libreact_render_mapbuffer.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_utils/libs/android.x86/libreact_utils.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_image/libs/android.x86/librrc_image.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_view/libs/android.x86/librrc_view.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/turbomodulejsijni/libs/android.x86/libturbomodulejsijni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/yoga/libs/android.x86/libyoga.so"
+      ]
+    },
+    "react_codegen_RNMmkvSpec::@7541eabbae598da31a69": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "react_codegen_RNMmkvSpec",
+      "output": "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact_codegen_RNMmkvSpec.so",
+      "runtimeFiles": [
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/fb92af41f860783fe60d03c1e1dbd7ef/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.x86/libfbjni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/folly_runtime/libs/android.x86/libfolly_runtime.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/glog/libs/android.x86/libglog.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/jsi/libs/android.x86/libjsi.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_codegen_rncore/libs/android.x86/libreact_codegen_rncore.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_debug/libs/android.x86/libreact_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_nativemodule_core/libs/android.x86/libreact_nativemodule_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_componentregistry/libs/android.x86/libreact_render_componentregistry.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_core/libs/android.x86/libreact_render_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_debug/libs/android.x86/libreact_render_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_graphics/libs/android.x86/libreact_render_graphics.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_imagemanager/libs/android.x86/libreact_render_imagemanager.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_mapbuffer/libs/android.x86/libreact_render_mapbuffer.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_utils/libs/android.x86/libreact_utils.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_image/libs/android.x86/librrc_image.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_view/libs/android.x86/librrc_view.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/turbomodulejsijni/libs/android.x86/libturbomodulejsijni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/yoga/libs/android.x86/libyoga.so"
+      ]
+    },
+    "react_codegen_rngesturehandler_codegen::@39f233abcd2c728bc6ec": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "react_codegen_rngesturehandler_codegen",
+      "output": "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact_codegen_rngesturehandler_codegen.so",
+      "runtimeFiles": [
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/fb92af41f860783fe60d03c1e1dbd7ef/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.x86/libfbjni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/folly_runtime/libs/android.x86/libfolly_runtime.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/glog/libs/android.x86/libglog.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/jsi/libs/android.x86/libjsi.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_codegen_rncore/libs/android.x86/libreact_codegen_rncore.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_debug/libs/android.x86/libreact_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_nativemodule_core/libs/android.x86/libreact_nativemodule_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_componentregistry/libs/android.x86/libreact_render_componentregistry.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_core/libs/android.x86/libreact_render_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_debug/libs/android.x86/libreact_render_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_graphics/libs/android.x86/libreact_render_graphics.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_imagemanager/libs/android.x86/libreact_render_imagemanager.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_mapbuffer/libs/android.x86/libreact_render_mapbuffer.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_utils/libs/android.x86/libreact_utils.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_image/libs/android.x86/librrc_image.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_view/libs/android.x86/librrc_view.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/turbomodulejsijni/libs/android.x86/libturbomodulejsijni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/yoga/libs/android.x86/libyoga.so"
+      ]
+    },
+    "react_codegen_rnscreens::@25bcbd507e98d3a854ad": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "react_codegen_rnscreens",
+      "output": "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact_codegen_rnscreens.so",
+      "runtimeFiles": [
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/fb92af41f860783fe60d03c1e1dbd7ef/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.x86/libfbjni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/folly_runtime/libs/android.x86/libfolly_runtime.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/glog/libs/android.x86/libglog.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/jsi/libs/android.x86/libjsi.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_codegen_rncore/libs/android.x86/libreact_codegen_rncore.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_debug/libs/android.x86/libreact_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_nativemodule_core/libs/android.x86/libreact_nativemodule_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_core/libs/android.x86/libreact_render_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_debug/libs/android.x86/libreact_render_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_graphics/libs/android.x86/libreact_render_graphics.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_mapbuffer/libs/android.x86/libreact_render_mapbuffer.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_componentregistry/libs/android.x86/libreact_render_componentregistry.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_utils/libs/android.x86/libreact_utils.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_view/libs/android.x86/librrc_view.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/turbomodulejsijni/libs/android.x86/libturbomodulejsijni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/yoga/libs/android.x86/libyoga.so"
+      ]
+    },
+    "react_codegen_rnsvg::@4f40eb209d0c0b4a3b65": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "react_codegen_rnsvg",
+      "output": "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact_codegen_rnsvg.so",
+      "runtimeFiles": [
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/fb92af41f860783fe60d03c1e1dbd7ef/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.x86/libfbjni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/folly_runtime/libs/android.x86/libfolly_runtime.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/glog/libs/android.x86/libglog.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/jsi/libs/android.x86/libjsi.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_codegen_rncore/libs/android.x86/libreact_codegen_rncore.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_debug/libs/android.x86/libreact_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_nativemodule_core/libs/android.x86/libreact_nativemodule_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_core/libs/android.x86/libreact_render_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_debug/libs/android.x86/libreact_render_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_graphics/libs/android.x86/libreact_render_graphics.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_mapbuffer/libs/android.x86/libreact_render_mapbuffer.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_image/libs/android.x86/librrc_image.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_componentregistry/libs/android.x86/libreact_render_componentregistry.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_view/libs/android.x86/librrc_view.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/turbomodulejsijni/libs/android.x86/libturbomodulejsijni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/yoga/libs/android.x86/libyoga.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_imagemanager/libs/android.x86/libreact_render_imagemanager.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_utils/libs/android.x86/libreact_utils.so"
+      ]
+    },
+    "react_codegen_safeareacontext::@7984cd80db47aa7b952a": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "react_codegen_safeareacontext",
+      "output": "/home/adferdev-lap/repos/analock/client/android/app/build/intermediates/cxx/Debug/5j54r6r3/obj/x86/libreact_codegen_safeareacontext.so",
+      "runtimeFiles": [
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/fb92af41f860783fe60d03c1e1dbd7ef/transformed/fbjni-0.6.0/prefab/modules/fbjni/libs/android.x86/libfbjni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/folly_runtime/libs/android.x86/libfolly_runtime.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/glog/libs/android.x86/libglog.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/jsi/libs/android.x86/libjsi.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_codegen_rncore/libs/android.x86/libreact_codegen_rncore.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_debug/libs/android.x86/libreact_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_nativemodule_core/libs/android.x86/libreact_nativemodule_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_core/libs/android.x86/libreact_render_core.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_debug/libs/android.x86/libreact_render_debug.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_graphics/libs/android.x86/libreact_render_graphics.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_mapbuffer/libs/android.x86/libreact_render_mapbuffer.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_render_componentregistry/libs/android.x86/libreact_render_componentregistry.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/react_utils/libs/android.x86/libreact_utils.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/rrc_view/libs/android.x86/librrc_view.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/turbomodulejsijni/libs/android.x86/libturbomodulejsijni.so",
+        "/home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab/modules/yoga/libs/android.x86/libyoga.so"
+      ]
+    }
+  },
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/home/adferdev-lap/Android/Sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/linux-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/home/adferdev-lap/Android/Sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}
