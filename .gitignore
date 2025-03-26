@@ -4,3 +4,4 @@
 node_modules
 android/app/build
 .idea
+.cxx
