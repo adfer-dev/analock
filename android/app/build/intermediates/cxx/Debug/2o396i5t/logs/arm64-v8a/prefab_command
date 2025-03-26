@@ -15,7 +15,7 @@
   --ndk-version \
   26 \
   --output \
-  /tmp/agp-prefab-staging5073510011459997743/staged-cli-output \
+  /tmp/agp-prefab-staging10203194399967285863/staged-cli-output \
   /home/adferdev-lap/.gradle/caches/8.8/transforms/1f00369f60fb558f4c67464032b9f89f/transformed/react-android-0.75.4-debug/prefab \
   /home/adferdev-lap/.gradle/caches/8.8/transforms/515a483ddc10df7764635ab8f497d657/transformed/hermes-android-0.75.4-debug/prefab \
   /home/adferdev-lap/.gradle/caches/8.8/transforms/fb92af41f860783fe60d03c1e1dbd7ef/transformed/fbjni-0.6.0/prefab
