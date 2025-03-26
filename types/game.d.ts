@@ -1,12 +1,12 @@
-import {TTFEBoard} from '../components/2048Game'
-import {SudokuGrid} from '../components/Sudoku'
+import { TTFEBoard } from "../components/2048Game";
+import { SudokuGrid } from "../components/Sudoku";
 
 interface GamesData {
-  sudokuGrid?: SudokuGrid
-  ttfeGameData?: TTFEGameData
+  sudokuGrid?: SudokuGrid;
+  ttfeGameData?: TTFEGameData;
 }
 
 interface TTFEGameData {
-  ttfeBoard: TTFEBoard
-  ttfeScore: number
+  ttfeBoard: TTFEBoard;
+  ttfeScore: number;
 }
