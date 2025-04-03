@@ -1,9 +1,16 @@
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Button, View } from "react-native";
-import { registerUser } from "../services/auth.services";
+import { authenticateUser } from "../services/auth.services";
+import {
+  getStorageUserData,
+  setStorageAuthData,
+  setStorageUserData,
+} from "../services/storage.services";
+import { setAccessToken } from "../constants/auth.constants";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { useContext } from "react";
 import { UserDataContext } from "../contexts/userDataContext";
+import { getUserByEmail } from "../services/user.services";
 
 export const Login: React.FC = () => {
   const userDataContext = useContext(UserDataContext);
@@ -13,7 +20,7 @@ export const Login: React.FC = () => {
         title={"Sign in with Google"}
         onPress={() => {
           GoogleSignin.configure({
-            webClientId: process.env.REACT_APP_GOOGLE_WEB_CLIENT_ID,
+            webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
             offlineAccess: true,
             scopes: ["email"],
           });
@@ -23,19 +30,34 @@ export const Login: React.FC = () => {
                 GoogleSignin.signIn()
                   .then((userInfo) => {
                     if (userInfo.data != null) {
-                      const registerUserRequest: RegisterUserRequest = {
+                      const registerUserRequest: AuthenticateUserRequest = {
+                        email: userInfo.data.user.email,
                         username: userInfo.data.user.givenName as string,
                         providerId: userInfo.data.user.id as string,
                         providerToken: userInfo.data.idToken as string,
                       };
-                      registerUser(registerUserRequest)
+                      authenticateUser(registerUserRequest)
                         .then((response) => {
-                          userDataContext?.setUserData({
-                            userId: registerUserRequest.providerId,
-                            idToken: registerUserRequest.providerToken,
-                            authenticated: true,
-                          });
-                          console.log(response);
+                          // get user by email and save user's id on storage'
+                          getUserByEmail(registerUserRequest.email)
+                            .then((user) => {
+                              console.log(user);
+                              const savedUserData = getStorageUserData();
+                              savedUserData.userId = user!.id;
+                              savedUserData.authenticated = true;
+                              setStorageUserData(savedUserData);
+                              userDataContext?.setUserData(savedUserData);
+                            })
+                            .catch((err) => {
+                              console.error(err);
+                            });
+                          // save refresh token on storage
+                          const authData: StorageAuthData = {
+                            refreshToken: response!.refreshToken,
+                          };
+                          setStorageAuthData(authData);
+                          // set local access token variable
+                          setAccessToken(response!.accessToken);
                         })
                         .catch((err) => console.error(err));
                     }

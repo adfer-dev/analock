@@ -5,8 +5,13 @@ import { useUserDiaryEntries } from "../hooks/useUserDiaryEntries";
 import { BaseScreen } from "./BaseScreen";
 import { ScrollView, Text, TextInput, TouchableOpacity } from "react-native";
 import { CustomModal } from "./CustomModal";
-import { addUserDiaryEntry } from "../services/diaryEntries.services";
-import { emptyDateTime } from "../utils/date.utils";
+import {
+  addUserDiaryEntry,
+  updateUserDiaryEntry,
+} from "../services/diaryEntries.services";
+import { areDatesEqual, emptyDateTime } from "../utils/date.utils";
+import { getStorageUserData } from "../services/storage.services";
+import { timestampToDate } from "../utils/date.utils";
 
 const DiaryScreen = () => {
   const DiaryEntriesStack = createNativeStackNavigator();
@@ -22,20 +27,50 @@ const DiaryScreen = () => {
 };
 
 const DiaryEntries: React.FC = () => {
-  const userDiaryEntries = useUserDiaryEntries(1);
+  const userData = getStorageUserData();
+  const { userDiaryEntries, setUserDiaryEntries } = useUserDiaryEntries(
+    userData.userId,
+  );
   const [showAddDiaryEntryModal, setShowAddDiaryEntryModal] =
     useState<boolean>(false);
   const [titleInput, setTitleInput] = useState<string>("");
   const [contentInput, setContentInput] = useState<string>("");
+  const [isUpdate, setIsUpdate] = useState<boolean>(false);
+  const [selectedDiaryEntry, setSelectedDiaryEntry] = useState<DiaryEntry>();
+
   return (
     <BaseScreen navTitle="Diary">
-      <TouchableOpacity onPress={() => setShowAddDiaryEntryModal(true)}>
+      <TouchableOpacity
+        disabled={
+          userDiaryEntries?.find((diaryEntry) =>
+            areDatesEqual(
+              timestampToDate(diaryEntry.registration.registrationDate),
+              new Date(),
+            ),
+          ) !== undefined
+        }
+        onPress={() => {
+          setIsUpdate(false);
+          setShowAddDiaryEntryModal(true);
+        }}
+      >
         <Text>Add</Text>
       </TouchableOpacity>
       <ScrollView>
         {userDiaryEntries &&
           userDiaryEntries.map((diaryEntry) => (
-            <Text key={diaryEntry.id}>{diaryEntry.title}</Text>
+            <TouchableOpacity
+              key={diaryEntry.id}
+              onPress={() => {
+                setSelectedDiaryEntry(diaryEntry);
+                setTitleInput(diaryEntry.title);
+                setContentInput(diaryEntry.content);
+                setIsUpdate(true);
+                setShowAddDiaryEntryModal(true);
+              }}
+            >
+              <Text>{diaryEntry.title}</Text>
+            </TouchableOpacity>
           ))}
       </ScrollView>
       <CustomModal
@@ -43,35 +78,98 @@ const DiaryEntries: React.FC = () => {
         onRequestCloseHandler={() => setShowAddDiaryEntryModal(false)}
       >
         <TextInput
-          placeholder="Title"
+          placeholder={"Title"}
+          defaultValue={!isUpdate ? "" : selectedDiaryEntry!.title}
           onChange={(event) => setTitleInput(event.nativeEvent.text)}
+          editable={
+            !isUpdate ||
+            (isUpdate &&
+              areDatesEqual(
+                new Date(),
+                timestampToDate(
+                  selectedDiaryEntry!.registration.registrationDate,
+                ),
+              ))
+          }
         />
         <TextInput
-          placeholder="Content"
+          placeholder={"Content"}
+          defaultValue={!isUpdate ? "" : selectedDiaryEntry!.content}
           onChange={(event) => setContentInput(event.nativeEvent.text)}
+          editable={
+            !isUpdate ||
+            (isUpdate &&
+              areDatesEqual(
+                new Date(),
+                timestampToDate(
+                  selectedDiaryEntry!.registration.registrationDate,
+                ),
+              ))
+          }
         />
+        <>
+          {isUpdate &&
+            selectedDiaryEntry &&
+            areDatesEqual(
+              new Date(),
+              timestampToDate(selectedDiaryEntry.registration.registrationDate),
+            ) && (
+              <TouchableOpacity
+                onPress={() => {
+                  const currentDate = new Date();
+                  emptyDateTime(currentDate);
 
-        <TouchableOpacity
-          onPress={() => {
-            const currentDate = new Date();
-            emptyDateTime(currentDate);
-            const diaryEntry: AddDiaryEntryRequest = {
-              title: titleInput,
-              content: contentInput,
-              publishDate: currentDate.valueOf(),
-              user_id: 1,
-            };
-            addUserDiaryEntry(diaryEntry)
-              .then((savedEntry) => {
-                console.log(savedEntry);
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          }}
-        >
-          <Text>Save</Text>
-        </TouchableOpacity>
+                  if (!isUpdate) {
+                    const diaryEntry: AddDiaryEntryRequest = {
+                      title: titleInput,
+                      content: contentInput,
+                      publishDate: currentDate.valueOf(),
+                      userId: userData.userId,
+                    };
+                    addUserDiaryEntry(diaryEntry)
+                      .then((savedEntry) => {
+                        if (savedEntry) {
+                          const diaryEntries = [
+                            ...userDiaryEntries,
+                            savedEntry,
+                          ];
+                          setUserDiaryEntries(diaryEntries);
+                        }
+                      })
+                      .catch((err) => {
+                        console.log(err);
+                      });
+                  } else {
+                    const diaryEntry: UpdateDiaryEntryRequest = {
+                      title: titleInput,
+                      content: contentInput,
+                      publishDate: currentDate.valueOf(),
+                    };
+                    updateUserDiaryEntry(selectedDiaryEntry.id, diaryEntry)
+                      .then((updatedEntry) => {
+                        if (updatedEntry) {
+                          const diaryEntries = [...userDiaryEntries];
+                          const indexToBeUpdated = diaryEntries.findIndex(
+                            (diaryEntry) => diaryEntry.id === updatedEntry.id,
+                          );
+                          diaryEntries[indexToBeUpdated] = updatedEntry;
+                          setUserDiaryEntries(diaryEntries);
+                        }
+                      })
+                      .catch((err) => console.error(err));
+                  }
+                  setShowAddDiaryEntryModal(false);
+                }}
+                disabled={
+                  isUpdate &&
+                  selectedDiaryEntry.title === titleInput &&
+                  selectedDiaryEntry.content === contentInput
+                }
+              >
+                <Text>Save</Text>
+              </TouchableOpacity>
+            )}
+        </>
       </CustomModal>
     </BaseScreen>
   );

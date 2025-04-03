@@ -1,5 +1,5 @@
-import axios from "axios";
 import { getIntervalUserDiaryEntries } from "./diaryEntries.services";
+import { AXIOS_INSTANCE } from "./interceptors";
 
 export type ActivityRegistration =
   | BookRegistration
@@ -18,10 +18,10 @@ async function getUserBookRegistrations(
   startDate: number,
   endDate: number,
 ): Promise<BookRegistration[]> {
-  const requestUrl = `http://localhost:3000/api/v1/activityRegistrations/books/user/${userId}?start_date=${startDate}&end_date=${endDate}`;
+  const requestUrl = `${process.env.API_ROOT_URL}api/v1/activityRegistrations/books/user/${userId}?start_date=${startDate}&end_date=${endDate}`;
   let registrations: BookRegistration[] = [];
   try {
-    const response = await axios.get(requestUrl);
+    const response = await AXIOS_INSTANCE.get(requestUrl);
 
     if (response.status === 200) {
       registrations = response.data as BookRegistration[];
@@ -45,10 +45,10 @@ async function getUserGameRegistrations(
   startDate: number,
   endDate: number,
 ): Promise<GameRegistration[]> {
-  const requestUrl = `http://localhost:3000/api/v1/activityRegistrations/games/user/${userId}?start_date=${startDate}&end_date=${endDate}`;
+  const requestUrl = `${process.env.API_ROOT_URL}api/v1/activityRegistrations/games/user/${userId}?start_date=${startDate}&end_date=${endDate}`;
   let registrations: GameRegistration[] = [];
   try {
-    const response = await axios.get(requestUrl);
+    const response = await AXIOS_INSTANCE.get(requestUrl);
 
     if (response.status === 200) {
       registrations = response.data as GameRegistration[];
@@ -107,10 +107,10 @@ export async function getUserRegistrations(
 export async function addUserBookRegistration(
   request: AddBookRegistrationRequest,
 ): Promise<void> {
-  const requestUrl = "http://localhost:3000/api/v1/activityRegistrations/books";
+  const requestUrl = `${process.env.API_ROOT_URL}api/v1/activityRegistrations/books`;
 
   try {
-    const response = await axios.post(requestUrl, request);
+    const response = await AXIOS_INSTANCE.post(requestUrl, request);
 
     if (response.status !== 200) {
       console.error(response.data);
@@ -123,10 +123,10 @@ export async function addUserBookRegistration(
 export async function addUserGameRegistration(
   request: AddGameRegistrationRequest,
 ): Promise<void> {
-  const requestUrl = "http://localhost:3000/api/v1/activityRegistrations/games";
+  const requestUrl = `${process.env.API_ROOT_URL}api/v1/activityRegistrations/games`;
 
   try {
-    const response = await axios.post(requestUrl, request);
+    const response = await AXIOS_INSTANCE.post(requestUrl, request);
 
     if (response.status !== 200) {
       console.error(response.data);

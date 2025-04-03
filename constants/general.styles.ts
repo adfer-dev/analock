@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native'
+import { StyleSheet } from "react-native";
 
 export const GENERAL_STYLES = StyleSheet.create({
   generalPadding: {
@@ -9,10 +9,10 @@ export const GENERAL_STYLES = StyleSheet.create({
     paddingHorizontal: 20,
   },
   flexCol: {
-    flexDirection: 'column',
+    flexDirection: "column",
   },
   flexRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   flexGap: {
     gap: 10,
@@ -24,20 +24,20 @@ export const GENERAL_STYLES = StyleSheet.create({
     fontSize: 22,
   },
   alignCenter: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   textCenter: {
-    textAlign: 'center',
-    justifyContent: 'center',
+    textAlign: "center",
+    justifyContent: "center",
   },
   navBar: {
     marginBottom: 10,
     paddingHorizontal: 20,
-    height: '20%',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    height: "20%",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   navBarRigth: {
     flexGrow: 0.1,
   },
-})
+});

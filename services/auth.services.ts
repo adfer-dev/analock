@@ -1,32 +1,43 @@
-import {LOCAL_API_URL} from '../constants/consts'
-import {AXIOS_INSTANCE} from './interceptors'
+import { AXIOS_INSTANCE } from "./interceptors";
+import { getStorageAuthData } from "./storage.services";
 
-export async function registerUser(
-  registerUserRequest: RegisterUserRequest,
+export async function authenticateUser(
+  registerUserRequest: AuthenticateUserRequest,
 ): Promise<AuthResponse | null> {
-  let response = null
+  let response = null;
 
   const registerResponse = await AXIOS_INSTANCE.post(
-    `${LOCAL_API_URL}api/v1/auth/register`,
+    `${process.env.API_ROOT_URL}api/v1/auth/authenticate`,
     registerUserRequest,
-  )
+  );
 
   if (registerResponse.status != 200) {
-    console.error(`error ${registerResponse.status}: ${registerResponse.data}`)
+    console.error(`error ${registerResponse.status}: ${registerResponse.data}`);
   }
 
-  response = registerResponse.data as AuthResponse
+  response = registerResponse.data as AuthResponse;
 
-  return response
+  return response;
 }
 
-export async function refreshToken(): Promise<AuthResponse | undefined> {
-  const response: {data: AuthResponse | APIError; status: number} =
-    await AXIOS_INSTANCE.get(`${LOCAL_API_URL}/auth/refresh-token`)
+export async function refreshToken(): Promise<
+  RefreshTokenResponse | undefined
+> {
+  const refreshToken = getStorageAuthData()?.refreshToken;
 
-  if (response.status !== 200) {
-    const error = response.data as APIError
-    throw new Error(error.description)
+  if (refreshToken) {
+    const response: { data: RefreshTokenResponse | APIError; status: number } =
+      await AXIOS_INSTANCE.post(
+        `${process.env.API_ROOT_URL}api/v1/auth/refreshToken`,
+        {
+          refreshToken,
+        },
+      );
+
+    if (response.status !== 200) {
+      const error = response.data as APIError;
+      throw new Error(error.description);
+    }
+    return response.data as RefreshTokenResponse;
   }
-  return response.data as AuthResponse
 }

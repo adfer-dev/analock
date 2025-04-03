@@ -13,16 +13,18 @@ export type StorageData =
 const storageInstance = new MMKV({
   id: `analock-storage`,
   path: APP_DOCUMENTS_PATH,
-  encryptionKey: process.env.REACT_APP_LOCAL_STORAGE_KEY,
+  encryptionKey: process.env.LOCAL_STORAGE_KEY,
   mode: Mode.SINGLE_PROCESS,
 });
 
 const USER_DATA_STORAGE_KEY = "userData";
+const AUTH_DATA_STORAGE_KEY = "authData";
 const BOOKS_DATA_STORAGE_KEY = "bookData";
 const BOOKS_STORAGE_KEY = "books";
 const GAMES_DATA_STORAGE_KEY = "gameData";
 const DEFAULT_USER_DATA: UserData = {
-  authenticated: true,
+  userId: -1,
+  authenticated: false,
 };
 
 // USER DATA FUNCTIONS
@@ -54,6 +56,33 @@ export function getStorageUserData(): UserData {
  */
 export function setStorageUserData(userData: UserData): void {
   storageInstance.set(USER_DATA_STORAGE_KEY, JSON.stringify(userData));
+}
+
+// AUTH DATA FUNCTIONS
+
+/**
+ * Gets authentication data from storage.
+ *
+ * @returns the stored authentication data
+ */
+export function getStorageAuthData(): StorageAuthData | undefined {
+  let authData: StorageAuthData | undefined;
+  const authDataString = storageInstance.getString(AUTH_DATA_STORAGE_KEY);
+
+  if (authDataString !== undefined) {
+    authData = JSON.parse(authDataString) as StorageAuthData;
+  }
+
+  return authData;
+}
+
+/**
+ * Sets the value of the locally stored authentication data.
+ *
+ * @param authData the authentication data to be stored
+ */
+export function setStorageAuthData(authData: StorageAuthData): void {
+  storageInstance.set(AUTH_DATA_STORAGE_KEY, JSON.stringify(authData));
 }
 
 // SELECTED BOOKS FUNCTIONS

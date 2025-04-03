@@ -3,6 +3,30 @@
   "reactNativePath": "/home/adferdev-lap/repos/analock/node_modules/react-native",
   "reactNativeVersion": "0.75",
   "dependencies": {
+    "@react-native-cookies/cookies": {
+      "root": "/home/adferdev-lap/repos/analock/node_modules/@react-native-cookies/cookies",
+      "name": "@react-native-cookies/cookies",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/home/adferdev-lap/repos/analock/node_modules/@react-native-cookies/cookies/react-native-cookies.podspec",
+          "version": "6.2.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/home/adferdev-lap/repos/analock/node_modules/@react-native-cookies/cookies/android",
+          "packageImportPath": "import com.reactnativecommunity.cookies.CookieManagerPackage;",
+          "packageInstance": "new CookieManagerPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/home/adferdev-lap/repos/analock/node_modules/@react-native-cookies/cookies/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
     "@react-native-google-signin/google-signin": {
       "root": "/home/adferdev-lap/repos/analock/node_modules/@react-native-google-signin/google-signin",
       "name": "@react-native-google-signin/google-signin",

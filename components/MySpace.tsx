@@ -12,8 +12,10 @@ import {
   timestampToDate,
   dateToDateData,
   getMarkedDateFormatFromDate,
+  emptyDateTime,
 } from "../utils/date.utils";
 import { getBookMetadata } from "../services/books.services";
+import { getStorageUserData } from "../services/storage.services";
 
 const MySpaceScreen = () => {
   const MySpaceStack = createNativeStackNavigator();
@@ -36,6 +38,7 @@ interface ShownObject {
 }
 
 function MySpace() {
+  const userData = getStorageUserData();
   const books: Dot = { key: "book", color: "red", selectedDotColor: "blue" };
   const games: Dot = { key: "game", color: "blue", selectedDotColor: "blue" };
   const diaryEntries = {
@@ -116,7 +119,11 @@ function MySpace() {
     }
     const updatedMarkedDates: MarkedDates = { ...markedDates };
 
-    getUserRegistrations(1, startDate.valueOf(), endDate.valueOf())
+    getUserRegistrations(
+      userData.userId,
+      startDate.valueOf(),
+      endDate.valueOf(),
+    )
       .then((userRegistrations) => {
         for (const userRegistration of userRegistrations) {
           const registrationDate = new Date(
@@ -151,6 +158,7 @@ function MySpace() {
         }}
         onDayPress={(dateData) => {
           const selectedDate = timestampToDate(dateData.timestamp);
+          emptyDateTime(selectedDate);
           const selectedMarkedDate =
             markedDates[getMarkedDateFormatFromDate(selectedDate)];
 

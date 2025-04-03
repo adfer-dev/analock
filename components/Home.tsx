@@ -12,6 +12,8 @@ import { UserDataContext } from "../contexts/userDataContext";
 import { Login } from "./Login";
 import { useNavigation } from "@react-navigation/native";
 import { useWipePeriodicContent } from "../hooks/useWipePeriodicContent";
+import { getStorageUserData } from "../services/storage.services";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 export const Home: React.FC = () => {
   const userDataContext = useContext(UserDataContext);
@@ -38,8 +40,8 @@ export const Home: React.FC = () => {
   }, []);
 
   return (
-    userDataContext?.userData &&
-    (userDataContext.userData.authenticated ? (
+    getStorageUserData() &&
+    (getStorageUserData().authenticated ? (
       <View
         style={[
           GENERAL_STYLES.generalPadding,
@@ -49,11 +51,11 @@ export const Home: React.FC = () => {
       >
         <StatusBar />
         <View style={[HOME_STYLES.contentCardContainer]}>
-          <ContentCard name="Books" screenName="BooksScreen" Icon={BooksIcon} />
-          <ContentCard name="Games" screenName="GamesScreen" Icon={GamesIcon} />
-          <ContentCard name="Diary" screenName="DiaryScreen" Icon={DiaryIcon} />
+          <ContentCard name="books" screenName="BooksScreen" Icon={BooksIcon} />
+          <ContentCard name="games" screenName="GamesScreen" Icon={GamesIcon} />
+          <ContentCard name="diary" screenName="DiaryScreen" Icon={DiaryIcon} />
           <ContentCard
-            name="My Space"
+            name="mySpace"
             screenName="MySpaceScreen"
             Icon={MediaIcon}
           />
