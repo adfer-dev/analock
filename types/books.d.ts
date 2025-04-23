@@ -115,5 +115,7 @@ interface StorageBook {
 
 interface StorageBookData {
   firstPageIndex: number;
+  currentPage: number;
   maxPages: number;
+  finished: boolean;
 }

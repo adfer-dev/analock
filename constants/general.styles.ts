@@ -26,18 +26,26 @@ export const GENERAL_STYLES = StyleSheet.create({
   alignCenter: {
     alignItems: "center",
   },
+  uiText: {
+    fontFamily: "Inter",
+  },
+  textTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
   textCenter: {
     textAlign: "center",
     justifyContent: "center",
   },
   navBar: {
-    marginBottom: 10,
-    paddingHorizontal: 20,
-    height: "20%",
-    alignItems: "center",
-    justifyContent: "space-between",
+    fontFamily: "Inter",
+    fontWeight: "bold",
+    fontSize: 18,
   },
   navBarRigth: {
     flexGrow: 0.1,
+  },
+  backgroundColor: {
+    backgroundColor: "#e9e9e9",
   },
 });

@@ -47,7 +47,6 @@ AXIOS_INSTANCE.interceptors.response.use(
             routes: [{ name: "Home" }],
           });
         }
-        return Promise.reject(error);
       }
     }
     return Promise.reject(error);

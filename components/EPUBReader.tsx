@@ -1,13 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  ScrollView,
-  Dimensions,
-  View,
-  TouchableOpacity,
-  Text,
-} from "react-native";
-import RenderHTML from "react-native-render-html";
+import { ActivityIndicator, View, Dimensions } from "react-native";
 import { useProcessEpub } from "../hooks/useProcessEpub";
 import RNFS from "react-native-fs";
 import { APP_DOCUMENTS_PATH } from "../services/download.services";
@@ -17,80 +9,106 @@ import {
 } from "../services/storage.services";
 import { addUserBookRegistration } from "../services/activityRegistrations.services";
 import { emptyDateTime } from "../utils/date.utils";
+import { useSaveOnExit } from "../hooks/useSaveOnExit";
+import WebView, { WebViewMessageEvent } from "react-native-webview";
+import { GENERAL_STYLES } from "../constants/general.styles";
+import { SWIPE_THRESHOLD } from "../constants/constants";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 
 interface EpubReaderProps {
   ebookId: string;
+}
+
+export interface BookStorageData {
+  bookId: string;
+  currentPage: number;
+  finished: boolean;
 }
 
 let firstFileIndex = -1;
 let MAX_PAGES = 0;
 const AVERAGE_WORDS_PER_MINUTE = 200;
 const MAX_MINUTES = 20;
+const START_HTML_FILE_PAGE = 1;
 
 const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
   const unzipPath = `${APP_DOCUMENTS_PATH}/${ebookId}`;
-  const { width } = Dimensions.get("screen");
-  const { htmlFiles, contentPath, loading, tagStyles, classStyles } =
-    useProcessEpub(ebookId);
+  const { htmlFiles, contentPath, cssPath, loading } = useProcessEpub(ebookId);
   const [htmlContent, setHtmlContent] = useState<string>("");
-  const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
-  const scrollViewRef = useRef<ScrollView | null>(null);
-  let finishedReading = false;
+  const [currentFilePage, setCurrentFilePage] =
+    useState<number>(START_HTML_FILE_PAGE);
+  const [currentFileTotalPages, setCurrentFileTotalPages] = useState<number>(0);
+  const [hasFinishedReading, setHasFinishedReading] = useState<boolean>(false);
+  const webViewRef = useRef<WebView>(null);
+  useSaveOnExit({
+    bookId: ebookId,
+    currentPage: currentFilePage,
+    finished: hasFinishedReading,
+  });
   // Hook to set up the content that can be read
   useEffect(() => {
     if (htmlFiles.length > 0) {
       const bookData = getStorageBookData(ebookId);
-
       // if book data has been stored, retrieve it and set the params.
       // if not, then generate the params and save them to local storage.
       if (bookData) {
-        setCurrentFileIndex(bookData.firstPageIndex);
         firstFileIndex = bookData.firstPageIndex;
         MAX_PAGES = bookData.maxPages;
+        setCurrentFilePage(bookData.currentPage);
+        setHasFinishedReading(bookData.finished);
+        loadFullHtmlContent();
       } else {
         const randomIndex = Math.floor(Math.random() * htmlFiles.length);
         firstFileIndex = randomIndex;
-        setCurrentFileIndex(randomIndex);
-
-        setMaxPages(randomIndex)
+        setMaxEpubPages(randomIndex)
           .then(() => {
             addStorageBookData({
               id: ebookId,
-              data: { maxPages: MAX_PAGES, firstPageIndex: firstFileIndex },
+              data: {
+                maxPages: MAX_PAGES,
+                firstPageIndex: firstFileIndex,
+                currentPage: START_HTML_FILE_PAGE,
+                finished: hasFinishedReading,
+              },
             });
+            loadFullHtmlContent();
           })
           .catch((error) => console.error(error));
       }
     }
   }, [htmlFiles]);
 
-  // Hook to load the HTML content of the current HTML file
+  // Hook to handle page change
   useEffect(() => {
-    if (currentFileIndex !== -1) {
-      loadHTMLContent(htmlFiles[currentFileIndex]);
-      finishedReading = currentFileIndex === firstFileIndex + MAX_PAGES;
+    webViewRef.current?.injectJavaScript(`goToPage(${currentFilePage}); true;`);
 
-      if (finishedReading) {
-        const currentDate = new Date();
-        emptyDateTime(currentDate);
-        addUserBookRegistration({
-          internetArchiveId: ebookId,
-          registrationDate: currentDate.valueOf(),
-          userId: 1,
-        });
-      }
+    const finishedReading = currentFilePage === currentFileTotalPages;
+    setHasFinishedReading(currentFilePage === currentFileTotalPages);
+
+    if (finishedReading && !getStorageBookData(ebookId)?.finished) {
+      const currentDate = new Date();
+      emptyDateTime(currentDate);
+      addUserBookRegistration({
+        internetArchiveId: ebookId,
+        registrationDate: currentDate.valueOf(),
+        userId: 1,
+      });
     }
-  }, [currentFileIndex]);
+  }, [currentFilePage]);
 
   /**
-   * Sets the maximum pages that the user can read.
+   * Sets the maximum EPUB pages that the user can read.
    * This is calculated knowing that the average reading time is 200 words per minute.
    * The maximum number of pages is calculated parsing the paragraph items from the EPUB's HTML
    * files and extracting the number of words of each.
    *
    * @param firstIndex the random index where the reading starts
    */
-  async function setMaxPages(firstIndex: number) {
+  async function setMaxEpubPages(firstIndex: number) {
     const htmlParagraphRegex = /<p>(.*?)<\/p>/g;
     const maxWords = AVERAGE_WORDS_PER_MINUTE * MAX_MINUTES;
     let currentWords = 0;
@@ -120,20 +138,60 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
   }
 
   /**
-   * Loads the HTML content of the item passed by parameter
-   *
-   * @param selectedItem the item to load the HTML content from
+   * Loads the full HTML content with selected daily content
    */
-  function loadHTMLContent(selectedItem: ParsedItem) {
-    RNFS.readFile(`${unzipPath}/${contentPath}${selectedItem.href}`, "utf8")
-      .then((content) => {
-        const updatedContent = setImagePaths(content);
-        setHtmlContent(updatedContent);
-        resetScrollViewPosition();
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+  async function loadFullHtmlContent(): Promise<void> {
+    const stylesPath = `file://${unzipPath}/${contentPath}${cssPath}`;
+    let fullHtmlContent = `
+    <?xml version='1.0' encoding='utf-8'?>
+    <!DOCTYPE html>
+    <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="None" xml:lang="None">
+    <head>
+        <title>${ebookId}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link href="${stylesPath}" rel="stylesheet" type="text/css"/>
+        <style>
+        html {
+            font-size: 14px; 
+            font-family: "Merryweather";
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        </style>
+    </head>
+    <body>
+        <div class="content-wrapper">`;
+
+    for (let i = firstFileIndex; i < firstFileIndex + MAX_PAGES; i++) {
+      const content = await RNFS.readFile(
+        `${unzipPath}/${contentPath}${htmlFiles[i].href}`,
+        "utf8",
+      );
+      fullHtmlContent = fullHtmlContent.concat(
+        "\n",
+        content.substring(
+          content.indexOf("<body>") + 7,
+          content.indexOf("</body>"),
+        ),
+      );
+    }
+    fullHtmlContent = setResourcePaths(fullHtmlContent);
+    fullHtmlContent = fullHtmlContent.concat(
+      "\n</div>",
+      "\n</body>",
+      "\n</html>",
+    );
+    fullHtmlContent = embeddNavigationScript(fullHtmlContent);
+    setHtmlContent(fullHtmlContent);
+  }
+
+  /**
+   * Returns an updated version of the HTML content passed by parameter, updating image and css paths to be absolute.
+   *
+   * @returns the updated HTML content with absolute resource paths
+   */
+  function setResourcePaths(originalHtml: string): string {
+    return setImagePaths(originalHtml);
   }
 
   /**
@@ -164,75 +222,132 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
   }
 
   /**
-   * Makes the ScrollView scroll to the beginning.
+   * Embedds the JS navigation script inside the HTML
+   *
+   * @param html the HTML content
+   * @returns the updated HTML content
    */
-  function resetScrollViewPosition() {
-    if (scrollViewRef.current != null)
-      scrollViewRef?.current.scrollTo({ y: 0, animated: true });
+  function embeddNavigationScript(html: string): string {
+    const dimensions = Dimensions.get("window");
+    return html.replace(
+      "</body>",
+      `\n <script>
+          // NAVIGATION
+          const contentElement = document.body;
+          const viewportWidth = ${dimensions.width * 0.95};
+          let totalPages = 1;
+
+          function calculatePages() {
+            const totalWidth = contentElement.scrollWidth;
+            totalPages = Math.max(1, Math.round(totalWidth / viewportWidth));
+
+            if (window.ReactNativeWebView) {
+               window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'totalPages', payload: totalPages }));
+            }
+          }
+
+          function goToPage(pageNumber) {
+            // pageNumber is 1-based
+            const pageIndex = pageNumber - 1;
+            const scrollToX = pageIndex * viewportWidth;
+            contentElement.scrollTo({
+              left: scrollToX,
+              behavior: 'smooth' // Or 'auto' for instant jump
+            });
+          }
+
+           requestAnimationFrame(() => {
+              requestAnimationFrame(calculatePages);
+           });
+
+           let scrollTimeout;
+           contentElement.addEventListener('scroll', () => {
+              clearTimeout(scrollTimeout);
+              scrollTimeout = setTimeout(() => {
+                 const currentPageApprox = Math.round(contentElement.scrollLeft / viewportWidth) + 1;
+                 if (window.ReactNativeWebView) {
+                    window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'currentPage', payload: currentPageApprox }));
+                 }
+              }, 150);
+           });
+
+        </script>\n</body>`,
+    );
   }
 
+  /**
+   * Handles the response sent from the WebView. Currently this is used just to receive the total pages of the current HTML file.
+   *
+   * @param event the message event
+   */
+  function handleWebViewMessage(event: WebViewMessageEvent): void {
+    try {
+      const message = JSON.parse(event.nativeEvent.data);
+      if (message.type === "totalPages") {
+        setCurrentFileTotalPages(message.payload);
+      }
+    } catch (error) {
+      console.error("Error parsing message from WebView:", error);
+    }
+  }
+
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      return true;
+    })
+    .onEnd((event) => {
+      const { translationX, translationY } = event;
+
+      if (Math.abs(translationX) > Math.abs(translationY)) {
+        if (Math.abs(translationX) > SWIPE_THRESHOLD) {
+          if (translationX > 0) {
+            setCurrentFilePage(currentFilePage - 1);
+          } else {
+            setCurrentFilePage(currentFilePage + 1);
+          }
+        }
+      }
+    })
+    .shouldCancelWhenOutside(false)
+    .maxPointers(1)
+    .minDistance(5);
+
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView
-        style={{
-          flex: 1,
-          paddingRight: 10,
-          paddingLeft: 20,
-          paddingVertical: 10,
-        }}
-        ref={scrollViewRef}
-      >
-        {loading && <ActivityIndicator size="large" color="#0000ff" />}
-        {!loading && finishedReading && (
-          <View>
-            <Text>You finished reading for today</Text>
-          </View>
-        )}
-        {!loading && !finishedReading && (
-          <RenderHTML
-            source={{
-              html: htmlContent,
-            }}
-            contentWidth={width}
-            tagsStyles={tagStyles}
-            classesStyles={classStyles}
-          />
-        )}
-      </ScrollView>
-      <View
-        style={{
-          flexDirection: "column",
-          justifyContent: "space-between",
-          alignItems: "center",
-          width: "100%",
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => {
-            setCurrentFileIndex(currentFileIndex - 1);
-          }}
-          disabled={
-            finishedReading ||
-            currentFileIndex <= firstFileIndex ||
-            currentFileIndex == 0
-          }
-        >
-          <Text>Prev</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            setCurrentFileIndex(currentFileIndex + 1);
-          }}
-          disabled={
-            finishedReading ||
-            currentFileIndex >= firstFileIndex + MAX_PAGES ||
-            currentFileIndex == htmlFiles.length - 1
-          }
-        >
-          <Text>Next</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    <GestureHandlerRootView>
+      <GestureDetector gesture={panGesture}>
+        <View style={{ flex: 1 }}>
+          {loading && <ActivityIndicator size="large" color="#0000ff" />}
+          {!loading && (
+            <WebView
+              originWhitelist={["*", "file://"]}
+              source={{
+                html: htmlContent,
+                baseUrl: `file://${unzipPath}/${contentPath}`,
+              }}
+              onLoad={() => {
+                webViewRef.current?.injectJavaScript(
+                  `goToPage(${currentFilePage}); true;`,
+                );
+              }}
+              onMessage={handleWebViewMessage}
+              allowFileAccess={true}
+              allowFileAccessFromFileURLs={true}
+              allowUniversalAccessFromFileURLs={true}
+              allowsBackForwardNavigationGestures={false}
+              style={[GENERAL_STYLES.backgroundColor]}
+              scalesPageToFit={false}
+              scrollEnabled={false}
+              bounces={false}
+              showsHorizontalScrollIndicator={false}
+              showsVerticalScrollIndicator={false}
+              contentInset={{ top: 0, left: 0, bottom: 0, right: 0 }}
+              automaticallyAdjustContentInsets={false}
+              ref={webViewRef}
+            />
+          )}
+        </View>
+      </GestureDetector>
+    </GestureHandlerRootView>
   );
 };
 

@@ -2,6 +2,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { HOME_STYLES } from "../constants/home.styles";
 
 type RootStackParamList = {
   Home: undefined;
@@ -30,9 +31,17 @@ export const ContentCard: React.FC<ContentCardProps> = ({
         navigation.navigate(screenName);
       }}
     >
-      <View>
+      <View style={[HOME_STYLES.contentCard]}>
         <Icon />
-        <Text style={[GENERAL_STYLES.textCenter]}>{name}</Text>
+        <Text
+          style={[
+            GENERAL_STYLES.uiText,
+            GENERAL_STYLES.textCenter,
+            HOME_STYLES.contentCardText,
+          ]}
+        >
+          {name}
+        </Text>
       </View>
     </TouchableOpacity>
   );

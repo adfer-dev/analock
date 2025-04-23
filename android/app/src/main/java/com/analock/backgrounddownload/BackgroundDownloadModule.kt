@@ -34,32 +34,55 @@ class BackgroundDownloadModule(
             val uri = Uri.parse("$url/$filename")
             val externalFilesDir = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
             val absoluteFilePath = File(externalFilesDir, filename).absolutePath
+            val query = DownloadManager.Query().apply {
+                // Filter by active download states (not completed/failed)
+                setFilterByStatus(
+                    DownloadManager.STATUS_PENDING or
+                            DownloadManager.STATUS_RUNNING or
+                            DownloadManager.STATUS_PAUSED
+                )
+            }
+            var isDownloadAlreadyEnqueued = false
 
-            val request = DownloadManager.Request(uri).apply {
-                setTitle(filename)
-                setDescription("Downloading")
-                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-
-                setDestinationUri(Uri.fromFile(File(absoluteFilePath)))
+            // first check if this URL is already enqueued for download
+            downloadManager.query(query).use { cursor ->
+                if (cursor?.moveToFirst() == true) {
+                    val uriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_URI)
+                    do {
+                        val fileUri = Uri.parse(cursor.getString(uriIndex))
+                        if (fileUri.equals(uri)) {
+                            isDownloadAlreadyEnqueued = true
+                        }
+                    } while (cursor.moveToNext())
+                }
             }
 
-            val downloadId = downloadManager.enqueue(request)
+            if (!isDownloadAlreadyEnqueued) {
+                val request = DownloadManager.Request(uri).apply {
+                    setTitle(filename)
+                    setDescription("Downloading")
+                    setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
 
-            // Initialize a new broadcast receiver that will be called on download completion
-            val downloadCompleteReceiver = BackgroundDownloadBroadcastReceiver(
-                promise,
-                downloadManager,
-                downloadId,
-                absoluteFilePath
-            )
+                    setDestinationUri(Uri.fromFile(File(absoluteFilePath)))
+                }
 
-            // Register the broadcast receiver
-            context.registerReceiver(
-                downloadCompleteReceiver,
-                IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
-                Context.RECEIVER_EXPORTED
-            )
+                val downloadId = downloadManager.enqueue(request)
 
+                // Initialize a new broadcast receiver that will be called on download completion
+                val downloadCompleteReceiver = BackgroundDownloadBroadcastReceiver(
+                    promise,
+                    downloadManager,
+                    downloadId,
+                    absoluteFilePath
+                )
+
+                // Register the broadcast receiver
+                context.registerReceiver(
+                    downloadCompleteReceiver,
+                    IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
+                    Context.RECEIVER_EXPORTED
+                )
+            }
         } catch (e: Exception) {
             Log.e("BackgroundDownloadModule", "Download initialization error", e)
             promise.reject("DOWNLOAD_ERROR", e.message ?: "Unknown error")

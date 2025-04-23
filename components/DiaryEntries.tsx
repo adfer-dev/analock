@@ -12,15 +12,22 @@ import {
 import { areDatesEqual, emptyDateTime } from "../utils/date.utils";
 import { getStorageUserData } from "../services/storage.services";
 import { timestampToDate } from "../utils/date.utils";
+import { generalOptions } from "./Home";
+import { GENERAL_STYLES } from "../constants/general.styles";
 
 const DiaryScreen = () => {
   const DiaryEntriesStack = createNativeStackNavigator();
   return (
     <DiaryEntriesStack.Navigator initialRouteName="DiaryEntries">
-      <DiaryEntriesStack.Screen name="DiaryEntries" component={DiaryEntries} />
+      <DiaryEntriesStack.Screen
+        name="DiaryEntries"
+        component={DiaryEntries}
+        options={{ ...generalOptions, headerTitle: "Diary" }}
+      />
       <DiaryEntriesStack.Screen
         name="DiaryEntry"
         component={DiaryEntryDetailScreen}
+        options={generalOptions}
       />
     </DiaryEntriesStack.Navigator>
   );
@@ -54,7 +61,7 @@ const DiaryEntries: React.FC = () => {
           setShowAddDiaryEntryModal(true);
         }}
       >
-        <Text>Add</Text>
+        <Text style={GENERAL_STYLES.uiText}>Add</Text>
       </TouchableOpacity>
       <ScrollView>
         {userDiaryEntries &&
@@ -69,7 +76,7 @@ const DiaryEntries: React.FC = () => {
                 setShowAddDiaryEntryModal(true);
               }}
             >
-              <Text>{diaryEntry.title}</Text>
+              <Text style={GENERAL_STYLES.uiText}>{diaryEntry.title}</Text>
             </TouchableOpacity>
           ))}
       </ScrollView>
@@ -78,6 +85,7 @@ const DiaryEntries: React.FC = () => {
         onRequestCloseHandler={() => setShowAddDiaryEntryModal(false)}
       >
         <TextInput
+          style={GENERAL_STYLES.uiText}
           placeholder={"Title"}
           defaultValue={!isUpdate ? "" : selectedDiaryEntry!.title}
           onChange={(event) => setTitleInput(event.nativeEvent.text)}
@@ -93,6 +101,7 @@ const DiaryEntries: React.FC = () => {
           }
         />
         <TextInput
+          style={GENERAL_STYLES.uiText}
           placeholder={"Content"}
           defaultValue={!isUpdate ? "" : selectedDiaryEntry!.content}
           onChange={(event) => setContentInput(event.nativeEvent.text)}
@@ -166,7 +175,7 @@ const DiaryEntries: React.FC = () => {
                   selectedDiaryEntry.content === contentInput
                 }
               >
-                <Text>Save</Text>
+                <Text style={GENERAL_STYLES.uiText}>Save</Text>
               </TouchableOpacity>
             )}
         </>

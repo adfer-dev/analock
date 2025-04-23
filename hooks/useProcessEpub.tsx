@@ -1,22 +1,21 @@
-import {useEffect, useState} from 'react'
-import {MixedStyleDeclaration} from 'react-native-render-html'
-import RNFS from 'react-native-fs'
-import xml2js from 'react-native-xml2js'
-import {Dimensions} from 'react-native'
-import {APP_DOCUMENTS_PATH} from '../services/download.services'
+import { useEffect, useState } from "react";
+import RNFS from "react-native-fs";
+import xml2js from "react-native-xml2js";
+import { Dimensions } from "react-native";
+import { APP_DOCUMENTS_PATH } from "../services/download.services";
+import { getStorageBookData } from "../services/storage.services";
 
 interface ProcessEpubResult {
-  htmlFiles: ParsedItem[]
-  htmlCurrentFileIndex: number
-  contentPath: string
-  loading: boolean
-  tagStyles: Readonly<Record<string, MixedStyleDeclaration>> | undefined
-  classStyles: Readonly<Record<string, MixedStyleDeclaration>> | undefined
+  htmlFiles: ParsedItem[];
+  htmlCurrentFileIndex: number;
+  contentPath: string;
+  cssPath: string;
+  loading: boolean;
 }
 
-const orderedItems: ParsedItem[] = []
-let opfPath: string = ''
-let contentPath: string = ''
+const orderedItems: ParsedItem[] = [];
+let opfPath: string = "";
+let contentPath: string = "";
 
 /**
  * Custom hook used to process and load the EPUB file of the ebook
@@ -25,16 +24,11 @@ let contentPath: string = ''
  * @param ebookId the identifier of the book to be loaded
  */
 export function useProcessEpub(ebookId: string): ProcessEpubResult {
-  const [htmlFiles, setHtmlFiles] = useState<ParsedItem[]>([])
-  const [htmlCurrentFileIndex, setHtmlCurrentFileIndex] = useState<number>(0)
-  const [contentPath, setContentPath] = useState<string>('')
-  const [loading, setLoading] = useState(true)
-  const [tagStyles, setTagStyles] = useState<
-    Readonly<Record<string, MixedStyleDeclaration>> | undefined
-  >()
-  const [classStyles, setClassStyles] = useState<
-    Readonly<Record<string, MixedStyleDeclaration>> | undefined
-  >()
+  const [htmlFiles, setHtmlFiles] = useState<ParsedItem[]>([]);
+  const [htmlCurrentFileIndex, setHtmlCurrentFileIndex] = useState<number>(0);
+  const [contentPath, setContentPath] = useState<string>("");
+  const [cssPath, setCssPath] = useState<string>("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     processEpub(
@@ -42,22 +36,20 @@ export function useProcessEpub(ebookId: string): ProcessEpubResult {
       setHtmlFiles,
       setHtmlCurrentFileIndex,
       setContentPath,
+      setCssPath,
       setLoading,
-      setTagStyles,
-      setClassStyles,
     )
       .then()
-      .catch(err => console.error(err))
-  }, [])
+      .catch((err) => console.error(err));
+  }, []);
 
   return {
     htmlFiles,
     htmlCurrentFileIndex,
     contentPath,
+    cssPath,
     loading,
-    tagStyles,
-    classStyles,
-  }
+  };
 }
 
 /**
@@ -75,34 +67,27 @@ async function processEpub(
   setHtmlFiles: React.Dispatch<React.SetStateAction<ParsedItem[]>>,
   setHtmlCurrentFileIndex: React.Dispatch<React.SetStateAction<number>>,
   setContentPath: React.Dispatch<React.SetStateAction<string>>,
+  setCssPath: React.Dispatch<React.SetStateAction<string>>,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  setTagStyles: React.Dispatch<
-    React.SetStateAction<
-      Readonly<Record<string, MixedStyleDeclaration>> | undefined
-    >
-  >,
-  setClassStyles: React.Dispatch<
-    React.SetStateAction<
-      Readonly<Record<string, MixedStyleDeclaration>> | undefined
-    >
-  >,
 ): Promise<void> {
-  const unzipPath = `${APP_DOCUMENTS_PATH}/${ebookId}`
+  const unzipPath = `${APP_DOCUMENTS_PATH}/${ebookId}`;
   // Get the opf file path, and set the content path
-  opfPath = await getOPFPath(unzipPath)
-  contentPath = opfPath.substring(0, opfPath.lastIndexOf('/') + 1)
-  setContentPath(contentPath)
+  opfPath = await getOPFPath(unzipPath);
+  contentPath = opfPath.substring(0, opfPath.lastIndexOf("/") + 1);
+  setContentPath(contentPath);
   // get the items from the opf files
-  await getOpfItems(unzipPath + '/' + opfPath)
-  const cssPath = orderedItems.find(item => item.mediaType === 'text/css')?.href
-  await loadHtmlFiles(setHtmlFiles)
-  //get the CSS file content and convert it to RN format
-  const css = await RNFS.readFile(
-    `${unzipPath}/${contentPath}${cssPath}`,
-    'utf8',
-  )
-  parseCSS(css, setTagStyles, setClassStyles)
-  setLoading(false)
+  await getOpfItems(unzipPath + "/" + opfPath);
+  const cssPath = orderedItems.find(
+    (item) => item.mediaType === "text/css",
+  )?.href;
+  if (cssPath) {
+    setCssPath(cssPath);
+  }
+  await loadHtmlFiles(setHtmlFiles);
+  if (!getStorageBookData(ebookId)) {
+    await addCustomCSS(unzipPath, cssPath!);
+  }
+  setLoading(false);
 }
 
 /**
@@ -113,30 +98,30 @@ async function processEpub(
  * @returns a Promise encapsulating a string that contains the OPF file's path
  */
 async function getOPFPath(unzippedPath: string): Promise<string> {
-  const containerXMLPath = `${unzippedPath}/META-INF/container.xml`
-  let path = ''
+  const containerXMLPath = `${unzippedPath}/META-INF/container.xml`;
+  let path = "";
 
   try {
-    const containerXML = await RNFS.readFile(containerXMLPath, 'utf8')
+    const containerXML = await RNFS.readFile(containerXMLPath, "utf8");
 
-    const parser = new xml2js.Parser()
+    const parser = new xml2js.Parser();
 
     parser.parseString(
       containerXML,
       (err: Error | undefined, parsedData: ContainerParsedData) => {
         if (err) {
-          console.error('Error parsing XML:', err)
-          return null
+          console.error("Error parsing XML:", err);
+          return null;
         }
 
-        path = parsedData.container.rootfiles[0].rootfile[0].$['full-path']
+        path = parsedData.container.rootfiles[0].rootfile[0].$["full-path"];
       },
-    )
+    );
   } catch (error) {
-    console.error('Error parsing container.xml:', error)
+    console.error("Error parsing container.xml:", error);
   }
 
-  return path
+  return path;
 }
 
 /**
@@ -146,10 +131,10 @@ async function getOPFPath(unzippedPath: string): Promise<string> {
  */
 async function getOpfItems(path: string): Promise<void> {
   // Read the OPF file
-  const opfXML = await RNFS.readFile(path, 'utf8')
+  const opfXML = await RNFS.readFile(path, "utf8");
 
   // Create a parser instance
-  const parser = new xml2js.Parser()
+  const parser = new xml2js.Parser();
 
   // Parse the XML content using a promise
   const parsedData: OPFParsedData = await new Promise((resolve, reject) => {
@@ -157,153 +142,141 @@ async function getOpfItems(path: string): Promise<void> {
       opfXML,
       (err: Error | undefined, result: OPFParsedData) => {
         if (err) {
-          reject(err)
+          reject(err);
         } else {
-          resolve(result)
+          resolve(result);
         }
       },
-    )
-  })
+    );
+  });
 
-  const itemrefs: ItemRef[] = parsedData.package.spine[0].itemref
-  const items: OPFManifestItem[] = parsedData.package.manifest[0].item
+  const itemrefs: ItemRef[] = parsedData.package.spine[0].itemref;
+  const items: OPFManifestItem[] = parsedData.package.manifest[0].item;
   for (const itemRef of itemrefs) {
     for (const item of items) {
-      const {id, href, 'media-type': mediaType} = item.$
+      const { id, href, "media-type": mediaType } = item.$;
 
       if (id === itemRef.$.idref) {
         const parsedItem: ParsedItem = {
           id,
           href,
           mediaType,
-        }
-        orderedItems.push(parsedItem)
-        break
+        };
+        orderedItems.push(parsedItem);
+        break;
       }
     }
   }
 
   for (const item of items) {
-    const {id, href, 'media-type': mediaType} = item.$
+    const { id, href, "media-type": mediaType } = item.$;
 
-    if (mediaType === 'text/css') {
+    if (mediaType === "text/css") {
       const parsedItem: ParsedItem = {
         id,
         href,
         mediaType,
-      }
-      orderedItems.push(parsedItem)
+      };
+      orderedItems.push(parsedItem);
     }
   }
 }
 
 /**
- * Converts the given CSS declarations to React Native format.
- *
- * @param declarations a key-value map containing the CSS properties and its values
- * @returns a MixedStyleDeclarations object that represents the React Native formatted CSS properties
+ * Adds custom styles to EPUB's' existent CSS file
  */
-function convertDeclarationsToReactNative(declarations: {
-  [key: string]: string
-}): MixedStyleDeclaration {
-  const reactNativeStyles: MixedStyleDeclaration = {}
-  // raw css styles that can be replaced in react native
-  const reactNativeReplacements: Map<string, string> = new Map()
-  // raw css styles that cannot be replaced in react native
-  const reactNativeNonReplaceableProperties: string[] = []
-  reactNativeReplacements.set('textIndent', 'paddingLeft')
-  reactNativeNonReplaceableProperties.push('oebColumnNumber')
-  reactNativeNonReplaceableProperties.push('clip')
-  reactNativeNonReplaceableProperties.push('columnCount')
-  reactNativeNonReplaceableProperties.push('breakInside')
+async function addCustomCSS(unzipPath: string, cssPath: string) {
+  const dimensions = Dimensions.get("window");
+  const css = await RNFS.readFile(
+    `${unzipPath}/${contentPath}${cssPath}`,
+    "utf8",
+  );
 
-  for (const property in declarations) {
-    let camelCasedProperty = property.replace(/-([a-z])/g, g =>
-      g[1].toUpperCase(),
-    )
+  // Add custom styles
+  let updatedStyles = getCustomElementStyles(
+    css,
+    "body",
+    `height: ${dimensions.height * 0.9}px; width: ${dimensions.width * 0.95}px; column-width: ${dimensions.width * 0.95}px; column-gap: 0px;column-fill: auto;-webkit-column-width: ${dimensions.width * 2}px;-webkit-column-gap: 0px;overflow-x: hidden;overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;`,
+  );
 
-    if (reactNativeReplacements.get(camelCasedProperty)) {
-      camelCasedProperty = reactNativeReplacements.get(
-        camelCasedProperty,
-      ) as string
-    }
+  updatedStyles = getCustomElementStyles(
+    updatedStyles,
+    "html",
+    `margin: 0;padding: 0;height: ${dimensions.height * 0.9}px;width: ${dimensions.width * 0.95}px;overflow: hidden; touch-action: none;`,
+  );
 
-    if (!reactNativeNonReplaceableProperties.includes(camelCasedProperty)) {
-      const value = declarations[property].endsWith('px')
-        ? parseFloat(declarations[property])
-        : declarations[property]
-      reactNativeStyles[camelCasedProperty] = value
-    }
-  }
+  updatedStyles = getCustomElementStyles(
+    updatedStyles,
+    "p",
+    `line-height: 20px; text-align: justify; letter-spacing: 0.2px; padding: 0;`,
+  );
 
-  return reactNativeStyles
+  updatedStyles = getCustomElementStyles(
+    updatedStyles,
+    "img",
+    `max-width: 100%;height: auto;`,
+  );
+
+  updatedStyles = getCustomElementStyles(
+    updatedStyles,
+    ".content-wrapper",
+    `padding-left: 10px; padding-right:10px; box-sizing: border-box;`,
+  );
+
+  // Add custom fonts
+  updatedStyles = getCustomElementStyles(
+    updatedStyles,
+    "@font-face",
+    `font-family: 'Merryweather'; src: url('file:///android_asset/fonts/merriweather_regular.ttf') format('truetype'); font-weight: normal; font-style: normal;`,
+  );
+  updatedStyles = getCustomElementStyles(
+    updatedStyles,
+    "@font-face",
+    `font-family: 'Merryweather'; src: url('file:///android_asset/fonts/merriweather_bold.ttf') format('truetype'); font-weight: bold; font-style: normal;`,
+  );
+  updatedStyles = getCustomElementStyles(
+    updatedStyles,
+    "@font-face",
+    `font-family: 'Merryweather'; src: url('file:///android_asset/fonts/merriweather_italic.ttf') format('truetype'); font-weight: normal; font-style: italic;`,
+  );
+
+  console.log(updatedStyles);
+
+  // write updated styles into CSS file
+  await RNFS.writeFile(
+    `${unzipPath}/${contentPath}${cssPath}`,
+    updatedStyles,
+    "utf8",
+  );
 }
 
-/*
- * Parses the given CSS content and sets the styles for RenderHTML component
+/**
+ * Gets a CSS format style for the tag passed by parameter.
+ *
+ * @returns the CSS style
  */
-function parseCSS(
-  css: string,
-  setTagStyles: React.Dispatch<
-    React.SetStateAction<
-      Readonly<Record<string, MixedStyleDeclaration>> | undefined
-    >
-  >,
-  setClassStyles: React.Dispatch<
-    React.SetStateAction<
-      Readonly<Record<string, MixedStyleDeclaration>> | undefined
-    >
-  >,
-): void {
-  const tagsStyles: Record<string, MixedStyleDeclaration> = {}
-  const classesStyles: Record<string, MixedStyleDeclaration> = {}
+function getCustomElementStyles(
+  originalCss: string,
+  tag: string,
+  customStyles: string,
+): string {
+  const paragraphStyleIndex = originalCss.indexOf(`${tag} {`);
+  let updatedCss = "";
+  if (paragraphStyleIndex !== -1) {
+    const paragraphStylesString = originalCss.substring(
+      paragraphStyleIndex,
+      originalCss.indexOf("}", paragraphStyleIndex),
+    );
+    const updatedParagraphStyle = paragraphStylesString + customStyles + "}";
+    const selectorPattern = `${tag}\\s*{\\s*([a-zA-Z0-9-]+\\s*:\\s*[^;]+;\\s*)+}`;
+    const selectorRegex = new RegExp(selectorPattern, "g");
 
-  // Split the CSS content by line
-  const rules = css.split('}')
+    updatedCss = originalCss.replace(selectorRegex, updatedParagraphStyle);
+  } else {
+    updatedCss = `\n\t\t\t\t${tag} {${customStyles}}` + originalCss;
+  }
 
-  rules.forEach(rule => {
-    // Split the selector and declarations
-    const [selector, declarations] = rule.split('{')
-
-    if (selector && declarations) {
-      const trimmedSelector = selector.trim()
-      const trimmedDeclarations = declarations.trim().replace(';', '')
-
-      // Create an object for declarations
-      const declarationsObject: {[key: string]: string} = {}
-      trimmedDeclarations.split(';').forEach(decl => {
-        const [prop, value] = decl.split(':').map(s => s.trim())
-        if (prop && value) {
-          declarationsObject[prop] = value
-        }
-      })
-
-      // Determine if it's a class or a tag selector
-      if (/^\.[a-zA-Z]+$/.test(trimmedSelector)) {
-        const className = trimmedSelector.slice(1) // Remove the dot
-        classesStyles[className] =
-          convertDeclarationsToReactNative(declarationsObject)
-      } else {
-        tagsStyles[trimmedSelector] =
-          convertDeclarationsToReactNative(declarationsObject)
-      }
-    }
-  })
-
-  // default styles for images
-  const {width, height} = Dimensions.get('window')
-  tagsStyles['img'].resizeMode = 'contain'
-  tagsStyles['img'].width = width
-  tagsStyles['img'].height = height
-
-  //default styles for paragraphs
-  tagsStyles['p'].lineHeight = 28
-  tagsStyles['p'].textAlign = 'justify'
-  tagsStyles['p'].letterSpacing = 0.2
-  tagsStyles['p'].padding = 0
-
-  setTagStyles(tagsStyles)
-  setClassStyles(classesStyles)
+  return updatedCss;
 }
 
 /**
@@ -316,9 +289,9 @@ async function loadHtmlFiles(
   setHtmlFiles: React.Dispatch<React.SetStateAction<ParsedItem[]>>,
 ): Promise<void> {
   const htmlItems = orderedItems.filter(
-    item =>
-      item.mediaType === 'text/html' ||
-      item.mediaType === 'application/xhtml+xml',
-  )
-  setHtmlFiles(htmlItems)
+    (item) =>
+      item.mediaType === "text/html" ||
+      item.mediaType === "application/xhtml+xml",
+  );
+  setHtmlFiles(htmlItems);
 }

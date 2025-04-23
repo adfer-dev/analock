@@ -1,14 +1,11 @@
 import { MMKV, Mode } from "react-native-mmkv";
 import { APP_DOCUMENTS_PATH } from "./download.services";
-import { GamesData, TTFEGameData } from "../types/game";
+import { GameData, GamesData, TTFEGameData } from "../types/game";
 import { SudokuGrid } from "../components/Sudoku";
+import { BookStorageData } from "../components/EPUBReader";
+import { SUDOKU_GAME_NAME, TTFE_GAME_NAME } from "../constants/constants";
 
-export type StorageData =
-  | SudokuGrid
-  | TTFEGameData
-  | StorageBook
-  | StorageBookData
-  | UserData;
+export type StorageData = GamesData | StorageBook | BookStorageData | UserData;
 
 const storageInstance = new MMKV({
   id: `analock-storage`,
@@ -195,44 +192,121 @@ export function deleteStorageBookData(): void {
 
 // GAME STORAGE
 
-export function getStorageGamesData(): GamesData | undefined {
+export function getStorageGamesData(): GamesData[] | undefined {
   const gameDataString = storageInstance.getString(GAMES_DATA_STORAGE_KEY);
-  let gameData: GamesData | undefined;
+  let gameData: GamesData[] | undefined;
 
   if (gameDataString) {
-    gameData = JSON.parse(gameDataString) as GamesData;
+    gameData = JSON.parse(gameDataString) as GamesData[];
   }
 
   return gameData;
 }
 
-export function setStorageGamesData(gameData: GamesData): void {
+export function setStorageGamesData(gameData: GamesData[]): void {
   storageInstance.set(GAMES_DATA_STORAGE_KEY, JSON.stringify(gameData));
 }
 
-export function saveStorageGamesSudoku(sudokuGrid: SudokuGrid) {
-  const currentGameData = getStorageGamesData();
-
-  if (currentGameData) {
-    currentGameData.sudokuGrid = sudokuGrid;
-    setStorageGamesData(currentGameData);
-  } else {
-    setStorageGamesData({ sudokuGrid: sudokuGrid });
+export function saveGamesData(gameData: GamesData): void {
+  if (isSudokuGrid(gameData.data)) {
+    saveStorageGamesSudoku(gameData);
+  } else if (isTTFEGameData(gameData.data)) {
+    saveStorageGamesTTFE(gameData);
   }
 }
 
-export function saveStorageGamesTTFE(ttfeGameData: TTFEGameData) {
+export function saveStorageGamesSudoku(gameData: GamesData) {
   const currentGameData = getStorageGamesData();
-
-  if (currentGameData?.ttfeGameData) {
-    currentGameData.ttfeGameData.ttfeBoard = ttfeGameData.ttfeBoard;
-    currentGameData.ttfeGameData.ttfeScore = ttfeGameData.ttfeScore;
+  const currentSudokuGameDataIndex = currentGameData?.findIndex(
+    (data) => data.name === SUDOKU_GAME_NAME,
+  );
+  if (
+    currentGameData &&
+    currentSudokuGameDataIndex &&
+    currentSudokuGameDataIndex !== -1
+  ) {
+    (currentGameData[currentSudokuGameDataIndex].data as SudokuGrid) =
+      gameData.data as SudokuGrid;
+    currentGameData[currentSudokuGameDataIndex].won = gameData.won;
     setStorageGamesData(currentGameData);
   } else {
-    setStorageGamesData({ ttfeGameData: ttfeGameData });
+    setStorageGamesData([gameData]);
+  }
+}
+
+export function saveStorageGamesTTFE(gameData: GamesData) {
+  const currentGameData = getStorageGamesData();
+  const currentTTFEGameDataIndex = currentGameData?.findIndex(
+    (data) => data.name === TTFE_GAME_NAME,
+  );
+
+  if (
+    currentGameData &&
+    currentTTFEGameDataIndex &&
+    currentTTFEGameDataIndex !== -1
+  ) {
+    (currentGameData[currentTTFEGameDataIndex].data as TTFEGameData).ttfeBoard =
+      (gameData.data as TTFEGameData).ttfeBoard;
+    (currentGameData[currentTTFEGameDataIndex].data as TTFEGameData).ttfeScore =
+      (gameData.data as TTFEGameData).ttfeScore;
+    setStorageGamesData(currentGameData);
+  } else {
+    setStorageGamesData([gameData]);
   }
 }
 
 export function deleteStorageGamesData(): void {
   storageInstance.delete(GAMES_DATA_STORAGE_KEY);
+}
+/**
+ * Checks if the given storage data is a Sudoku grid
+ *
+ * @param data the given data
+ * @returns a boolean indicating wether the given data is a Sudoku grid
+ */
+function isSudokuGrid(data: GameData): data is SudokuGrid {
+  // Check if data is an array
+  if (!Array.isArray(data)) {
+    return false;
+  }
+
+  // Check if every row is an array
+  for (const row of data) {
+    if (!Array.isArray(row)) {
+      return false;
+    }
+
+    // Check if every cell matches the SudokuCell structure
+    for (const cell of row) {
+      if (
+        typeof cell !== "object" ||
+        !("value" in cell) ||
+        !("editable" in cell) ||
+        !("valid" in cell)
+      ) {
+        return false;
+      }
+
+      // Check the types of the properties
+      if (
+        (cell.value !== null && typeof cell.value !== "number") ||
+        typeof cell.editable !== "boolean" ||
+        typeof cell.valid !== "boolean"
+      ) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Checks if the given storage data is a 2048 game data.
+ *
+ * @param data the given data
+ * @returns a boolean indicating wether the given data is a 2048 Game board
+ */
+function isTTFEGameData(data: GameData): data is TTFEGameData {
+  return "ttfeBoard" in data && "ttfeScore" in data;
 }

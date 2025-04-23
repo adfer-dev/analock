@@ -23,9 +23,7 @@ async function getUserBookRegistrations(
   try {
     const response = await AXIOS_INSTANCE.get(requestUrl);
 
-    if (response.status === 200) {
-      registrations = response.data as BookRegistration[];
-    }
+    registrations = response.data as BookRegistration[];
   } catch (err) {
     console.error(err);
   }
@@ -50,9 +48,7 @@ async function getUserGameRegistrations(
   try {
     const response = await AXIOS_INSTANCE.get(requestUrl);
 
-    if (response.status === 200) {
-      registrations = response.data as GameRegistration[];
-    }
+    registrations = response.data as GameRegistration[];
   } catch (err) {
     console.error(err);
   }

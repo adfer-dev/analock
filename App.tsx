@@ -1,4 +1,3 @@
-import { Home } from "./components/Home";
 import {
   NavigationContainer,
   createNavigationContainerRef,
@@ -9,6 +8,7 @@ import MySpaceScreen from "./components/MySpace";
 import { UserDataProvider } from "./contexts/userDataContext";
 import GamesScreen from "./components/Games";
 import DiaryScreen from "./components/DiaryEntries";
+import Home from "./components/Home";
 
 export const navigationRef = createNavigationContainerRef();
 function App(): React.JSX.Element {
@@ -17,7 +17,13 @@ function App(): React.JSX.Element {
     <UserDataProvider>
       <NavigationContainer ref={navigationRef}>
         <Stack.Navigator initialRouteName="Home">
-          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen
+            name="Home"
+            component={Home}
+            options={{
+              headerShown: false,
+            }}
+          />
           <Stack.Screen
             name="BooksScreen"
             component={BooksScreen}

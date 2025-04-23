@@ -15,6 +15,8 @@ import { useSaveOnExit } from "../hooks/useSaveOnExit";
 import { getStorageGamesData } from "../services/storage.services";
 import { addUserGameRegistration } from "../services/activityRegistrations.services";
 import { emptyDateTime } from "../utils/date.utils";
+import { SWIPE_THRESHOLD, TTFE_GAME_NAME } from "../constants/constants";
+import { TTFEGameData } from "../types/game";
 
 type Direction = "up" | "down" | "left" | "right";
 export type TTFEBoard = number[][];
@@ -23,7 +25,6 @@ const { width } = Dimensions.get("window");
 const BOARD_SIZE = width - 32;
 const CELL_SIZE = BOARD_SIZE / 4;
 const CELL_MARGIN = 4;
-const SWIPE_THRESHOLD = 50;
 const colors: Record<number, string> = {
   0: "#CDC1B4",
   2: "#EEE4DA",
@@ -46,8 +47,9 @@ export function Game2048() {
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [won, setWon] = useState<boolean>(false);
   useSaveOnExit({
-    ttfeBoard: board,
-    ttfeScore: score,
+    name: TTFE_GAME_NAME,
+    data: { ttfeBoard: board, ttfeScore: score },
+    won,
   });
 
   /**
@@ -56,17 +58,26 @@ export function Game2048() {
    * @returns the loaded board
    */
   function initializeBoard(): TTFEBoard {
-    let board = gamesData?.ttfeGameData?.ttfeBoard;
+    const ttfeGameData = getStorageGamesData()?.find(
+      (data) => data.name === TTFE_GAME_NAME,
+    );
+    let board: TTFEBoard;
 
-    if (!board) {
+    if (!ttfeGameData || !ttfeGameData.data) {
       board = generateEmptyBoard();
+    } else {
+      board = (ttfeGameData.data as TTFEGameData).ttfeBoard;
     }
 
     return board;
   }
 
   function initializeScore(): number {
-    return gamesData?.ttfeGameData ? gamesData.ttfeGameData.ttfeScore : 0;
+    const ttfeGameData = gamesData?.find(
+      (data) => data.name === TTFE_GAME_NAME,
+    );
+
+    return ttfeGameData ? (ttfeGameData.data as TTFEGameData).ttfeScore : 0;
   }
 
   /**

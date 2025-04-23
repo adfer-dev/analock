@@ -16,12 +16,21 @@ import {
 } from "../utils/date.utils";
 import { getBookMetadata } from "../services/books.services";
 import { getStorageUserData } from "../services/storage.services";
+import { generalOptions } from "./Home";
+import { BaseScreen } from "./BaseScreen";
 
 const MySpaceScreen = () => {
   const MySpaceStack = createNativeStackNavigator();
   return (
     <MySpaceStack.Navigator initialRouteName="MySpace">
-      <MySpaceStack.Screen name="MySpace" component={MySpace} />
+      <MySpaceStack.Screen
+        name="MySpace"
+        component={MySpace}
+        options={{
+          ...generalOptions,
+          headerTitle: "Profile",
+        }}
+      />
     </MySpaceStack.Navigator>
   );
 };
@@ -64,11 +73,16 @@ function MySpace() {
   function getDotsFromRegistrationObject(
     registration: ActivityRegistration,
   ): Dot {
-    let dot: Dot = diaryEntries;
+    let dot: Dot;
     if ("internetArchiveId" in registration) {
       dot = books;
+      dot.key = registration.internetArchiveId;
     } else if ("gameName" in registration) {
       dot = games;
+      dot.key = registration.gameName;
+    } else {
+      dot = diaryEntries;
+      dot.key = registration.title;
     }
 
     return dot;
@@ -148,9 +162,21 @@ function MySpace() {
   }, [currentDateData]);
 
   return (
-    <View>
-      <Text>Progress</Text>
+    <BaseScreen>
       <Calendar
+        theme={{
+          textDayHeaderFontFamily: "Inter",
+          textDayHeaderFontWeight: "bold",
+          textMonthFontFamily: "Inter",
+          textMonthFontWeight: "bold",
+          textDayFontFamily: "Inter",
+          arrowColor: "black",
+          selectedDayTextColor: "#AF47D2",
+          todayBackgroundColor: "black",
+          todayTextColor: "white",
+          backgroundColor: "#e9e9e9",
+          calendarBackground: "#e9e9e9",
+        }}
         markingType="multi-dot"
         markedDates={markedDates}
         onMonthChange={(dateData) => {
@@ -191,7 +217,7 @@ function MySpace() {
             {registration.text}
           </Text>
         ))}
-    </View>
+    </BaseScreen>
   );
 }
 

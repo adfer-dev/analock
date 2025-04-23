@@ -12,7 +12,11 @@ import { useContext } from "react";
 import { UserDataContext } from "../contexts/userDataContext";
 import { getUserByEmail } from "../services/user.services";
 
-export const Login: React.FC = () => {
+interface LoginProps {
+  setAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export const Login: React.FC<LoginProps> = ({ setAuthenticated }) => {
   const userDataContext = useContext(UserDataContext);
   return (
     <View style={(GENERAL_STYLES.flexCol, GENERAL_STYLES.alignCenter)}>
@@ -41,11 +45,11 @@ export const Login: React.FC = () => {
                           // get user by email and save user's id on storage'
                           getUserByEmail(registerUserRequest.email)
                             .then((user) => {
-                              console.log(user);
                               const savedUserData = getStorageUserData();
                               savedUserData.userId = user!.id;
                               savedUserData.authenticated = true;
                               setStorageUserData(savedUserData);
+                              setAuthenticated(true);
                               userDataContext?.setUserData(savedUserData);
                             })
                             .catch((err) => {

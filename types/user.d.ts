@@ -9,6 +9,6 @@ interface UserData {
   authenticated: boolean;
   userId: number;
   idToken?: string;
-  lastOpenedAppDate?: string;
+  lastOpenedAppDate?: number;
   lastOpenedAppWeek?: number;
 }

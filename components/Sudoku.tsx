@@ -4,6 +4,8 @@ import { getStorageGamesData } from "../services/storage.services";
 import { useSaveOnExit } from "../hooks/useSaveOnExit";
 import { addUserGameRegistration } from "../services/activityRegistrations.services";
 import { emptyDateTime } from "../utils/date.utils";
+import { SUDOKU_GAME_NAME } from "../constants/constants";
+import { GamesData } from "../types/game";
 
 // Type definitions
 export type SudokuGrid = SudokuCell[][];
@@ -92,9 +94,12 @@ function fillCells(grid: SudokuGrid): boolean {
  * @returns the generated sudoku grid
  */
 function generateSudoku(): SudokuGrid {
-  let grid: SudokuGrid | undefined = getStorageGamesData()?.sudokuGrid;
+  let grid: SudokuGrid;
+  const sudokuGameData: GamesData | undefined = getStorageGamesData()?.find(
+    (data) => data.name === SUDOKU_GAME_NAME,
+  );
 
-  if (!grid) {
+  if (!sudokuGameData || !sudokuGameData.data) {
     grid = Array(9)
       .fill(null)
       .map(() =>
@@ -107,6 +112,8 @@ function generateSudoku(): SudokuGrid {
     // Generate a solved Sudoku and then hide numbers to create a puzzle
     fillCells(grid);
     hideNumbers(grid);
+  } else {
+    grid = sudokuGameData.data as SudokuGrid;
   }
 
   return grid;
@@ -138,7 +145,12 @@ function hideNumbers(grid: SudokuGrid): void {
 export const SudokuGame = () => {
   const [grid, setGrid] = useState<SudokuGrid>(() => generateSudoku());
   const [selectedCell, setSelectedCell] = useState<Coordinates | null>(null);
-  useSaveOnExit(grid);
+  const [won, setWon] = useState<boolean>(false);
+  useSaveOnExit({
+    name: SUDOKU_GAME_NAME,
+    data: grid,
+    won,
+  });
 
   /**
    * @param row the row where the press action had place
@@ -191,6 +203,7 @@ export const SudokuGame = () => {
         grid={grid}
         setGrid={setGrid}
         setSelectedCell={setSelectedCell}
+        setWon={setWon}
       />
     </View>
   );
@@ -201,6 +214,7 @@ interface NumberPadProps {
   grid: SudokuGrid;
   setGrid: React.Dispatch<React.SetStateAction<SudokuGrid>>;
   setSelectedCell: React.Dispatch<React.SetStateAction<Coordinates | null>>;
+  setWon: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 /**
@@ -211,6 +225,7 @@ const NumberPad: React.FC<NumberPadProps> = ({
   grid,
   setGrid,
   setSelectedCell,
+  setWon,
 }) => {
   /**
    * Handler function for
@@ -240,7 +255,7 @@ const NumberPad: React.FC<NumberPadProps> = ({
           registrationDate: currentDate.valueOf(),
           userId: 1,
         });
-        Alert.alert("Congratulations!", "You solved the puzzle!");
+        setWon(true);
       }
     } else {
       updatedCell.valid = false;

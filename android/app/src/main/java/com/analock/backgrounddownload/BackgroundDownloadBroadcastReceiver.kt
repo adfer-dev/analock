@@ -32,13 +32,12 @@ class BackgroundDownloadBroadcastReceiver(
                 if (cursor.moveToFirst()) {
                     val columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
                     val status = cursor.getInt(columnIndex)
-
                     when (status) {
                         DownloadManager.STATUS_SUCCESSFUL -> {
                             promise?.resolve(filePath)
                         }
                         DownloadManager.STATUS_FAILED -> {
-                            promise?.reject(E_DOWNLOAD_FAILED, "Download failed")
+                            promise?.reject(E_DOWNLOAD_FAILED, "Download failed(${cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))})")
                         }
                     }
                 }
