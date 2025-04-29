@@ -1,3 +1,10 @@
 export const SUDOKU_GAME_NAME = "Sudoku";
 export const TTFE_GAME_NAME = "2048";
 export const SWIPE_THRESHOLD = 50;
+export const FONT_SIZE_SMALL = 12;
+export const FONT_SIZE_MEDIUM = 14;
+export const FONT_SIZE_BIG = 16;
+export const FONT_FAMILY_SERIF = "Merryweather";
+export const FONT_FAMILY_OPEN_DYSLEXIC = "OpenDyslexic";
+export const LANGUAGE_ENGLISH = "ENG";
+export const LANGUAGE_SPANISH = "SPA";

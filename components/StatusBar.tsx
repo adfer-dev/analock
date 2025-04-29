@@ -8,7 +8,11 @@ import {
 } from "../services/storage.services";
 import { GENERAL_STYLES } from "../constants/general.styles";
 
-export const StatusBar: React.FC = () => {
+interface StatusBarProperties {
+  refresh: boolean;
+}
+
+export const StatusBar: React.FC<StatusBarProperties> = ({ refresh }) => {
   const [time, setTime] = useState<Date>(new Date());
   const [progress, setProgress] = useState<number>(0);
   const TOTAL_ACTIVITIES: number = 5;
@@ -23,27 +27,28 @@ export const StatusBar: React.FC = () => {
 
   // hook to calculate activity progress
   useEffect(() => {
-    let completedActivitiesCount = 0;
-    const bookData = getStorageBooks();
-    const gameData = getStorageGamesData();
-    console.log(bookData);
-    if (bookData) {
-      for (const book of bookData) {
-        if (book.data.finished) {
-          completedActivitiesCount++;
+    if (refresh) {
+      let completedActivitiesCount = 0;
+      const bookData = getStorageBooks();
+      const gameData = getStorageGamesData();
+      if (bookData) {
+        for (const book of bookData) {
+          if (book.data.finished) {
+            completedActivitiesCount++;
+          }
         }
       }
-    }
 
-    if (gameData) {
-      for (const game of gameData) {
-        if (game.won) {
-          completedActivitiesCount++;
+      if (gameData) {
+        for (const game of gameData) {
+          if (game.won) {
+            completedActivitiesCount++;
+          }
         }
       }
+      setProgress((completedActivitiesCount / TOTAL_ACTIVITIES) * 100);
     }
-    setProgress((completedActivitiesCount / TOTAL_ACTIVITIES) * 100);
-  }, []);
+  }, [refresh]);
 
   const formattedTime = `${time.getHours().toString().padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}:${time.getSeconds().toString().padStart(2, "0")}`;
   return (

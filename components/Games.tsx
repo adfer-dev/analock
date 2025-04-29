@@ -1,22 +1,23 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { View } from "react-native";
 import { SudokuGame } from "./Sudoku";
 import { GameCard } from "./GameCard";
 import GameDetailScreen from "./Game";
 import { Game2048 } from "./2048Game";
 
 import { generalOptions } from "./Home";
-import { GENERAL_STYLES } from "../constants/general.styles";
 import { BaseScreen } from "./BaseScreen";
+import { useContext } from "react";
+import { TranslationsContext } from "../contexts/translationsContext";
 
 const GamesScreen = () => {
   const GamesStack = createNativeStackNavigator();
+  const translations = useContext(TranslationsContext)?.translations;
   return (
     <GamesStack.Navigator initialRouteName="Games">
       <GamesStack.Screen
         name="Games"
         component={Games}
-        options={generalOptions}
+        options={{ ...generalOptions, headerTitle: translations?.home.games }}
       />
       <GamesStack.Screen
         name="Game"

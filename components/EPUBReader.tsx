@@ -5,6 +5,7 @@ import RNFS from "react-native-fs";
 import { APP_DOCUMENTS_PATH } from "../services/download.services";
 import {
   addStorageBookData,
+  getSettings,
   getStorageBookData,
 } from "../services/storage.services";
 import { addUserBookRegistration } from "../services/activityRegistrations.services";
@@ -37,12 +38,16 @@ const START_HTML_FILE_PAGE = 1;
 
 const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
   const unzipPath = `${APP_DOCUMENTS_PATH}/${ebookId}`;
+  const bookData = getStorageBookData(ebookId);
+  const bookReaderSettings = getSettings().bookReader;
   const { htmlFiles, contentPath, cssPath, loading } = useProcessEpub(ebookId);
   const [htmlContent, setHtmlContent] = useState<string>("");
   const [currentFilePage, setCurrentFilePage] =
     useState<number>(START_HTML_FILE_PAGE);
   const [currentFileTotalPages, setCurrentFileTotalPages] = useState<number>(0);
-  const [hasFinishedReading, setHasFinishedReading] = useState<boolean>(false);
+  const [hasFinishedReading, setHasFinishedReading] = useState<boolean>(
+    bookData !== undefined && bookData.finished,
+  );
   const webViewRef = useRef<WebView>(null);
   useSaveOnExit({
     bookId: ebookId,
@@ -52,7 +57,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
   // Hook to set up the content that can be read
   useEffect(() => {
     if (htmlFiles.length > 0) {
-      const bookData = getStorageBookData(ebookId);
       // if book data has been stored, retrieve it and set the params.
       // if not, then generate the params and save them to local storage.
       if (bookData) {
@@ -87,9 +91,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
     webViewRef.current?.injectJavaScript(`goToPage(${currentFilePage}); true;`);
 
     const finishedReading = currentFilePage === currentFileTotalPages;
-    setHasFinishedReading(currentFilePage === currentFileTotalPages);
 
-    if (finishedReading && !getStorageBookData(ebookId)?.finished) {
+    if (finishedReading && !bookData?.finished) {
       const currentDate = new Date();
       emptyDateTime(currentDate);
       addUserBookRegistration({
@@ -97,6 +100,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
         registrationDate: currentDate.valueOf(),
         userId: 1,
       });
+      setHasFinishedReading(finishedReading);
     }
   }, [currentFilePage]);
 
@@ -151,12 +155,18 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <link href="${stylesPath}" rel="stylesheet" type="text/css"/>
         <style>
-        html {
-            font-size: 14px; 
-            font-family: "Merryweather";
-            -webkit-user-select: none;
-            user-select: none;
-        }
+            @font-face {font-family: 'Merryweather'; src: url('file:///android_asset/fonts/merriweather_regular.ttf') format('truetype'); font-weight: normal; font-style: normal;}
+            @font-face {font-family: 'Merryweather'; src: url('file:///android_asset/fonts/merriweather_bold.ttf') format('truetype'); font-weight: bold; font-style: normal;}
+            @font-face {font-family: 'Merryweather'; src: url('file:///android_asset/fonts/merriweather_italic.ttf') format('truetype'); font-weight: normal; font-style: italic;}
+            @font-face {font-family: 'OpenDyslexic'; src: url('file:///android_asset/fonts/opendyslexic_regular.otf') format('truetype'); font-weight: normal; font-style: normal;}
+            @font-face {font-family: 'OpenDyslexic'; src: url('file:///android_asset/fonts/opendyslexic_bold.otf') format('truetype'); font-weight: bold; font-style: normal;}
+            @font-face {font-family: 'OpenDyslexic'; src: url('file:///android_asset/fonts/opendyslexic_italic.otf') format('truetype'); font-weight: normal; font-style: italic;}
+            html {
+                font-size: ${bookReaderSettings.fontSize}px; 
+                font-family: "${bookReaderSettings.fontFamily}";
+                -webkit-user-select: none;
+                user-select: none;
+            }
         </style>
     </head>
     <body>
@@ -291,6 +301,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
     }
   }
 
+  // Pan gesture event. This gesture is the way of navigating the book.
   const panGesture = Gesture.Pan()
     .onStart(() => {
       return true;
@@ -308,15 +319,13 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
         }
       }
     })
-    .shouldCancelWhenOutside(false)
-    .maxPointers(1)
-    .minDistance(5);
+    .shouldCancelWhenOutside(false);
 
   return (
     <GestureHandlerRootView>
       <GestureDetector gesture={panGesture}>
-        <View style={{ flex: 1 }}>
-          {loading && <ActivityIndicator size="large" color="#0000ff" />}
+        <View style={[GENERAL_STYLES.backgroundColor, GENERAL_STYLES.flexGrow]}>
+          {loading && <ActivityIndicator size="large" color="black" />}
           {!loading && (
             <WebView
               originWhitelist={["*", "file://"]}

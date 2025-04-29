@@ -6,21 +6,24 @@ import {
 } from "../hooks/useOpenLibraryBooksBySubject";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import BookDetailScreen from "./Book";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { downloadAndUnzipEpub } from "../services/download.services";
 import { generalOptions } from "./Home";
+import { TranslationsContext } from "../contexts/translationsContext";
+import { GENERAL_STYLES } from "../constants/general.styles";
 
 const BOOKS_NUMBER = 2;
 
 const BooksScreen = () => {
   const BooksStack = createNativeStackNavigator();
+  const translations = useContext(TranslationsContext)?.translations.home;
   return (
     <BooksStack.Navigator initialRouteName="Books">
       <BooksStack.Screen
         name="Books"
         component={Books}
-        options={generalOptions}
+        options={{ ...generalOptions, headerTitle: translations?.books }}
       />
       <BooksStack.Screen
         name="Book"
@@ -65,7 +68,7 @@ const Books: React.FC = () => {
     <BaseScreen>
       {loading && (
         <View>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color="black" />
           <Text
             style={{
               textAlign: "center",
@@ -78,15 +81,25 @@ const Books: React.FC = () => {
           </Text>
         </View>
       )}
-      {!loading &&
-        res.openLibraryBooksBySubject?.map((book) => (
-          <BookCard
-            key={book.identifier}
-            id={book.identifier}
-            title={book.title}
-            author={book.creator}
-          />
-        ))}
+      {!loading && (
+        <View
+          style={[
+            GENERAL_STYLES.flexCol,
+            GENERAL_STYLES.alignCenter,
+            GENERAL_STYLES.flexGrow,
+            { gap: 30 },
+          ]}
+        >
+          {res.openLibraryBooksBySubject?.map((book) => (
+            <BookCard
+              key={book.identifier}
+              id={book.identifier}
+              title={book.title}
+              author={book.creator}
+            />
+          ))}
+        </View>
+      )}
     </BaseScreen>
   );
 };

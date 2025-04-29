@@ -3,10 +3,13 @@ import { StyleSheet } from "react-native";
 export const GENERAL_STYLES = StyleSheet.create({
   generalPadding: {
     paddingHorizontal: 20,
-    paddingTop: 30,
+    paddingTop: 20,
   },
   horizontalPadding: {
     paddingHorizontal: 20,
+  },
+  marginTop: {
+    marginTop: 10,
   },
   flexCol: {
     flexDirection: "column",
@@ -15,7 +18,7 @@ export const GENERAL_STYLES = StyleSheet.create({
     flexDirection: "row",
   },
   flexGap: {
-    gap: 10,
+    gap: 20,
   },
   flexGrow: {
     flex: 1,
@@ -37,15 +40,24 @@ export const GENERAL_STYLES = StyleSheet.create({
     textAlign: "center",
     justifyContent: "center",
   },
+  textBold: {
+    fontWeight: "bold",
+  },
+  textItalic: {
+    fontStyle: "italic",
+  },
   navBar: {
     fontFamily: "Inter",
+    fontSize: 16,
     fontWeight: "bold",
-    fontSize: 18,
   },
   navBarRigth: {
     flexGrow: 0.1,
   },
   backgroundColor: {
     backgroundColor: "#e9e9e9",
+  },
+  spaceBetween: {
+    justifyContent: "space-between",
   },
 });

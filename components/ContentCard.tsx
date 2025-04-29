@@ -12,7 +12,7 @@ type RootStackParamList = {
   DiaryScreen: undefined;
 };
 
-interface ContentCardProps {
+export interface ContentCardProps {
   name: string;
   screenName: keyof RootStackParamList;
   Icon: React.FC;

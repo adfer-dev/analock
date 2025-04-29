@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import DiaryEntryDetailScreen from "./DiaryEntry";
 import { useUserDiaryEntries } from "../hooks/useUserDiaryEntries";
 import { BaseScreen } from "./BaseScreen";
@@ -10,19 +10,22 @@ import {
   updateUserDiaryEntry,
 } from "../services/diaryEntries.services";
 import { areDatesEqual, emptyDateTime } from "../utils/date.utils";
-import { getStorageUserData } from "../services/storage.services";
+import { getSettings, getStorageUserData } from "../services/storage.services";
 import { timestampToDate } from "../utils/date.utils";
 import { generalOptions } from "./Home";
 import { GENERAL_STYLES } from "../constants/general.styles";
+import { TranslationsContext } from "../contexts/translationsContext";
+import { OnlineFeaturesDisclaimer } from "./OnlineFeaturesDisclaimer";
 
 const DiaryScreen = () => {
+  const translations = useContext(TranslationsContext)?.translations;
   const DiaryEntriesStack = createNativeStackNavigator();
   return (
     <DiaryEntriesStack.Navigator initialRouteName="DiaryEntries">
       <DiaryEntriesStack.Screen
         name="DiaryEntries"
-        component={DiaryEntries}
-        options={{ ...generalOptions, headerTitle: "Diary" }}
+        component={DiaryEntriesScreen}
+        options={{ ...generalOptions, headerTitle: translations!.home.diary }}
       />
       <DiaryEntriesStack.Screen
         name="DiaryEntry"
@@ -33,7 +36,18 @@ const DiaryScreen = () => {
   );
 };
 
+const DiaryEntriesScreen: React.FC = () => {
+  const userSettings = getSettings();
+
+  return userSettings && userSettings.general.enableOnlineFeatures ? (
+    <DiaryEntries />
+  ) : (
+    <OnlineFeaturesDisclaimer />
+  );
+};
+
 const DiaryEntries: React.FC = () => {
+  const diaryTranslations = useContext(TranslationsContext)?.translations.diary;
   const userData = getStorageUserData();
   const { userDiaryEntries, setUserDiaryEntries } = useUserDiaryEntries(
     userData.userId,
@@ -46,7 +60,7 @@ const DiaryEntries: React.FC = () => {
   const [selectedDiaryEntry, setSelectedDiaryEntry] = useState<DiaryEntry>();
 
   return (
-    <BaseScreen navTitle="Diary">
+    <BaseScreen>
       <TouchableOpacity
         disabled={
           userDiaryEntries?.find((diaryEntry) =>
@@ -61,7 +75,7 @@ const DiaryEntries: React.FC = () => {
           setShowAddDiaryEntryModal(true);
         }}
       >
-        <Text style={GENERAL_STYLES.uiText}>Add</Text>
+        <Text style={GENERAL_STYLES.uiText}>{diaryTranslations?.add}</Text>
       </TouchableOpacity>
       <ScrollView>
         {userDiaryEntries &&
@@ -175,7 +189,9 @@ const DiaryEntries: React.FC = () => {
                   selectedDiaryEntry.content === contentInput
                 }
               >
-                <Text style={GENERAL_STYLES.uiText}>Save</Text>
+                <Text style={GENERAL_STYLES.uiText}>
+                  {diaryTranslations?.save}
+                </Text>
               </TouchableOpacity>
             )}
         </>

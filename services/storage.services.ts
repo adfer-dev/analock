@@ -3,9 +3,20 @@ import { APP_DOCUMENTS_PATH } from "./download.services";
 import { GameData, GamesData, TTFEGameData } from "../types/game";
 import { SudokuGrid } from "../components/Sudoku";
 import { BookStorageData } from "../components/EPUBReader";
-import { SUDOKU_GAME_NAME, TTFE_GAME_NAME } from "../constants/constants";
+import {
+  FONT_FAMILY_SERIF,
+  FONT_SIZE_MEDIUM,
+  LANGUAGE_ENGLISH,
+  SUDOKU_GAME_NAME,
+  TTFE_GAME_NAME,
+} from "../constants/constants";
 
-export type StorageData = GamesData | StorageBook | BookStorageData | UserData;
+export type StorageData =
+  | GamesData
+  | StorageBook
+  | BookStorageData
+  | UserData
+  | SettingsData;
 
 const storageInstance = new MMKV({
   id: `analock-storage`,
@@ -19,9 +30,21 @@ const AUTH_DATA_STORAGE_KEY = "authData";
 const BOOKS_DATA_STORAGE_KEY = "bookData";
 const BOOKS_STORAGE_KEY = "books";
 const GAMES_DATA_STORAGE_KEY = "gameData";
+const SETTINGS_STORAGE_KEY = "settings";
 const DEFAULT_USER_DATA: UserData = {
   userId: -1,
   authenticated: false,
+};
+
+const DEFAULT_SETTINGS: SettingsData = {
+  general: {
+    enableOnlineFeatures: false,
+    language: LANGUAGE_ENGLISH,
+  },
+  bookReader: {
+    fontSize: FONT_SIZE_MEDIUM,
+    fontFamily: FONT_FAMILY_SERIF,
+  },
 };
 
 // USER DATA FUNCTIONS
@@ -309,4 +332,29 @@ function isSudokuGrid(data: GameData): data is SudokuGrid {
  */
 function isTTFEGameData(data: GameData): data is TTFEGameData {
   return "ttfeBoard" in data && "ttfeScore" in data;
+}
+
+// SETTINGS FUNCTIONS
+/**
+ * Gets user's stored settings
+ *
+ * @returns the stored settings
+ */
+export function getSettings(): SettingsData {
+  const gameDataString = storageInstance.getString(SETTINGS_STORAGE_KEY);
+
+  if (!gameDataString) {
+    setSettings(DEFAULT_SETTINGS);
+    return DEFAULT_SETTINGS;
+  }
+  return JSON.parse(gameDataString) as SettingsData;
+}
+
+/**
+ * Sets user's stored settings
+ *
+ * @param the updated settings
+ */
+export function setSettings(settings: SettingsData): void {
+  storageInstance.set(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
 }

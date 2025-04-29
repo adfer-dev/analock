@@ -6,6 +6,7 @@ import { addUserGameRegistration } from "../services/activityRegistrations.servi
 import { emptyDateTime } from "../utils/date.utils";
 import { SUDOKU_GAME_NAME } from "../constants/constants";
 import { GamesData } from "../types/game";
+import { GENERAL_STYLES } from "../constants/general.styles";
 
 // Type definitions
 export type SudokuGrid = SudokuCell[][];
@@ -163,7 +164,7 @@ export const SudokuGame = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, GENERAL_STYLES.backgroundColor]}>
       <View style={styles.grid}>
         {grid.map((row, rowIndex) => (
           <View key={rowIndex} style={styles.row}>
@@ -181,7 +182,7 @@ export const SudokuGame = () => {
                   (rowIndex + 1) % 3 === 0 && styles.bottomBorder,
                   (colIndex + 1) % 3 === 0 && styles.rightBorder,
                 ]}
-                onPress={() => handleCellPress(rowIndex, colIndex)}
+                onPressIn={() => handleCellPress(rowIndex, colIndex)}
               >
                 <Text
                   style={[
@@ -270,7 +271,7 @@ const NumberPad: React.FC<NumberPadProps> = ({
         <TouchableOpacity
           key={num}
           style={styles.numberButton}
-          onPress={() => handleNumberInput(num)}
+          onPressIn={() => handleNumberInput(num)}
         >
           <Text style={styles.numberButtonText}>{num}</Text>
         </TouchableOpacity>
@@ -283,7 +284,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
   },
   grid: {
     borderWidth: 2,
@@ -334,13 +334,13 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     margin: 5,
-    backgroundColor: "#2196f3",
+    backgroundColor: "black",
     borderRadius: 25,
     alignItems: "center",
     justifyContent: "center",
   },
   numberButtonText: {
-    color: "#fff",
+    color: "white",
     fontSize: 24,
   },
 });

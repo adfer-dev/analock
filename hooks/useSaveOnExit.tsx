@@ -4,6 +4,7 @@ import {
   StorageData,
   getStorageBooks,
   saveGamesData,
+  setSettings,
   setStorageBookData,
 } from "../services/storage.services";
 import { useNavigation } from "@react-navigation/native";
@@ -66,6 +67,8 @@ export function useSaveOnExit(data: StorageData): void {
         currentBookData[indexToUpdate].data.finished = data.finished;
         setStorageBookData(currentBookData);
       }
+    } else if ("general" in data && "bookReader" in data) {
+      setSettings(data as SettingsData);
     } else {
       saveGamesData(data as GamesData);
     }

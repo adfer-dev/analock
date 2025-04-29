@@ -39,7 +39,6 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
-      ReactFontManager.getInstance().addCustomFont(this, "Merriweather", R.font.merriweather)
       ReactFontManager.getInstance().addCustomFont(this, "Inter", R.font.inter)
     SoLoader.init(this, false)
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {

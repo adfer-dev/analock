@@ -7,12 +7,14 @@ import { GamesIcon } from "./GamesIcon";
 import { DiaryIcon } from "./DiaryIcon";
 import { ContentCard } from "./ContentCard";
 import { StatusBar } from "./StatusBar";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Login } from "./Login";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useWipePeriodicContent } from "../hooks/useWipePeriodicContent";
 import { getStorageUserData } from "../services/storage.services";
 import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
+import { TranslationsContext } from "../contexts/translationsContext";
+import { BaseScreen } from "./BaseScreen";
 
 export const generalOptions: NativeStackNavigationOptions = {
   headerTitleAlign: "center",
@@ -26,6 +28,8 @@ const Home: React.FC = () => {
   const [authenticated, setAuthenticated] = useState<boolean>(
     getStorageUserData().authenticated,
   );
+  const refresh = useIsFocused();
+  const homeTranslations = useContext(TranslationsContext)?.translations.home;
   useWipePeriodicContent();
 
   // hook to handle back button press
@@ -48,31 +52,37 @@ const Home: React.FC = () => {
   }, []);
 
   return authenticated ? (
-    <View
-      style={[
-        GENERAL_STYLES.generalPadding,
-        GENERAL_STYLES.flexGrow,
-        GENERAL_STYLES.flexCol,
-        GENERAL_STYLES.backgroundColor,
-        { gap: 30 },
-      ]}
-    >
-      <StatusBar />
-      <View>
-        <View style={[HOME_STYLES.row]}>
-          <ContentCard name="Books" screenName="BooksScreen" Icon={BooksIcon} />
-          <ContentCard name="Games" screenName="GamesScreen" Icon={GamesIcon} />
-        </View>
-        <View style={[HOME_STYLES.row]}>
-          <ContentCard name="Diary" screenName="DiaryScreen" Icon={DiaryIcon} />
-          <ContentCard
-            name="Profile"
-            screenName="MySpaceScreen"
-            Icon={MediaIcon}
-          />
+    <BaseScreen>
+      <View style={{ marginTop: 10, gap: 20 }}>
+        <StatusBar refresh={refresh} />
+        <View>
+          <View style={[HOME_STYLES.row]}>
+            <ContentCard
+              name={homeTranslations.books}
+              screenName="BooksScreen"
+              Icon={BooksIcon}
+            />
+            <ContentCard
+              name={homeTranslations.games}
+              screenName="GamesScreen"
+              Icon={GamesIcon}
+            />
+          </View>
+          <View style={[HOME_STYLES.row]}>
+            <ContentCard
+              name={homeTranslations.diary}
+              screenName="DiaryScreen"
+              Icon={DiaryIcon}
+            />
+            <ContentCard
+              name={homeTranslations.profile}
+              screenName="MySpaceScreen"
+              Icon={MediaIcon}
+            />
+          </View>
         </View>
       </View>
-    </View>
+    </BaseScreen>
   ) : (
     <Login setAuthenticated={setAuthenticated} />
   );

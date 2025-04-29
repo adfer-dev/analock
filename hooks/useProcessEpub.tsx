@@ -208,7 +208,7 @@ async function addCustomCSS(unzipPath: string, cssPath: string) {
   updatedStyles = getCustomElementStyles(
     updatedStyles,
     "p",
-    `line-height: 20px; text-align: justify; letter-spacing: 0.2px; padding: 0;`,
+    `line-height: 25px; text-align: justify; letter-spacing: 0.2px; padding: 0;`,
   );
 
   updatedStyles = getCustomElementStyles(
@@ -222,25 +222,6 @@ async function addCustomCSS(unzipPath: string, cssPath: string) {
     ".content-wrapper",
     `padding-left: 10px; padding-right:10px; box-sizing: border-box;`,
   );
-
-  // Add custom fonts
-  updatedStyles = getCustomElementStyles(
-    updatedStyles,
-    "@font-face",
-    `font-family: 'Merryweather'; src: url('file:///android_asset/fonts/merriweather_regular.ttf') format('truetype'); font-weight: normal; font-style: normal;`,
-  );
-  updatedStyles = getCustomElementStyles(
-    updatedStyles,
-    "@font-face",
-    `font-family: 'Merryweather'; src: url('file:///android_asset/fonts/merriweather_bold.ttf') format('truetype'); font-weight: bold; font-style: normal;`,
-  );
-  updatedStyles = getCustomElementStyles(
-    updatedStyles,
-    "@font-face",
-    `font-family: 'Merryweather'; src: url('file:///android_asset/fonts/merriweather_italic.ttf') format('truetype'); font-weight: normal; font-style: italic;`,
-  );
-
-  console.log(updatedStyles);
 
   // write updated styles into CSS file
   await RNFS.writeFile(
