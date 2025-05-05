@@ -17,10 +17,15 @@ export async function getUserDiaryEntries(
 
 export async function getIntervalUserDiaryEntries(
   userId: number,
-  startDate: number,
-  endDate: number,
+  startDate?: number,
+  endDate?: number,
 ): Promise<DiaryEntry[]> {
-  const getDiaryEntriesUrl = `${process.env.API_ROOT_URL}api/v1/diaryEntries/user/${userId}?start_date=${startDate}&end_date=${endDate}`;
+  let getDiaryEntriesUrl = `${process.env.API_ROOT_URL}api/v1/diaryEntries/user/${userId}`;
+
+  if (startDate && endDate) {
+    getDiaryEntriesUrl += `?start_date=${startDate}&end_date=${endDate}`;
+  }
+
   let userDiaryEntries: DiaryEntry[] = [];
 
   try {

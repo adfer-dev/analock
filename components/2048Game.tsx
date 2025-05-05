@@ -12,11 +12,17 @@ import {
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
 import { useSaveOnExit } from "../hooks/useSaveOnExit";
-import { getStorageGamesData } from "../services/storage.services";
+import {
+  getSettings,
+  getStorageGamesData,
+  getStorageUserData,
+} from "../services/storage.services";
 import { addUserGameRegistration } from "../services/activityRegistrations.services";
 import { emptyDateTime } from "../utils/date.utils";
 import { SWIPE_THRESHOLD, TTFE_GAME_NAME } from "../constants/constants";
 import { TTFEGameData } from "../types/game";
+import { GameWon } from "./GameWon";
+import { GENERAL_STYLES } from "../constants/general.styles";
 
 type Direction = "up" | "down" | "left" | "right";
 export type TTFEBoard = number[][];
@@ -42,10 +48,15 @@ const colors: Record<number, string> = {
 
 export function Game2048() {
   const gamesData = getStorageGamesData();
+  const ttfeGameData = getStorageGamesData()?.find(
+    (data) => data.name === TTFE_GAME_NAME,
+  );
   const [board, setBoard] = useState<TTFEBoard>(() => initializeBoard());
   const [score, setScore] = useState<number>(() => initializeScore());
   const [gameOver, setGameOver] = useState<boolean>(false);
-  const [won, setWon] = useState<boolean>(false);
+  const [won, setWon] = useState<boolean>(
+    ttfeGameData ? ttfeGameData.won : false,
+  );
   useSaveOnExit({
     name: TTFE_GAME_NAME,
     data: { ttfeBoard: board, ttfeScore: score },
@@ -58,9 +69,6 @@ export function Game2048() {
    * @returns the loaded board
    */
   function initializeBoard(): TTFEBoard {
-    const ttfeGameData = getStorageGamesData()?.find(
-      (data) => data.name === TTFE_GAME_NAME,
-    );
     let board: TTFEBoard;
 
     if (!ttfeGameData || !ttfeGameData.data) {
@@ -169,14 +177,18 @@ export function Game2048() {
         setBoard(newBoard);
         setScore(newScore);
 
-        if (score >= 2048) {
-          const currentDate = new Date();
-          emptyDateTime(currentDate);
-          addUserGameRegistration({
-            gameName: "2048 Game",
-            registrationDate: currentDate.valueOf(),
-            userId: 1,
-          });
+        if (score >= 2048 && !ttfeGameData?.won) {
+          const userSettings = getSettings();
+          if (userSettings.general.enableOnlineFeatures) {
+            const currentDate = new Date();
+            const userData = getStorageUserData();
+            emptyDateTime(currentDate);
+            addUserGameRegistration({
+              gameName: TTFE_GAME_NAME,
+              registrationDate: currentDate.valueOf(),
+              userId: userData.userId,
+            });
+          }
           setWon(true);
         } else if (!canMove(newBoard)) {
           setGameOver(true);
@@ -244,8 +256,10 @@ export function Game2048() {
     setGameOver(false);
   };
 
-  return (
-    <GestureHandlerRootView style={styles.container}>
+  return !won ? (
+    <GestureHandlerRootView
+      style={[styles.container, GENERAL_STYLES.backgroundColor]}
+    >
       <View style={styles.header}>
         <Text style={styles.title}>2048</Text>
         <View style={styles.scoreContainer}>
@@ -291,19 +305,15 @@ export function Game2048() {
           </TouchableOpacity>
         </View>
       )}
-      {won && (
-        <View>
-          <Text>{`You won the game! Score: ${score}`}</Text>
-        </View>
-      )}
     </GestureHandlerRootView>
+  ) : (
+    <GameWon />
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAF8EF",
     padding: 16,
   },
   header: {
@@ -315,22 +325,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 48,
     fontWeight: "bold",
-    color: "#776E65",
+    color: "black",
   },
   scoreContainer: {
-    backgroundColor: "#BBADA0",
+    backgroundColor: "black",
     padding: 8,
     borderRadius: 6,
     minWidth: 100,
     alignItems: "center",
   },
   scoreLabel: {
-    color: "#EEE4DA",
+    color: "white",
     fontSize: 16,
     fontWeight: "bold",
   },
   scoreValue: {
-    color: "#FFFFFF",
+    color: "white",
     fontSize: 24,
     fontWeight: "bold",
   },
@@ -374,13 +384,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   resetButton: {
-    backgroundColor: "#8F7A66",
+    backgroundColor: "black",
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 3,
   },
   resetButtonText: {
-    color: "#F9F6F2",
+    color: "white",
     fontSize: 18,
     fontWeight: "bold",
   },

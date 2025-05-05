@@ -1,17 +1,30 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Text, TouchableOpacity } from "react-native";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { generalOptions } from "./Home";
 import { BaseScreen } from "./BaseScreen";
-import Settings from "./Settings";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { useNavigation } from "@react-navigation/native";
 import { CalendarScreen } from "./RegistrationsCalendar";
+import { WeeklyActivityChart } from "./WeeklyActivityChart";
+import { getStorageUserData } from "../services/storage.services";
+import { View } from "react-native";
+import { GENERAL_STYLES } from "../constants/general.styles";
+import { CalendarIcon } from "./icons/CalendarIcon";
+import { SettingsIcon } from "./icons/SettingsIcon";
+import { ProfileCircleContainer } from "./ProfileCircleContainer";
+import { ProfileIcon } from "./icons/ProfileIcon";
+import { useGetUserActivityRegistrations } from "../hooks/useGetUserActivityRegistrations";
+import { formatString } from "../utils/string.utils";
+import Settings from "./Settings";
+import { SettingsContext } from "../contexts/settingsContext";
 
 export type MySpaceStackParamList = {
   MySpace: undefined;
   Settings: undefined;
 };
+
+const MIN_ACTIVITY_NUMBER_FOR_STREAK = 1;
 
 const MySpaceScreen = () => {
   const translations = useContext(TranslationsContext)?.translations;
@@ -48,24 +61,142 @@ const MySpaceScreen = () => {
 
 function MySpace() {
   const navigation = useNavigation();
+  const userSettingsContext = useContext(SettingsContext);
   const profileTranslations =
     useContext(TranslationsContext)?.translations.profile;
+  const userData = getStorageUserData();
+  const userRegistrations = userSettingsContext?.settings.general
+    .enableOnlineFeatures
+    ? useGetUserActivityRegistrations(userData.userId)
+    : [];
+  const [streak, setStreak] = useState<number>(0);
+
+  useEffect(() => {
+    if (
+      userRegistrations.length > 0 &&
+      userSettingsContext?.settings.general.enableOnlineFeatures
+    ) {
+      const currentDate = new Date();
+      let day = currentDate.getDate() - 1;
+      let streak = 0;
+      let brokeStreak = false;
+
+      while (!brokeStreak) {
+        const date = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          day,
+        );
+
+        if (
+          userRegistrations.filter(
+            (registration) =>
+              registration.registration.registrationDate === date.valueOf(),
+          ).length >= MIN_ACTIVITY_NUMBER_FOR_STREAK
+        ) {
+          streak++;
+        } else {
+          brokeStreak = true;
+        }
+        day--;
+      }
+      setStreak(streak);
+    }
+  }, [userRegistrations]);
+
   return (
     <BaseScreen>
-      <TouchableOpacity
-        onPressIn={() => {
-          navigation.push("Calendar");
-        }}
+      <View
+        style={[
+          GENERAL_STYLES.flexRow,
+          GENERAL_STYLES.alignCenter,
+          GENERAL_STYLES.flexGap,
+          { marginBottom: 20 },
+        ]}
       >
-        <Text>{profileTranslations?.calendar}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPressIn={() => {
-          navigation.push("Settings");
-        }}
-      >
-        <Text>{profileTranslations?.settings}</Text>
-      </TouchableOpacity>
+        <ProfileCircleContainer iconSize={64}>
+          <ProfileIcon width={64} heigth={64} />
+        </ProfileCircleContainer>
+        <View style={[GENERAL_STYLES.flexCol, { alignSelf: "flex-start" }]}>
+          <Text style={[GENERAL_STYLES.uiText, { fontSize: 25 }]}>
+            {userData.userName !== undefined ? userData.userName : "Guest"}
+          </Text>
+          {profileTranslations &&
+            userSettingsContext?.settings.general.enableOnlineFeatures && (
+              <Text style={[GENERAL_STYLES.uiText]}>
+                {formatString(profileTranslations.streak, streak)}
+              </Text>
+            )}
+        </View>
+      </View>
+      {userSettingsContext?.settings.general.enableOnlineFeatures && (
+        <View style={{ marginBottom: 20 }}>
+          <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textTitle]}>
+            Weekly progress
+          </Text>
+          <WeeklyActivityChart userRegistrations={userRegistrations} />
+        </View>
+      )}
+      <View style={[GENERAL_STYLES.flexRow, GENERAL_STYLES.flexGap]}>
+        <TouchableOpacity
+          onPressIn={() => {
+            navigation.push("Calendar");
+          }}
+          style={[
+            GENERAL_STYLES.generalBorder,
+            GENERAL_STYLES.smallPadding,
+            GENERAL_STYLES.flexGrow,
+          ]}
+        >
+          <View
+            style={[
+              GENERAL_STYLES.flexRow,
+              GENERAL_STYLES.alignCenter,
+              GENERAL_STYLES.justifyCenter,
+            ]}
+          >
+            <CalendarIcon />
+            <Text
+              style={[
+                GENERAL_STYLES.uiText,
+                GENERAL_STYLES.textBold,
+                GENERAL_STYLES.alignCenter,
+              ]}
+            >
+              {profileTranslations?.calendar}
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPressIn={() => {
+            navigation.push("Settings");
+          }}
+          style={[
+            GENERAL_STYLES.generalBorder,
+            GENERAL_STYLES.smallPadding,
+            GENERAL_STYLES.flexGrow,
+          ]}
+        >
+          <View
+            style={[
+              GENERAL_STYLES.flexRow,
+              GENERAL_STYLES.alignCenter,
+              GENERAL_STYLES.justifyCenter,
+            ]}
+          >
+            <SettingsIcon />
+            <Text
+              style={[
+                GENERAL_STYLES.uiText,
+                GENERAL_STYLES.textBold,
+                GENERAL_STYLES.alignCenter,
+              ]}
+            >
+              {profileTranslations?.settings}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
     </BaseScreen>
   );
 }

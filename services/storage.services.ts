@@ -4,6 +4,7 @@ import { GameData, GamesData, TTFEGameData } from "../types/game";
 import { SudokuGrid } from "../components/Sudoku";
 import { BookStorageData } from "../components/EPUBReader";
 import {
+  DAY_OF_WEEK_SUNDAY,
   FONT_FAMILY_SERIF,
   FONT_SIZE_MEDIUM,
   LANGUAGE_ENGLISH,
@@ -38,12 +39,15 @@ const DEFAULT_USER_DATA: UserData = {
 
 const DEFAULT_SETTINGS: SettingsData = {
   general: {
-    enableOnlineFeatures: false,
+    enableOnlineFeatures: true,
     language: LANGUAGE_ENGLISH,
   },
   bookReader: {
     fontSize: FONT_SIZE_MEDIUM,
     fontFamily: FONT_FAMILY_SERIF,
+  },
+  preferences: {
+    firstDayOfWeek: DAY_OF_WEEK_SUNDAY,
   },
 };
 
@@ -243,15 +247,20 @@ export function saveStorageGamesSudoku(gameData: GamesData) {
   const currentSudokuGameDataIndex = currentGameData?.findIndex(
     (data) => data.name === SUDOKU_GAME_NAME,
   );
-  if (
-    currentGameData &&
-    currentSudokuGameDataIndex &&
-    currentSudokuGameDataIndex !== -1
-  ) {
-    (currentGameData[currentSudokuGameDataIndex].data as SudokuGrid) =
-      gameData.data as SudokuGrid;
-    currentGameData[currentSudokuGameDataIndex].won = gameData.won;
-    setStorageGamesData(currentGameData);
+
+  if (currentGameData !== undefined) {
+    if (
+      currentSudokuGameDataIndex !== undefined &&
+      currentSudokuGameDataIndex !== -1
+    ) {
+      (currentGameData[currentSudokuGameDataIndex].data as SudokuGrid) =
+        gameData.data as SudokuGrid;
+      currentGameData[currentSudokuGameDataIndex].won = gameData.won;
+      setStorageGamesData(currentGameData);
+    } else {
+      currentGameData.push(gameData);
+      setStorageGamesData(currentGameData);
+    }
   } else {
     setStorageGamesData([gameData]);
   }
@@ -263,16 +272,19 @@ export function saveStorageGamesTTFE(gameData: GamesData) {
     (data) => data.name === TTFE_GAME_NAME,
   );
 
-  if (
-    currentGameData &&
-    currentTTFEGameDataIndex &&
-    currentTTFEGameDataIndex !== -1
-  ) {
-    (currentGameData[currentTTFEGameDataIndex].data as TTFEGameData).ttfeBoard =
-      (gameData.data as TTFEGameData).ttfeBoard;
-    (currentGameData[currentTTFEGameDataIndex].data as TTFEGameData).ttfeScore =
-      (gameData.data as TTFEGameData).ttfeScore;
-    setStorageGamesData(currentGameData);
+  if (currentGameData !== undefined) {
+    if (
+      currentTTFEGameDataIndex !== undefined &&
+      currentTTFEGameDataIndex !== -1
+    ) {
+      (currentGameData[currentTTFEGameDataIndex].data as SudokuGrid) =
+        gameData.data as SudokuGrid;
+      currentGameData[currentTTFEGameDataIndex].won = gameData.won;
+      setStorageGamesData(currentGameData);
+    } else {
+      currentGameData.push(gameData);
+      setStorageGamesData(currentGameData);
+    }
   } else {
     setStorageGamesData([gameData]);
   }

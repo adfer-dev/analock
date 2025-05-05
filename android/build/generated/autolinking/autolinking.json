@@ -131,17 +131,29 @@
         }
       }
     },
-    "react-native-render-html": {
-      "root": "/home/adferdev-lap/repos/analock/node_modules/react-native-render-html",
-      "name": "react-native-render-html",
+    "react-native-reanimated": {
+      "root": "/home/adferdev-lap/repos/analock/node_modules/react-native-reanimated",
+      "name": "react-native-reanimated",
       "platforms": {
         "ios": {
-          "podspecPath": "/home/adferdev-lap/repos/analock/node_modules/react-native-render-html/react-native-render-html.podspec",
-          "version": "6.3.4",
+          "podspecPath": "/home/adferdev-lap/repos/analock/node_modules/react-native-reanimated/RNReanimated.podspec",
+          "version": "3.17.5",
           "configurations": [],
           "scriptPhases": []
         },
-        "android": null
+        "android": {
+          "sourceDir": "/home/adferdev-lap/repos/analock/node_modules/react-native-reanimated/android",
+          "packageImportPath": "import com.swmansion.reanimated.ReanimatedPackage;",
+          "packageInstance": "new ReanimatedPackage()",
+          "buildTypes": [],
+          "libraryName": "rnreanimated",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/home/adferdev-lap/repos/analock/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
       }
     },
     "react-native-safe-area-context": {

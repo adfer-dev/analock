@@ -36,7 +36,7 @@ export function getWeekOfYear(date: Date): number {
 export function dateToDateData(date: Date): DateData {
   return {
     year: date.getFullYear(),
-    month: date.getMonth(),
+    month: date.getMonth() + 1,
     day: date.getDay(),
     dateString: date.toDateString(),
     timestamp: date.valueOf(),
@@ -73,4 +73,53 @@ export function emptyDateTime(date: Date): void {
   date.setMinutes(0);
   date.setSeconds(0);
   date.setMilliseconds(0);
+}
+
+export function getDayOfWeekTranslation(
+  index: number,
+  selectedTranslation: Translation,
+): string {
+  const dateTranslations = selectedTranslation.general.daysOfWeek;
+  if (index === 0) {
+    return dateTranslations.sunday;
+  } else if (index === 1) {
+    return dateTranslations.monday;
+  } else if (index === 2) {
+    return dateTranslations.tuesday;
+  } else if (index === 3) {
+    return dateTranslations.wednesday;
+  } else if (index === 4) {
+    return dateTranslations.thursday;
+  } else if (index === 5) {
+    return dateTranslations.friday;
+  } else {
+    return dateTranslations.saturday;
+  }
+}
+
+/**
+ * Gets the current week's first sunday month day
+ *
+ * @returns the first week sunday month day
+ */
+export function getFirstDayOfWeekSunday(): number {
+  const currentDate = new Date();
+  const firstDayOfWeek = currentDate.getDate() - currentDate.getDay();
+
+  return firstDayOfWeek;
+}
+
+/**
+ * Gets the current week's first monday month day
+ *
+ * @returns the first week monday month day
+ */
+export function getFirstDayOfWeekMonday(): number {
+  const currentDate = new Date();
+  const firstDayOfWeek =
+    currentDate.getDate() -
+    currentDate.getDay() +
+    (currentDate.getDay() == 0 ? -6 : 1);
+
+  return firstDayOfWeek;
 }

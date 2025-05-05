@@ -20,7 +20,9 @@ export const CustomSwitch: React.FC<CustomSwitchProps> = ({
         GENERAL_STYLES.spaceBetween,
       ]}
     >
-      <Text style={[GENERAL_STYLES.uiText]}>{label}</Text>
+      <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBold]}>
+        {label}
+      </Text>
       <Switch
         trackColor={{ false: "#767577", true: "black" }}
         thumbColor={"white"}

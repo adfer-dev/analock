@@ -1,8 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Text, TouchableOpacity, View } from "react-native";
-import { BooksIcon } from "./BooksIcon";
+import { Text, TouchableOpacity } from "react-native";
 import { GENERAL_STYLES } from "../constants/general.styles";
+import { BooksIcon } from "./icons/BooksIcon";
 
 type BookStackParamList = {
   Books: undefined;

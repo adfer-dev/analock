@@ -1,21 +1,20 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import DiaryEntryDetailScreen from "./DiaryEntry";
 import { useUserDiaryEntries } from "../hooks/useUserDiaryEntries";
 import { BaseScreen } from "./BaseScreen";
-import { ScrollView, Text, TextInput, TouchableOpacity } from "react-native";
-import { CustomModal } from "./CustomModal";
-import {
-  addUserDiaryEntry,
-  updateUserDiaryEntry,
-} from "../services/diaryEntries.services";
-import { areDatesEqual, emptyDateTime } from "../utils/date.utils";
+import { FlatList, Text, TouchableOpacity } from "react-native";
+import { areDatesEqual } from "../utils/date.utils";
 import { getSettings, getStorageUserData } from "../services/storage.services";
 import { timestampToDate } from "../utils/date.utils";
 import { generalOptions } from "./Home";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { OnlineFeaturesDisclaimer } from "./OnlineFeaturesDisclaimer";
+import { useNavigation } from "@react-navigation/native";
+import { LoadingIndicator } from "./LoadingIndicator";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { AddIcon } from "./icons/AddIcon";
 
 const DiaryScreen = () => {
   const translations = useContext(TranslationsContext)?.translations;
@@ -30,7 +29,12 @@ const DiaryScreen = () => {
       <DiaryEntriesStack.Screen
         name="DiaryEntry"
         component={DiaryEntryDetailScreen}
-        options={generalOptions}
+        options={({ route }) => ({
+          ...generalOptions,
+          headerTitle: (route.params?.isUpdate as boolean)
+            ? translations?.diary.updateDiaryEntryHeader
+            : translations?.diary.addDiaryEntryHeader,
+        })}
       />
     </DiaryEntriesStack.Navigator>
   );
@@ -47,157 +51,126 @@ const DiaryEntriesScreen: React.FC = () => {
 };
 
 const DiaryEntries: React.FC = () => {
-  const diaryTranslations = useContext(TranslationsContext)?.translations.diary;
   const userData = getStorageUserData();
   const { userDiaryEntries, setUserDiaryEntries } = useUserDiaryEntries(
     userData.userId,
   );
-  const [showAddDiaryEntryModal, setShowAddDiaryEntryModal] =
-    useState<boolean>(false);
-  const [titleInput, setTitleInput] = useState<string>("");
-  const [contentInput, setContentInput] = useState<string>("");
-  const [isUpdate, setIsUpdate] = useState<boolean>(false);
-  const [selectedDiaryEntry, setSelectedDiaryEntry] = useState<DiaryEntry>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const navigation = useNavigation();
+
+  // Hook to set the loading state when user's diary' entries are loaded
+  useEffect(() => {
+    if (userDiaryEntries !== undefined) {
+      setLoading(false);
+    }
+  }, [userDiaryEntries]);
 
   return (
     <BaseScreen>
       <TouchableOpacity
-        disabled={
-          userDiaryEntries?.find((diaryEntry) =>
-            areDatesEqual(
-              timestampToDate(diaryEntry.registration.registrationDate),
-              new Date(),
-            ),
-          ) !== undefined
-        }
-        onPress={() => {
-          setIsUpdate(false);
-          setShowAddDiaryEntryModal(true);
+        disabled={loading || isAddDiaryEntryButtonDisabled(userDiaryEntries!)}
+        onPressIn={() => {
+          navigation.push("DiaryEntry", {
+            isUpdate: false,
+            userDiaryEntries,
+            setUserDiaryEntries,
+          });
         }}
+        style={[
+          GENERAL_STYLES.uiButton,
+          GENERAL_STYLES.floatingRightButton,
+          isAddDiaryEntryButtonDisabled(userDiaryEntries!) &&
+            GENERAL_STYLES.buttonDisabled,
+        ]}
       >
-        <Text style={GENERAL_STYLES.uiText}>{diaryTranslations?.add}</Text>
+        <AddIcon />
       </TouchableOpacity>
-      <ScrollView>
-        {userDiaryEntries &&
-          userDiaryEntries.map((diaryEntry) => (
-            <TouchableOpacity
-              key={diaryEntry.id}
-              onPress={() => {
-                setSelectedDiaryEntry(diaryEntry);
-                setTitleInput(diaryEntry.title);
-                setContentInput(diaryEntry.content);
-                setIsUpdate(true);
-                setShowAddDiaryEntryModal(true);
-              }}
-            >
-              <Text style={GENERAL_STYLES.uiText}>{diaryEntry.title}</Text>
-            </TouchableOpacity>
-          ))}
-      </ScrollView>
-      <CustomModal
-        visibleIndicator={showAddDiaryEntryModal}
-        onRequestCloseHandler={() => setShowAddDiaryEntryModal(false)}
-      >
-        <TextInput
-          style={GENERAL_STYLES.uiText}
-          placeholder={"Title"}
-          defaultValue={!isUpdate ? "" : selectedDiaryEntry!.title}
-          onChange={(event) => setTitleInput(event.nativeEvent.text)}
-          editable={
-            !isUpdate ||
-            (isUpdate &&
-              areDatesEqual(
-                new Date(),
-                timestampToDate(
-                  selectedDiaryEntry!.registration.registrationDate,
-                ),
-              ))
-          }
-        />
-        <TextInput
-          style={GENERAL_STYLES.uiText}
-          placeholder={"Content"}
-          defaultValue={!isUpdate ? "" : selectedDiaryEntry!.content}
-          onChange={(event) => setContentInput(event.nativeEvent.text)}
-          editable={
-            !isUpdate ||
-            (isUpdate &&
-              areDatesEqual(
-                new Date(),
-                timestampToDate(
-                  selectedDiaryEntry!.registration.registrationDate,
-                ),
-              ))
-          }
-        />
-        <>
-          {isUpdate &&
-            selectedDiaryEntry &&
-            areDatesEqual(
-              new Date(),
-              timestampToDate(selectedDiaryEntry.registration.registrationDate),
-            ) && (
-              <TouchableOpacity
-                onPress={() => {
-                  const currentDate = new Date();
-                  emptyDateTime(currentDate);
-
-                  if (!isUpdate) {
-                    const diaryEntry: AddDiaryEntryRequest = {
-                      title: titleInput,
-                      content: contentInput,
-                      publishDate: currentDate.valueOf(),
-                      userId: userData.userId,
-                    };
-                    addUserDiaryEntry(diaryEntry)
-                      .then((savedEntry) => {
-                        if (savedEntry) {
-                          const diaryEntries = [
-                            ...userDiaryEntries,
-                            savedEntry,
-                          ];
-                          setUserDiaryEntries(diaryEntries);
-                        }
-                      })
-                      .catch((err) => {
-                        console.log(err);
+      {loading ? (
+        <LoadingIndicator />
+      ) : (
+        <SafeAreaView>
+          {userDiaryEntries && (
+            <FlatList
+              numColumns={2}
+              data={userDiaryEntries}
+              keyExtractor={(entry) => entry.id.toString()}
+              removeClippedSubviews={false}
+              contentContainerStyle={[GENERAL_STYLES.flexGap]}
+              renderItem={({ item, index }) => {
+                const diaryEntry = item;
+                return (
+                  <TouchableOpacity
+                    key={diaryEntry.id}
+                    style={[
+                      GENERAL_STYLES.flexCol,
+                      GENERAL_STYLES.flexGapSmall,
+                      GENERAL_STYLES.flexGrow,
+                      GENERAL_STYLES.generalBorder,
+                      {
+                        paddingHorizontal: 20,
+                        paddingBottom: 10,
+                        paddingTop: 5,
+                        marginRight:
+                          index !== userDiaryEntries.length - 1 &&
+                          index % 2 === 0
+                            ? 10
+                            : 0,
+                        marginLeft:
+                          index !== userDiaryEntries.length - 1 &&
+                          index % 2 !== 0
+                            ? 10
+                            : 0,
+                      },
+                    ]}
+                    onPressIn={() => {
+                      navigation.push("DiaryEntry", {
+                        id: diaryEntry.id,
+                        title: diaryEntry.title,
+                        content: diaryEntry.content,
+                        publishDate: diaryEntry.registration.registrationDate,
+                        isUpdate: true,
+                        userDiaryEntries,
+                        setUserDiaryEntries,
                       });
-                  } else {
-                    const diaryEntry: UpdateDiaryEntryRequest = {
-                      title: titleInput,
-                      content: contentInput,
-                      publishDate: currentDate.valueOf(),
-                    };
-                    updateUserDiaryEntry(selectedDiaryEntry.id, diaryEntry)
-                      .then((updatedEntry) => {
-                        if (updatedEntry) {
-                          const diaryEntries = [...userDiaryEntries];
-                          const indexToBeUpdated = diaryEntries.findIndex(
-                            (diaryEntry) => diaryEntry.id === updatedEntry.id,
-                          );
-                          diaryEntries[indexToBeUpdated] = updatedEntry;
-                          setUserDiaryEntries(diaryEntries);
-                        }
-                      })
-                      .catch((err) => console.error(err));
-                  }
-                  setShowAddDiaryEntryModal(false);
-                }}
-                disabled={
-                  isUpdate &&
-                  selectedDiaryEntry.title === titleInput &&
-                  selectedDiaryEntry.content === contentInput
-                }
-              >
-                <Text style={GENERAL_STYLES.uiText}>
-                  {diaryTranslations?.save}
-                </Text>
-              </TouchableOpacity>
-            )}
-        </>
-      </CustomModal>
+                    }}
+                  >
+                    <Text
+                      numberOfLines={1}
+                      style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBold]}
+                    >
+                      {diaryEntry.title}
+                    </Text>
+                    <Text numberOfLines={3} style={[GENERAL_STYLES.uiText]}>
+                      {diaryEntry.content.replaceAll(/(\n)/g, " ")}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          )}
+        </SafeAreaView>
+      )}
     </BaseScreen>
   );
 };
+
+/**
+ * Checks if the add diary entry button should be disabled.
+ *
+ *   @param userDiaryEntries the user's diary entries
+ *   @returns a boolean indicating whether the add diary entry button should be disabled
+ */
+function isAddDiaryEntryButtonDisabled(
+  userDiaryEntries: DiaryEntry[],
+): boolean {
+  return (
+    userDiaryEntries?.find((diaryEntry) =>
+      areDatesEqual(
+        timestampToDate(diaryEntry.registration.registrationDate),
+        new Date(),
+      ),
+    ) !== undefined
+  );
+}
 
 export default DiaryScreen;

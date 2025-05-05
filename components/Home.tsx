@@ -1,11 +1,6 @@
 import { GENERAL_STYLES } from "../constants/general.styles";
-import { HOME_STYLES } from "../constants/home.styles";
-import { BackHandler, View } from "react-native";
-import { BooksIcon } from "./BooksIcon";
-import { MediaIcon } from "./MediaIcon";
-import { GamesIcon } from "./GamesIcon";
-import { DiaryIcon } from "./DiaryIcon";
-import { ContentCard } from "./ContentCard";
+import { BackHandler, FlatList, View } from "react-native";
+import { ContentCard, ContentCardProps } from "./ContentCard";
 import { StatusBar } from "./StatusBar";
 import { useContext, useEffect, useState } from "react";
 import { Login } from "./Login";
@@ -15,6 +10,11 @@ import { getStorageUserData } from "../services/storage.services";
 import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { BaseScreen } from "./BaseScreen";
+import { DiaryIcon } from "./icons/DiaryIcon";
+import { GamesIcon } from "./icons/GamesIcon";
+import { BooksIcon } from "./icons/BooksIcon";
+import { ProfileIcon } from "./icons/ProfileIcon";
+import { SettingsContext } from "../contexts/settingsContext";
 
 export const generalOptions: NativeStackNavigationOptions = {
   headerTitleAlign: "center",
@@ -30,8 +30,31 @@ const Home: React.FC = () => {
   );
   const refresh = useIsFocused();
   const homeTranslations = useContext(TranslationsContext)?.translations.home;
-  useWipePeriodicContent();
+  const wiped = useWipePeriodicContent();
+  const userSettings = useContext(SettingsContext)?.settings;
 
+  const homeSections: ContentCardProps[] = [
+    {
+      name: homeTranslations!.books,
+      screenName: "BooksScreen",
+      Icon: BooksIcon,
+    },
+    {
+      name: homeTranslations!.games,
+      screenName: "GamesScreen",
+      Icon: GamesIcon,
+    },
+    {
+      name: homeTranslations!.diary,
+      screenName: "DiaryScreen",
+      Icon: DiaryIcon,
+    },
+    {
+      name: homeTranslations!.profile,
+      screenName: "MySpaceScreen",
+      Icon: ProfileIcon,
+    },
+  ];
   // hook to handle back button press
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -51,36 +74,26 @@ const Home: React.FC = () => {
     };
   }, []);
 
-  return authenticated ? (
+  return authenticated || !userSettings?.general.enableOnlineFeatures ? (
     <BaseScreen>
       <View style={{ marginTop: 10, gap: 20 }}>
-        <StatusBar refresh={refresh} />
-        <View>
-          <View style={[HOME_STYLES.row]}>
+        <StatusBar refresh={refresh || wiped} />
+        <FlatList
+          numColumns={2}
+          data={homeSections}
+          keyExtractor={(homeSection) => homeSection.screenName}
+          renderItem={({ item, index }) => (
             <ContentCard
-              name={homeTranslations.books}
-              screenName="BooksScreen"
-              Icon={BooksIcon}
+              name={item.name}
+              screenName={item.screenName}
+              Icon={item.Icon}
+              paddingRight={index % 2 === 0 ? 10 : 0}
+              paddingLeft={index % 2 !== 0 ? 10 : 0}
             />
-            <ContentCard
-              name={homeTranslations.games}
-              screenName="GamesScreen"
-              Icon={GamesIcon}
-            />
-          </View>
-          <View style={[HOME_STYLES.row]}>
-            <ContentCard
-              name={homeTranslations.diary}
-              screenName="DiaryScreen"
-              Icon={DiaryIcon}
-            />
-            <ContentCard
-              name={homeTranslations.profile}
-              screenName="MySpaceScreen"
-              Icon={MediaIcon}
-            />
-          </View>
-        </View>
+          )}
+          contentContainerStyle={[GENERAL_STYLES.flexGap]}
+          removeClippedSubviews={false}
+        />
       </View>
     </BaseScreen>
   ) : (

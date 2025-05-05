@@ -5,20 +5,40 @@ export const spanishTranslations: Translation = {
     diary: "Diario",
     profile: "Perfil",
   },
+  login: {
+    loginTitle: "Inicio de Sesión",
+    googleSignIn: "Iniciar sesión con Google",
+    continueWithoutOnlineFeatures: "O continuar sin funciones en línea",
+  },
   general: {
     onlineFeaturesDisclaimer:
       "Esta sección de la aplicación requiere que las funciones en línea se encuentren activadas y que inicie sesión con su cuenta.\nPuede activar las funciones en línea en Ajustes > General",
+    daysOfWeek: {
+      monday: "Lunes",
+      tuesday: "Martes",
+      wednesday: "Miércoles",
+      thursday: "Jueves",
+      friday: "Viernes",
+      saturday: "Sábado",
+      sunday: "Domingo",
+    },
   },
   games: {
-    won: "¡Ganaste!",
+    won: "¡Ganaste!\n¡Vuelve mañana para jugar más!",
   },
   diary: {
     add: "Añadir",
     save: "Guardar",
+    title: "Título",
+    content: "Contenido",
+    today: "Hoy",
+    addDiaryEntryHeader: "Añadir entrada de diario",
+    updateDiaryEntryHeader: "Entrada de diario",
   },
   profile: {
     settings: "Ajustes",
     calendar: "Calendario",
+    streak: "racha de {0} días",
   },
   settings: {
     general: "General",
@@ -34,5 +54,7 @@ export const spanishTranslations: Translation = {
     textFont: "Fuente del texto",
     textFontSerif: "Serifa",
     textFontOpenDyslexic: "Open Dyslexic",
+    preferences: "Preferencias",
+    firstDayOfWeek: "Primer día de la semana",
   },
 };

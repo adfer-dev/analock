@@ -8,3 +8,5 @@ export const FONT_FAMILY_SERIF = "Merryweather";
 export const FONT_FAMILY_OPEN_DYSLEXIC = "OpenDyslexic";
 export const LANGUAGE_ENGLISH = "ENG";
 export const LANGUAGE_SPANISH = "SPA";
+export const DAY_OF_WEEK_SUNDAY = "SUN";
+export const DAY_OF_WEEK_MONDAY = "MON";

@@ -15,10 +15,15 @@ export type ActivityRegistration =
  */
 async function getUserBookRegistrations(
   userId: number,
-  startDate: number,
-  endDate: number,
+  startDate?: number,
+  endDate?: number,
 ): Promise<BookRegistration[]> {
-  const requestUrl = `${process.env.API_ROOT_URL}api/v1/activityRegistrations/books/user/${userId}?start_date=${startDate}&end_date=${endDate}`;
+  let requestUrl = `${process.env.API_ROOT_URL}api/v1/activityRegistrations/books/user/${userId}`;
+
+  if (startDate && endDate) {
+    requestUrl += `?start_date=${startDate}&end_date=${endDate}`;
+  }
+
   let registrations: BookRegistration[] = [];
   try {
     const response = await AXIOS_INSTANCE.get(requestUrl);
@@ -40,10 +45,15 @@ async function getUserBookRegistrations(
  */
 async function getUserGameRegistrations(
   userId: number,
-  startDate: number,
-  endDate: number,
+  startDate?: number,
+  endDate?: number,
 ): Promise<GameRegistration[]> {
-  const requestUrl = `${process.env.API_ROOT_URL}api/v1/activityRegistrations/games/user/${userId}?start_date=${startDate}&end_date=${endDate}`;
+  let requestUrl = `${process.env.API_ROOT_URL}api/v1/activityRegistrations/games/user/${userId}`;
+
+  if (startDate && endDate) {
+    requestUrl += `?start_date=${startDate}&end_date=${endDate}`;
+  }
+
   let registrations: GameRegistration[] = [];
   try {
     const response = await AXIOS_INSTANCE.get(requestUrl);
@@ -65,28 +75,35 @@ async function getUserGameRegistrations(
  */
 export async function getUserRegistrations(
   userId: number,
-  startDate: number,
-  endDate: number,
+  startDate?: number,
+  endDate?: number,
 ): Promise<ActivityRegistration[]> {
   const registrations: ActivityRegistration[] = [];
   try {
-    const bookRegistrations = await getUserBookRegistrations(
+    const bookRegistrationsRequest = getUserBookRegistrations(
       userId,
       startDate,
       endDate,
     );
 
-    const gameRegistrations = await getUserGameRegistrations(
+    const gameRegistrationsRequest = getUserGameRegistrations(
       userId,
       startDate,
       endDate,
     );
 
-    const diaryEntries = await getIntervalUserDiaryEntries(
+    const diaryEntriesRequest = getIntervalUserDiaryEntries(
       userId,
       startDate,
       endDate,
     );
+
+    const [bookRegistrations, gameRegistrations, diaryEntries] =
+      await Promise.all([
+        bookRegistrationsRequest,
+        gameRegistrationsRequest,
+        diaryEntriesRequest,
+      ]);
 
     registrations.push(
       ...bookRegistrations,

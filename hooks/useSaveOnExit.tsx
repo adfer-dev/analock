@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppState } from "react-native";
 import {
   StorageData,
@@ -9,10 +9,12 @@ import {
 } from "../services/storage.services";
 import { useNavigation } from "@react-navigation/native";
 import { GamesData } from "../types/game";
+import { SettingsContext } from "../contexts/settingsContext";
 
 export function useSaveOnExit(data: StorageData): void {
   const [appInBackground, setAppOnBackground] = useState<boolean>(false);
   const navigation = useNavigation();
+  const settingsContext = useContext(SettingsContext);
 
   // hook that performs save before exiting app
   useEffect(() => {
@@ -69,6 +71,7 @@ export function useSaveOnExit(data: StorageData): void {
       }
     } else if ("general" in data && "bookReader" in data) {
       setSettings(data as SettingsData);
+      settingsContext?.setSettings(data as SettingsData);
     } else {
       saveGamesData(data as GamesData);
     }

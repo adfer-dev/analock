@@ -1,5 +1,6 @@
 interface Translation {
   home: HomeTranslations;
+  login: LoginTranslations;
   general: GeneralTranslations;
   games: GamesTranslations;
   diary: DiaryTranslations;
@@ -9,6 +10,7 @@ interface Translation {
 
 interface GeneralTranslations {
   onlineFeaturesDisclaimer: string;
+  daysOfWeek: DaysOfWeekTranslations;
 }
 
 interface HomeTranslations {
@@ -25,11 +27,17 @@ interface GamesTranslations {
 interface DiaryTranslations {
   add: string;
   save: string;
+  title: string;
+  content: string;
+  today: string;
+  addDiaryEntryHeader: string;
+  updateDiaryEntryHeader: string;
 }
 
 interface ProfileTranslations {
   settings: string;
   calendar: string;
+  streak: string;
 }
 
 interface SettingsTranslations {
@@ -46,4 +54,22 @@ interface SettingsTranslations {
   textFont: string;
   textFontSerif: string;
   textFontOpenDyslexic: string;
+  preferences: string;
+  firstDayOfWeek: string;
+}
+
+interface DaysOfWeekTranslations {
+  monday: string;
+  tuesday: string;
+  wednesday: string;
+  thursday: string;
+  friday: string;
+  saturday: string;
+  sunday: string;
+}
+
+interface LoginTranslations {
+  loginTitle: string;
+  googleSignIn: string;
+  continueWithoutOnlineFeatures: string;
 }

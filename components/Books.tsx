@@ -7,11 +7,12 @@ import {
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import BookDetailScreen from "./Book";
 import { useContext, useEffect, useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { downloadAndUnzipEpub } from "../services/download.services";
 import { generalOptions } from "./Home";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { GENERAL_STYLES } from "../constants/general.styles";
+import { LoadingIndicator } from "./LoadingIndicator";
 
 const BOOKS_NUMBER = 2;
 
@@ -44,11 +45,20 @@ const Books: React.FC = () => {
     sort: "rating desc",
     limit: BOOKS_NUMBER,
   });
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();
+  console.log(!loading && errorMessage);
 
   const downloadBooks = async () => {
     if (res.openLibraryBooksBySubject) {
       for (const book of res.openLibraryBooksBySubject) {
-        await downloadAndUnzipEpub(book);
+        try {
+          await downloadAndUnzipEpub(book);
+        } catch {
+          setErrorMessage(
+            "An error has ocurred when downloading the book. Please, try again later.",
+          );
+          setLoading(false);
+        }
         setTimeout(() => {}, 1000);
       }
     }
@@ -56,30 +66,30 @@ const Books: React.FC = () => {
 
   useEffect(() => {
     if (res.openLibraryBooksBySubject && loading) {
-      downloadBooks()
-        .then(() => {
-          setLoading(false);
-        })
-        .catch((error) => console.error(error));
+      if (!res.error) {
+        downloadBooks()
+          .then(() => {
+            setLoading(false);
+          })
+          .catch(() => {
+            setErrorMessage(res.error);
+            setLoading(false);
+          });
+      } else {
+        setErrorMessage(res.error);
+        setLoading(false);
+      }
     }
   }, [res]);
 
   return (
     <BaseScreen>
-      {loading && (
-        <View>
-          <ActivityIndicator size="large" color="black" />
-          <Text
-            style={{
-              textAlign: "center",
-              color: "black",
-            }}
-          >
-            {
-              "We are downloading the required content.\nYou can minimize the app and check the progress on the notification bar."
-            }
-          </Text>
-        </View>
+      {loading && !errorMessage && (
+        <LoadingIndicator
+          text={
+            "We are downloading the required content.\nYou can minimize the app and check the progress on the notification bar."
+          }
+        />
       )}
       {!loading && (
         <View
@@ -90,14 +100,20 @@ const Books: React.FC = () => {
             { gap: 30 },
           ]}
         >
-          {res.openLibraryBooksBySubject?.map((book) => (
-            <BookCard
-              key={book.identifier}
-              id={book.identifier}
-              title={book.title}
-              author={book.creator}
-            />
-          ))}
+          {!errorMessage ? (
+            res.openLibraryBooksBySubject?.map((book) => (
+              <BookCard
+                key={book.identifier}
+                id={book.identifier}
+                title={book.title}
+                author={book.creator}
+              />
+            ))
+          ) : (
+            <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack]}>
+              {errorMessage}
+            </Text>
+          )}
         </View>
       )}
     </BaseScreen>

@@ -22,7 +22,7 @@ export const BaseScreen: React.FC<BaseScreenProps> = ({
           GENERAL_STYLES.flexCol,
           GENERAL_STYLES.flexGrow,
           GENERAL_STYLES.backgroundColor,
-          GENERAL_STYLES.generalPadding,
+          GENERAL_STYLES.baseScreenPadding,
         ]}
       >
         {children}

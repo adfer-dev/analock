@@ -1,12 +1,18 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
-import { getStorageGamesData } from "../services/storage.services";
+import { View, Text, TouchableOpacity } from "react-native";
+import {
+  getSettings,
+  getStorageGamesData,
+  getStorageUserData,
+} from "../services/storage.services";
 import { useSaveOnExit } from "../hooks/useSaveOnExit";
 import { addUserGameRegistration } from "../services/activityRegistrations.services";
 import { emptyDateTime } from "../utils/date.utils";
 import { SUDOKU_GAME_NAME } from "../constants/constants";
 import { GamesData } from "../types/game";
 import { GENERAL_STYLES } from "../constants/general.styles";
+import { GameWon } from "./GameWon";
+import { GAME_STYLES } from "../constants/games.styles";
 
 // Type definitions
 export type SudokuGrid = SudokuCell[][];
@@ -94,11 +100,8 @@ function fillCells(grid: SudokuGrid): boolean {
  *
  * @returns the generated sudoku grid
  */
-function generateSudoku(): SudokuGrid {
+function generateSudoku(sudokuGameData: GamesData | undefined): SudokuGrid {
   let grid: SudokuGrid;
-  const sudokuGameData: GamesData | undefined = getStorageGamesData()?.find(
-    (data) => data.name === SUDOKU_GAME_NAME,
-  );
 
   if (!sudokuGameData || !sudokuGameData.data) {
     grid = Array(9)
@@ -144,9 +147,16 @@ function hideNumbers(grid: SudokuGrid): void {
  * Sudoku game component.
  */
 export const SudokuGame = () => {
-  const [grid, setGrid] = useState<SudokuGrid>(() => generateSudoku());
+  const sudokuGameData: GamesData | undefined = getStorageGamesData()?.find(
+    (data) => data.name === SUDOKU_GAME_NAME,
+  );
+  const [grid, setGrid] = useState<SudokuGrid>(() =>
+    generateSudoku(sudokuGameData),
+  );
   const [selectedCell, setSelectedCell] = useState<Coordinates | null>(null);
-  const [won, setWon] = useState<boolean>(false);
+  const [won, setWon] = useState<boolean>(
+    sudokuGameData ? sudokuGameData.won : false,
+  );
   useSaveOnExit({
     name: SUDOKU_GAME_NAME,
     data: grid,
@@ -163,33 +173,33 @@ export const SudokuGame = () => {
     }
   }
 
-  return (
-    <View style={[styles.container, GENERAL_STYLES.backgroundColor]}>
-      <View style={styles.grid}>
+  return !won ? (
+    <View style={[GAME_STYLES.sudukuContainer, GENERAL_STYLES.backgroundColor]}>
+      <View style={[GAME_STYLES.sudokuGrid]}>
         {grid.map((row, rowIndex) => (
-          <View key={rowIndex} style={styles.row}>
+          <View key={rowIndex} style={GAME_STYLES.sudokuRow}>
             {row.map((cell, colIndex) => (
               <TouchableOpacity
                 key={`${rowIndex}-${colIndex}`}
                 style={[
-                  styles.cell,
+                  GAME_STYLES.sudokuCell,
                   !(
                     selectedCell?.row === rowIndex &&
                     selectedCell?.col === colIndex
                   )
-                    ? styles.normalCell
-                    : styles.selectedCell,
-                  (rowIndex + 1) % 3 === 0 && styles.bottomBorder,
-                  (colIndex + 1) % 3 === 0 && styles.rightBorder,
+                    ? GAME_STYLES.sudokuNormalCell
+                    : GAME_STYLES.sudokuSelectedCell,
+                  (rowIndex + 1) % 3 === 0 && GAME_STYLES.sudokuBottomBorder,
+                  (colIndex + 1) % 3 === 0 && GAME_STYLES.sudokuRightBorder,
                 ]}
                 onPressIn={() => handleCellPress(rowIndex, colIndex)}
               >
                 <Text
                   style={[
-                    styles.cellText,
+                    GAME_STYLES.sudoukuCellText,
                     grid[rowIndex][colIndex].valid
-                      ? styles.validCell
-                      : styles.notValidCell,
+                      ? GAME_STYLES.sudokuValidCell
+                      : GAME_STYLES.sudokuNotValidCell,
                   ]}
                 >
                   {cell.value || ""}
@@ -207,6 +217,8 @@ export const SudokuGame = () => {
         setWon={setWon}
       />
     </View>
+  ) : (
+    <GameWon />
   );
 };
 
@@ -248,14 +260,19 @@ const NumberPad: React.FC<NumberPadProps> = ({
         row.every((cell) => cell.value !== null && cell.valid),
       );
 
-      if (isSolved) {
-        const currentDate = new Date();
-        emptyDateTime(currentDate);
-        addUserGameRegistration({
-          gameName: "Sudoku",
-          registrationDate: currentDate.valueOf(),
-          userId: 1,
-        });
+      if (isSolved && !sudokuGameData?.won) {
+        const userSettings = getSettings();
+        if (userSettings.general.enableOnlineFeatures) {
+          const currentDate = new Date();
+          const userData = getStorageUserData();
+
+          emptyDateTime(currentDate);
+          addUserGameRegistration({
+            gameName: SUDOKU_GAME_NAME,
+            registrationDate: currentDate.valueOf(),
+            userId: userData.userId,
+          });
+        }
         setWon(true);
       }
     } else {
@@ -266,81 +283,16 @@ const NumberPad: React.FC<NumberPadProps> = ({
     setSelectedCell(null);
   }
   return (
-    <View style={styles.numberPad}>
+    <View style={GAME_STYLES.sudokuNumberPad}>
       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
         <TouchableOpacity
           key={num}
-          style={styles.numberButton}
+          style={GAME_STYLES.sudokuNumberButton}
           onPressIn={() => handleNumberInput(num)}
         >
-          <Text style={styles.numberButtonText}>{num}</Text>
+          <Text style={GAME_STYLES.sudokuNumberButtonText}>{num}</Text>
         </TouchableOpacity>
       ))}
     </View>
   );
 };
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  grid: {
-    borderWidth: 2,
-    borderColor: "#000",
-  },
-  row: {
-    flexDirection: "row",
-  },
-  cell: {
-    width: 40,
-    height: 40,
-    borderWidth: 0.5,
-    borderColor: "#999",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff",
-  },
-  selectedCell: {
-    backgroundColor: "#e3f2fd",
-  },
-  normalCell: {
-    backgroundColor: "#f5f5f5",
-  },
-  validCell: {
-    color: "black",
-    fontWeight: "bold",
-  },
-  notValidCell: {
-    color: "red",
-  },
-  bottomBorder: {
-    borderBottomWidth: 2,
-  },
-  rightBorder: {
-    borderRightWidth: 2,
-  },
-  cellText: {
-    fontSize: 20,
-  },
-  numberPad: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    marginTop: 20,
-    width: 180,
-  },
-  numberButton: {
-    width: 50,
-    height: 50,
-    margin: 5,
-    backgroundColor: "black",
-    borderRadius: 25,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  numberButtonText: {
-    color: "white",
-    fontSize: 24,
-  },
-});

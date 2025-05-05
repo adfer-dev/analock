@@ -13,13 +13,14 @@ import {
 } from "../utils/date.utils";
 
 // hook to handle daily and weekly content wipes
-export function useWipePeriodicContent(): void {
+export function useWipePeriodicContent(): boolean {
+  let dailyWipe = false;
+  let weeklyWipe = false;
+
   useEffect(() => {
     const userData = getStorageUserData();
     const currentDate: Date = new Date();
     const currentWeek = getWeekOfYear(currentDate);
-    let dailyWipe = false;
-    let weeklyWipe = false;
 
     // if user opened app on a different day than previous, reset daily progress.
     if (userData.lastOpenedAppDate) {
@@ -62,4 +63,5 @@ export function useWipePeriodicContent(): void {
       deleteSelectedBooks();
     }
   }, []);
+  return dailyWipe || weeklyWipe;
 }

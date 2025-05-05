@@ -8,6 +8,7 @@ interface User {
 interface UserData {
   authenticated: boolean;
   userId: number;
+  userName?: string;
   idToken?: string;
   lastOpenedAppDate?: number;
   lastOpenedAppWeek?: number;

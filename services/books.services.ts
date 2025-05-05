@@ -27,8 +27,8 @@ export async function getOpenLibraryBooksBySubject(
         (file) => file.format === "EPUB",
       )?.name;
     }
-  } catch (error) {
-    console.error(error);
+  } catch {
+    throw Error("Error retrieving books from open library API");
   }
 
   return books;

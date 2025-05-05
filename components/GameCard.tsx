@@ -1,9 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { TouchableOpacity } from "react-native";
-import { GamesIcon } from "./GamesIcon";
 import { Text } from "react-native";
 import { GENERAL_STYLES } from "../constants/general.styles";
+import { GamesIcon } from "./icons/GamesIcon";
 
 interface GameCardProps {
   name: string;

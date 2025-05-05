@@ -1,6 +1,6 @@
 import { DateData, MarkedDates } from "react-native-calendars/src/types";
 import { getSettings, getStorageUserData } from "../services/storage.services";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   areDatesEqual,
   dateToDateData,
@@ -17,6 +17,9 @@ import { BaseScreen } from "./BaseScreen";
 import { Calendar } from "react-native-calendars";
 import { Text } from "react-native";
 import { OnlineFeaturesDisclaimer } from "./OnlineFeaturesDisclaimer";
+import { GENERAL_STYLES } from "../constants/general.styles";
+import { DAY_OF_WEEK_SUNDAY } from "../constants/constants";
+import { SettingsContext } from "../contexts/settingsContext";
 
 interface Dot {
   key: string;
@@ -56,6 +59,7 @@ const RegistrationsCalendar: React.FC = () => {
   const [selectedRegistrations, setSelectedRegistrations] = useState<
     ShownObject[]
   >([]);
+  const settings = useContext(SettingsContext)?.settings;
 
   /**
    * Aux function to get the dots object from a registration object
@@ -110,21 +114,24 @@ const RegistrationsCalendar: React.FC = () => {
     const startDate = new Date(
       currentDateData.year,
       currentDateData.month - 1,
-      2,
+      1,
       0,
       0,
       0,
     );
+    console.log(`start date: ${startDate}`);
 
     let endDate: Date;
     if (
       areDatesEqual(currentDate, timestampToDate(currentDateData.timestamp))
     ) {
+      emptyDateTime(currentDate);
       endDate = currentDate;
     } else {
       endDate = new Date(currentDateData.year, currentDateData.month);
     }
-    const updatedMarkedDates: MarkedDates = { ...markedDates };
+    console.log(`end date: ${endDate}`);
+    const updatedMarkedDates: MarkedDates = {};
 
     getUserRegistrations(
       userData.userId,
@@ -154,6 +161,10 @@ const RegistrationsCalendar: React.FC = () => {
       .catch((err) => console.error(err));
   }, [currentDateData]);
 
+  console.log(
+    `current date data: ${currentDateData.month}, current date: ${currentDate.getMonth()}`,
+  );
+
   return (
     <BaseScreen>
       <Calendar
@@ -170,8 +181,12 @@ const RegistrationsCalendar: React.FC = () => {
           backgroundColor: "#e9e9e9",
           calendarBackground: "#e9e9e9",
         }}
+        firstDay={
+          settings?.preferences.firstDayOfWeek === DAY_OF_WEEK_SUNDAY ? 0 : 1
+        }
         markingType="multi-dot"
         markedDates={markedDates}
+        disableArrowRight={currentDateData.month - 1 === currentDate.getMonth()}
         onMonthChange={(dateData) => {
           setCurrentDateData(dateData);
         }}
@@ -183,7 +198,7 @@ const RegistrationsCalendar: React.FC = () => {
 
           if (selectedMarkedDate !== undefined) {
             getUserRegistrations(
-              1,
+              userData.userId,
               selectedDate.valueOf(),
               selectedDate.valueOf(),
             )
@@ -206,7 +221,10 @@ const RegistrationsCalendar: React.FC = () => {
       />
       {selectedRegistrations.length > 0 &&
         selectedRegistrations.map((registration) => (
-          <Text key={registration.text} style={{ color: registration.color }}>
+          <Text
+            key={registration.text}
+            style={[GENERAL_STYLES.uiText, { color: registration.color }]}
+          >
             {registration.text}
           </Text>
         ))}

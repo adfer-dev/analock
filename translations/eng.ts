@@ -5,20 +5,40 @@ export const englishTranslations: Translation = {
     diary: "Diary",
     profile: "Profile",
   },
+  login: {
+    loginTitle: "Log In",
+    googleSignIn: "Sign in with Google",
+    continueWithoutOnlineFeatures: "Or continue without online features",
+  },
   general: {
     onlineFeaturesDisclaimer:
       "This section of the app requires online features enabled and log in with your account.\nYou can activate online features on Settings > General",
+    daysOfWeek: {
+      monday: "Monday",
+      tuesday: "Tuesday",
+      wednesday: "Wednesday",
+      thursday: "Thursday",
+      friday: "Friday",
+      saturday: "Saturday",
+      sunday: "Sunday",
+    },
   },
   games: {
-    won: "You won!",
+    won: "You won!\nCome tommorrow and play again!",
   },
   diary: {
     add: "Add",
     save: "Save",
+    title: "Title",
+    content: "Content",
+    today: "Today",
+    addDiaryEntryHeader: "Add Diary Entry",
+    updateDiaryEntryHeader: "Diary Entry",
   },
   profile: {
     settings: "Settings",
     calendar: "Calendar",
+    streak: "{0} days streak",
   },
   settings: {
     general: "General",
@@ -34,5 +54,7 @@ export const englishTranslations: Translation = {
     textFont: "Text font",
     textFontSerif: "Serif",
     textFontOpenDyslexic: "Open Dyslexic",
+    preferences: "Preferences",
+    firstDayOfWeek: "First day of week",
   },
 };

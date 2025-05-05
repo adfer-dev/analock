@@ -4,6 +4,8 @@ import { GENERAL_STYLES } from "../constants/general.styles";
 import { ButtonGroup } from "./ButtonGroup";
 import { useContext, useEffect, useState } from "react";
 import {
+  DAY_OF_WEEK_MONDAY,
+  DAY_OF_WEEK_SUNDAY,
   FONT_FAMILY_OPEN_DYSLEXIC,
   FONT_FAMILY_SERIF,
   FONT_SIZE_BIG,
@@ -17,6 +19,7 @@ import { useSaveOnExit } from "../hooks/useSaveOnExit";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { Language, getTranslations } from "../services/translation.services";
 import { CustomSwitch } from "./CustomSwitch";
+import { View } from "react-native";
 
 function Settings() {
   const translationsContext = useContext(TranslationsContext);
@@ -55,6 +58,16 @@ function Settings() {
       value: FONT_FAMILY_OPEN_DYSLEXIC,
     },
   ];
+  const firstDayOfWeekRadioGroup: SettingsRadioButton[] = [
+    {
+      text: translationsContext!.translations.general.daysOfWeek.sunday,
+      value: DAY_OF_WEEK_SUNDAY,
+    },
+    {
+      text: translationsContext!.translations.general.daysOfWeek.monday,
+      value: DAY_OF_WEEK_MONDAY,
+    },
+  ];
   const userSettings = getSettings();
   const [areOnlineFeaturesEnabled, setAreOnlineFeaturesEnabled] =
     useState<boolean>(userSettings.general.enableOnlineFeatures);
@@ -73,6 +86,12 @@ function Settings() {
       (fontFamily) => fontFamily.value === userSettings.bookReader.fontFamily,
     ),
   );
+  const [selectedFirstDayOfWeek, setSelectedFirstDayOfWeek] = useState<number>(
+    firstDayOfWeekRadioGroup.findIndex(
+      (dayOfWeek) =>
+        dayOfWeek.value === userSettings.preferences.firstDayOfWeek,
+    ),
+  );
   useSaveOnExit({
     general: {
       enableOnlineFeatures: areOnlineFeaturesEnabled,
@@ -81,6 +100,10 @@ function Settings() {
     bookReader: {
       fontSize: fontSizeRadioGroup[selectedFontSize].value as number,
       fontFamily: fontFamilyRadioGroup[selectedFontFamily].value as string,
+    },
+    preferences: {
+      firstDayOfWeek: firstDayOfWeekRadioGroup[selectedFirstDayOfWeek]
+        .value as string,
     },
   });
 
@@ -94,47 +117,62 @@ function Settings() {
 
   return (
     <BaseScreen>
-      <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textTitle]}>
-        {settingsTranslations?.general}
-      </Text>
-      <CustomSwitch
-        label={settingsTranslations?.onlineFeatures}
-        isEnabled={areOnlineFeaturesEnabled}
-        setIsEnabled={setAreOnlineFeaturesEnabled}
-      />
-      <Text style={[GENERAL_STYLES.uiText]}>
-        {settingsTranslations?.language}
-      </Text>
-      <ButtonGroup
-        buttons={languageRadioGroup}
-        selectedIndex={selectedLanguage}
-        setSelectedIndex={setSelectedLanguage}
-      />
-      <Text
-        style={[
-          GENERAL_STYLES.uiText,
-          GENERAL_STYLES.textTitle,
-          GENERAL_STYLES.marginTop,
-        ]}
-      >
-        {settingsTranslations?.bookReader}
-      </Text>
-      <Text style={[GENERAL_STYLES.uiText]}>
-        {settingsTranslations?.textSize}
-      </Text>
-      <ButtonGroup
-        buttons={fontSizeRadioGroup}
-        selectedIndex={selectedFontSize}
-        setSelectedIndex={setSelectedFontSize}
-      />
-      <Text style={[GENERAL_STYLES.uiText]}>
-        {settingsTranslations?.textFont}
-      </Text>
-      <ButtonGroup
-        buttons={fontFamilyRadioGroup}
-        selectedIndex={selectedFontFamily}
-        setSelectedIndex={setSelectedFontFamily}
-      />
+      <View style={[{ marginBottom: 30 }]}>
+        <Text
+          style={[GENERAL_STYLES.uiText, { fontSize: 25, marginBottom: 10 }]}
+        >
+          {settingsTranslations?.general}
+        </Text>
+        <View style={[GENERAL_STYLES.flexCol, GENERAL_STYLES.flexGap]}>
+          <CustomSwitch
+            label={settingsTranslations?.onlineFeatures}
+            isEnabled={areOnlineFeaturesEnabled}
+            setIsEnabled={setAreOnlineFeaturesEnabled}
+          />
+          <ButtonGroup
+            label={settingsTranslations?.language}
+            buttons={languageRadioGroup}
+            selectedIndex={selectedLanguage}
+            setSelectedIndex={setSelectedLanguage}
+          />
+        </View>
+      </View>
+      <View style={[{ marginBottom: 30 }]}>
+        <Text
+          style={[GENERAL_STYLES.uiText, { fontSize: 25, marginBottom: 10 }]}
+        >
+          {settingsTranslations?.bookReader}
+        </Text>
+        <View style={[GENERAL_STYLES.flexCol, GENERAL_STYLES.flexGap]}>
+          <ButtonGroup
+            label={settingsTranslations?.textSize}
+            buttons={fontSizeRadioGroup}
+            selectedIndex={selectedFontSize}
+            setSelectedIndex={setSelectedFontSize}
+          />
+          <ButtonGroup
+            label={settingsTranslations?.textFont}
+            buttons={fontFamilyRadioGroup}
+            selectedIndex={selectedFontFamily}
+            setSelectedIndex={setSelectedFontFamily}
+          />
+        </View>
+      </View>
+      <View>
+        <Text
+          style={[GENERAL_STYLES.uiText, { fontSize: 25, marginBottom: 10 }]}
+        >
+          {settingsTranslations?.preferences}
+        </Text>
+        <View style={[GENERAL_STYLES.flexCol, GENERAL_STYLES.flexGap]}>
+          <ButtonGroup
+            label={settingsTranslations?.firstDayOfWeek}
+            buttons={firstDayOfWeekRadioGroup}
+            selectedIndex={selectedFirstDayOfWeek}
+            setSelectedIndex={setSelectedFirstDayOfWeek}
+          />
+        </View>
+      </View>
     </BaseScreen>
   );
 }

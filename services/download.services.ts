@@ -37,8 +37,8 @@ export async function downloadAndUnzipEpub(book: InternetArchiveBook) {
 
           // Remove the EPUB file to free space
           await RNFS.unlink(downloadedFilePath);
-        } catch (error) {
-          console.log(error);
+        } catch {
+          throw new Error("Download error");
         }
       }
     } else {

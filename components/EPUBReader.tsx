@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, View, Dimensions } from "react-native";
+import { View, Dimensions } from "react-native";
 import { useProcessEpub } from "../hooks/useProcessEpub";
 import RNFS from "react-native-fs";
 import { APP_DOCUMENTS_PATH } from "../services/download.services";
@@ -7,6 +7,7 @@ import {
   addStorageBookData,
   getSettings,
   getStorageBookData,
+  getStorageUserData,
 } from "../services/storage.services";
 import { addUserBookRegistration } from "../services/activityRegistrations.services";
 import { emptyDateTime } from "../utils/date.utils";
@@ -19,6 +20,8 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
+import { LoadingIndicator } from "./LoadingIndicator";
+import { runOnJS } from "react-native-reanimated";
 
 interface EpubReaderProps {
   ebookId: string;
@@ -39,7 +42,7 @@ const START_HTML_FILE_PAGE = 1;
 const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
   const unzipPath = `${APP_DOCUMENTS_PATH}/${ebookId}`;
   const bookData = getStorageBookData(ebookId);
-  const bookReaderSettings = getSettings().bookReader;
+  const userSettings = getSettings();
   const { htmlFiles, contentPath, cssPath, loading } = useProcessEpub(ebookId);
   const [htmlContent, setHtmlContent] = useState<string>("");
   const [currentFilePage, setCurrentFilePage] =
@@ -89,18 +92,21 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
   // Hook to handle page change
   useEffect(() => {
     webViewRef.current?.injectJavaScript(`goToPage(${currentFilePage}); true;`);
-
     const finishedReading = currentFilePage === currentFileTotalPages;
 
     if (finishedReading && !bookData?.finished) {
-      const currentDate = new Date();
-      emptyDateTime(currentDate);
-      addUserBookRegistration({
-        internetArchiveId: ebookId,
-        registrationDate: currentDate.valueOf(),
-        userId: 1,
-      });
       setHasFinishedReading(finishedReading);
+
+      if (userSettings.general.enableOnlineFeatures) {
+        const currentDate = new Date();
+        const userData = getStorageUserData();
+        emptyDateTime(currentDate);
+        addUserBookRegistration({
+          internetArchiveId: ebookId,
+          registrationDate: currentDate.valueOf(),
+          userId: userData.userId,
+        });
+      }
     }
   }, [currentFilePage]);
 
@@ -162,8 +168,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
             @font-face {font-family: 'OpenDyslexic'; src: url('file:///android_asset/fonts/opendyslexic_bold.otf') format('truetype'); font-weight: bold; font-style: normal;}
             @font-face {font-family: 'OpenDyslexic'; src: url('file:///android_asset/fonts/opendyslexic_italic.otf') format('truetype'); font-weight: normal; font-style: italic;}
             html {
-                font-size: ${bookReaderSettings.fontSize}px; 
-                font-family: "${bookReaderSettings.fontFamily}";
+                font-size: ${userSettings.bookReader.fontSize}px; 
+                font-family: "${userSettings.bookReader.fontFamily}";
                 -webkit-user-select: none;
                 user-select: none;
             }
@@ -312,9 +318,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
       if (Math.abs(translationX) > Math.abs(translationY)) {
         if (Math.abs(translationX) > SWIPE_THRESHOLD) {
           if (translationX > 0) {
-            setCurrentFilePage(currentFilePage - 1);
+            runOnJS(setCurrentFilePage)(currentFilePage - 1);
           } else {
-            setCurrentFilePage(currentFilePage + 1);
+            runOnJS(setCurrentFilePage)(currentFilePage + 1);
           }
         }
       }
@@ -325,7 +331,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
     <GestureHandlerRootView>
       <GestureDetector gesture={panGesture}>
         <View style={[GENERAL_STYLES.backgroundColor, GENERAL_STYLES.flexGrow]}>
-          {loading && <ActivityIndicator size="large" color="black" />}
+          {loading && <LoadingIndicator />}
           {!loading && (
             <WebView
               originWhitelist={["*", "file://"]}
