@@ -11,5 +11,5 @@ interface UserData {
   userName?: string;
   idToken?: string;
   lastOpenedAppDate?: number;
-  lastOpenedAppWeek?: number;
+  selectedBookSubject?: string;
 }

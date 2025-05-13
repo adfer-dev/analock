@@ -7,10 +7,12 @@ import {
   DAY_OF_WEEK_SUNDAY,
   FONT_FAMILY_SERIF,
   FONT_SIZE_MEDIUM,
-  LANGUAGE_ENGLISH,
   SUDOKU_GAME_NAME,
   TTFE_GAME_NAME,
+  localeFirstDayOfWeekMap,
 } from "../constants/constants";
+import { getLocales } from "react-native-localize";
+import { InternetArchiveBook, StorageBook } from "../types/books";
 
 export type StorageData =
   | GamesData
@@ -35,20 +37,6 @@ const SETTINGS_STORAGE_KEY = "settings";
 const DEFAULT_USER_DATA: UserData = {
   userId: -1,
   authenticated: false,
-};
-
-const DEFAULT_SETTINGS: SettingsData = {
-  general: {
-    enableOnlineFeatures: true,
-    language: LANGUAGE_ENGLISH,
-  },
-  bookReader: {
-    fontSize: FONT_SIZE_MEDIUM,
-    fontFamily: FONT_FAMILY_SERIF,
-  },
-  preferences: {
-    firstDayOfWeek: DAY_OF_WEEK_SUNDAY,
-  },
 };
 
 // USER DATA FUNCTIONS
@@ -356,8 +344,7 @@ export function getSettings(): SettingsData {
   const gameDataString = storageInstance.getString(SETTINGS_STORAGE_KEY);
 
   if (!gameDataString) {
-    setSettings(DEFAULT_SETTINGS);
-    return DEFAULT_SETTINGS;
+    return loadDefaultSettings();
   }
   return JSON.parse(gameDataString) as SettingsData;
 }
@@ -369,4 +356,32 @@ export function getSettings(): SettingsData {
  */
 export function setSettings(settings: SettingsData): void {
   storageInstance.set(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+}
+
+/**
+ * Loads default settings to local storage
+ */
+function loadDefaultSettings(): SettingsData {
+  const deviceLocale = getLocales()[0];
+  console.log(deviceLocale);
+
+  const defaultSettings: SettingsData = {
+    general: {
+      enableOnlineFeatures: true,
+      language: deviceLocale.languageCode.toUpperCase(),
+    },
+    bookReader: {
+      fontSize: FONT_SIZE_MEDIUM,
+      fontFamily: FONT_FAMILY_SERIF,
+    },
+    preferences: {
+      firstDayOfWeek:
+        deviceLocale && localeFirstDayOfWeekMap[deviceLocale.languageTag]
+          ? localeFirstDayOfWeekMap[deviceLocale.languageTag]
+          : DAY_OF_WEEK_SUNDAY,
+    },
+  };
+  console.log(defaultSettings);
+  setSettings(defaultSettings);
+  return defaultSettings;
 }

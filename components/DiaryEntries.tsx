@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AddIcon } from "./icons/AddIcon";
+import { ErrorScreen } from "./ErrorScreen";
 
 const DiaryScreen = () => {
   const translations = useContext(TranslationsContext)?.translations;
@@ -52,23 +53,24 @@ const DiaryEntriesScreen: React.FC = () => {
 
 const DiaryEntries: React.FC = () => {
   const userData = getStorageUserData();
-  const { userDiaryEntries, setUserDiaryEntries } = useUserDiaryEntries(
+  const { userDiaryEntries, setUserDiaryEntries, error } = useUserDiaryEntries(
     userData.userId,
   );
   const [loading, setLoading] = useState<boolean>(true);
   const navigation = useNavigation();
+  const translationsContext = useContext(TranslationsContext);
 
   // Hook to set the loading state when user's diary' entries are loaded
   useEffect(() => {
-    if (userDiaryEntries !== undefined) {
+    if (userDiaryEntries) {
       setLoading(false);
     }
   }, [userDiaryEntries]);
 
-  return (
+  return !error ? (
     <BaseScreen>
       <TouchableOpacity
-        disabled={loading || isAddDiaryEntryButtonDisabled(userDiaryEntries!)}
+        disabled={isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading)}
         onPressIn={() => {
           navigation.push("DiaryEntry", {
             isUpdate: false,
@@ -79,7 +81,7 @@ const DiaryEntries: React.FC = () => {
         style={[
           GENERAL_STYLES.uiButton,
           GENERAL_STYLES.floatingRightButton,
-          isAddDiaryEntryButtonDisabled(userDiaryEntries!) &&
+          isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading) &&
             GENERAL_STYLES.buttonDisabled,
         ]}
       >
@@ -116,6 +118,7 @@ const DiaryEntries: React.FC = () => {
                             ? 10
                             : 0,
                         marginLeft:
+                          userDiaryEntries.length % 2 !== 0 &&
                           index !== userDiaryEntries.length - 1 &&
                           index % 2 !== 0
                             ? 10
@@ -151,6 +154,10 @@ const DiaryEntries: React.FC = () => {
         </SafeAreaView>
       )}
     </BaseScreen>
+  ) : (
+    <ErrorScreen
+      errorText={translationsContext?.translations.errors.genericNetworkError}
+    />
   );
 };
 
@@ -162,8 +169,11 @@ const DiaryEntries: React.FC = () => {
  */
 function isAddDiaryEntryButtonDisabled(
   userDiaryEntries: DiaryEntry[],
+  loading: boolean,
 ): boolean {
+  console.log(`loading: ${loading}`);
   return (
+    loading ||
     userDiaryEntries?.find((diaryEntry) =>
       areDatesEqual(
         timestampToDate(diaryEntry.registration.registrationDate),

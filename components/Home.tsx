@@ -76,7 +76,13 @@ const Home: React.FC = () => {
 
   return authenticated || !userSettings?.general.enableOnlineFeatures ? (
     <BaseScreen>
-      <View style={{ marginTop: 10, gap: 20 }}>
+      <View
+        style={[
+          GENERAL_STYLES.flexGrow,
+          GENERAL_STYLES.flexGap,
+          { marginTop: 10 },
+        ]}
+      >
         <StatusBar refresh={refresh || wiped} />
         <FlatList
           numColumns={2}
@@ -91,7 +97,10 @@ const Home: React.FC = () => {
               paddingLeft={index % 2 !== 0 ? 10 : 0}
             />
           )}
-          contentContainerStyle={[GENERAL_STYLES.flexGap]}
+          contentContainerStyle={[
+            GENERAL_STYLES.flexGap,
+            GENERAL_STYLES.flexGrow,
+          ]}
           removeClippedSubviews={false}
         />
       </View>

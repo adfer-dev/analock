@@ -2,9 +2,8 @@ import { Text, TextInput, TouchableOpacity } from "react-native";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { useContext, useState } from "react";
 import {
-  areDatesEqual,
   emptyDateTime,
-  timestampToDate,
+  getDisplayDateFormatFromDate,
 } from "../utils/date.utils";
 import {
   addUserDiaryEntry,
@@ -52,11 +51,10 @@ const DiaryEntryDetailScreen: React.FC = ({ route }) => {
                 GENERAL_STYLES.textBold,
               ]}
             >
-              {new Date(publishDate).toLocaleDateString(undefined, {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              })}
+              {getDisplayDateFormatFromDate(
+                publishDate,
+                translationsContext.translations,
+              )}
             </Text>
           )}
           <TextInput
@@ -185,7 +183,9 @@ function areInputsEditableAndSaveButtonShown(
   isUpdate: boolean,
   publishDate: number,
 ): boolean {
-  return !isUpdate || areDatesEqual(new Date(), timestampToDate(publishDate));
+  const currentDate = new Date();
+  emptyDateTime(currentDate);
+  return !isUpdate || currentDate.valueOf() === publishDate;
 }
 
 /**

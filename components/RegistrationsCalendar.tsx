@@ -1,5 +1,5 @@
 import { DateData, MarkedDates } from "react-native-calendars/src/types";
-import { getSettings, getStorageUserData } from "../services/storage.services";
+import { getSettings } from "../services/storage.services";
 import { useContext, useEffect, useState } from "react";
 import {
   areDatesEqual,
@@ -8,18 +8,16 @@ import {
   getMarkedDateFormatFromDate,
   timestampToDate,
 } from "../utils/date.utils";
-import {
-  ActivityRegistration,
-  getUserRegistrations,
-} from "../services/activityRegistrations.services";
+import { ActivityRegistration } from "../services/activityRegistrations.services";
 import { getBookMetadata } from "../services/books.services";
 import { BaseScreen } from "./BaseScreen";
 import { Calendar } from "react-native-calendars";
 import { Text } from "react-native";
 import { OnlineFeaturesDisclaimer } from "./OnlineFeaturesDisclaimer";
 import { GENERAL_STYLES } from "../constants/general.styles";
-import { DAY_OF_WEEK_SUNDAY } from "../constants/constants";
 import { SettingsContext } from "../contexts/settingsContext";
+import { View } from "react-native";
+import { RegistrationCircle } from "./RegistrationCircle";
 
 interface Dot {
   key: string;
@@ -32,21 +30,26 @@ interface ShownObject {
   color: string;
 }
 
-export const CalendarScreen: React.FC = () => {
+export const CalendarScreen: React.FC = ({ route }) => {
   const userSettings = getSettings();
+  const { userRegistrations } = route.params;
 
   return userSettings && userSettings.general.enableOnlineFeatures ? (
-    <RegistrationsCalendar />
+    <RegistrationsCalendar userRegistrations={userRegistrations} />
   ) : (
     <OnlineFeaturesDisclaimer />
   );
 };
 
-const RegistrationsCalendar: React.FC = () => {
-  const userData = getStorageUserData();
+interface RegistrationsCalendarProps {
+  userRegistrations: ActivityRegistration[];
+}
+const RegistrationsCalendar: React.FC<RegistrationsCalendarProps> = ({
+  userRegistrations,
+}) => {
   const books: Dot = { key: "book", color: "red", selectedDotColor: "blue" };
   const games: Dot = { key: "game", color: "blue", selectedDotColor: "blue" };
-  const diaryEntries = {
+  const diaryEntries: Dot = {
     key: "diaryEntry",
     color: "green",
     selectedDotColor: "blue",
@@ -119,8 +122,6 @@ const RegistrationsCalendar: React.FC = () => {
       0,
       0,
     );
-    console.log(`start date: ${startDate}`);
-
     let endDate: Date;
     if (
       areDatesEqual(currentDate, timestampToDate(currentDateData.timestamp))
@@ -130,35 +131,31 @@ const RegistrationsCalendar: React.FC = () => {
     } else {
       endDate = new Date(currentDateData.year, currentDateData.month);
     }
-    console.log(`end date: ${endDate}`);
     const updatedMarkedDates: MarkedDates = {};
+    const monthUserRegistrations = userRegistrations.filter(
+      (userRegistration) =>
+        userRegistration.registration.registrationDate >= startDate.valueOf() &&
+        userRegistration.registration.registrationDate <= endDate.valueOf(),
+    );
 
-    getUserRegistrations(
-      userData.userId,
-      startDate.valueOf(),
-      endDate.valueOf(),
-    )
-      .then((userRegistrations) => {
-        for (const userRegistration of userRegistrations) {
-          const registrationDate = new Date(
-            userRegistration.registration.registrationDate,
-          );
-          const dateToBeUpdated =
-            updatedMarkedDates[getMarkedDateFormatFromDate(registrationDate)];
-          const dot = getDotsFromRegistrationObject(userRegistration);
+    for (const userRegistration of monthUserRegistrations) {
+      const registrationDate = new Date(
+        userRegistration.registration.registrationDate,
+      );
+      const dateToBeUpdated =
+        updatedMarkedDates[getMarkedDateFormatFromDate(registrationDate)];
+      const dot = getDotsFromRegistrationObject(userRegistration);
+      console.log(dot);
 
-          if (dateToBeUpdated !== undefined) {
-            dateToBeUpdated.dots = [...dateToBeUpdated.dots!, dot];
-          } else {
-            updatedMarkedDates[getMarkedDateFormatFromDate(registrationDate)] =
-              {
-                dots: [dot],
-              };
-          }
-        }
-        setMarkedDates(updatedMarkedDates);
-      })
-      .catch((err) => console.error(err));
+      if (dateToBeUpdated !== undefined) {
+        dateToBeUpdated.dots = [...dateToBeUpdated.dots!, dot];
+      } else {
+        updatedMarkedDates[getMarkedDateFormatFromDate(registrationDate)] = {
+          dots: [dot],
+        };
+      }
+    }
+    setMarkedDates(updatedMarkedDates);
   }, [currentDateData]);
 
   console.log(
@@ -167,67 +164,113 @@ const RegistrationsCalendar: React.FC = () => {
 
   return (
     <BaseScreen>
-      <Calendar
-        theme={{
-          textDayHeaderFontFamily: "Inter",
-          textDayHeaderFontWeight: "bold",
-          textMonthFontFamily: "Inter",
-          textMonthFontWeight: "bold",
-          textDayFontFamily: "Inter",
-          arrowColor: "black",
-          selectedDayTextColor: "#AF47D2",
-          todayBackgroundColor: "black",
-          todayTextColor: "white",
-          backgroundColor: "#e9e9e9",
-          calendarBackground: "#e9e9e9",
-        }}
-        firstDay={
-          settings?.preferences.firstDayOfWeek === DAY_OF_WEEK_SUNDAY ? 0 : 1
-        }
-        markingType="multi-dot"
-        markedDates={markedDates}
-        disableArrowRight={currentDateData.month - 1 === currentDate.getMonth()}
-        onMonthChange={(dateData) => {
-          setCurrentDateData(dateData);
-        }}
-        onDayPress={(dateData) => {
-          const selectedDate = timestampToDate(dateData.timestamp);
-          emptyDateTime(selectedDate);
-          const selectedMarkedDate =
-            markedDates[getMarkedDateFormatFromDate(selectedDate)];
-
-          if (selectedMarkedDate !== undefined) {
-            getUserRegistrations(
-              userData.userId,
-              selectedDate.valueOf(),
-              selectedDate.valueOf(),
-            )
-              .then(async (userRegistrations) => {
-                const shownObjects: ShownObject[] = [];
-                for (const userRegistration of userRegistrations) {
-                  const dots = getDotsFromRegistrationObject(userRegistration);
-                  const text =
-                    await getTextFromRegistrationObject(userRegistration);
-                  shownObjects.push({
-                    text,
-                    color: dots.color,
-                  });
-                }
-                setSelectedRegistrations(shownObjects);
-              })
-              .catch((err) => console.error(err));
+      <View style={[GENERAL_STYLES.flexCol, GENERAL_STYLES.flexGap]}>
+        <Calendar
+          theme={{
+            textDayHeaderFontFamily: "Inter",
+            textDayHeaderFontWeight: "bold",
+            textMonthFontFamily: "Inter",
+            textMonthFontWeight: "bold",
+            textDayFontFamily: "Inter",
+            arrowColor: "black",
+            selectedDayTextColor: "white",
+            selectedDayBackgroundColor: "black",
+            todayTextColor: "#AF47D2",
+            backgroundColor: "#e9e9e9",
+            calendarBackground: "#e9e9e9",
+          }}
+          firstDay={settings?.preferences.firstDayOfWeek}
+          markingType="multi-dot"
+          markedDates={markedDates}
+          disableArrowLeft={isCalendarOnOldestRegistration(
+            userRegistrations,
+            currentDateData,
+          )}
+          disableArrowRight={
+            currentDateData.month - 1 === currentDate.getMonth()
           }
-        }}
-      />
-      {selectedRegistrations.length > 0 &&
-        selectedRegistrations.map((registration) => (
-          <Text
-            key={registration.text}
-            style={[GENERAL_STYLES.uiText, { color: registration.color }]}
-          >
-            {registration.text}
-          </Text>
-        ))}
+          onMonthChange={(dateData) => {
+            setCurrentDateData(dateData);
+          }}
+          onDayPress={async (dateData) => {
+            const selectedDate = timestampToDate(dateData.timestamp);
+            emptyDateTime(selectedDate);
+            const selectedMarkedDate =
+              markedDates[getMarkedDateFormatFromDate(selectedDate)];
+
+            if (selectedMarkedDate !== undefined) {
+              const shownObjects: ShownObject[] = [];
+              const selectedDayUserRegistrations = userRegistrations.filter(
+                (userRegistration) =>
+                  userRegistration.registration.registrationDate ===
+                  selectedDate.valueOf(),
+              );
+
+              for (const userRegistration of selectedDayUserRegistrations) {
+                const dots = getDotsFromRegistrationObject(userRegistration);
+                const text =
+                  await getTextFromRegistrationObject(userRegistration);
+                shownObjects.push({
+                  text,
+                  color: dots.color,
+                });
+              }
+              setSelectedRegistrations(shownObjects);
+            }
+          }}
+        />
+        {selectedRegistrations.length > 0 && (
+          <View style={[GENERAL_STYLES.flexCol, GENERAL_STYLES.flexGap]}>
+            {selectedRegistrations.map((registration) => (
+              <View
+                key={registration.text}
+                style={[
+                  GENERAL_STYLES.flexRow,
+                  GENERAL_STYLES.flexGap,
+                  GENERAL_STYLES.alignCenter,
+                ]}
+              >
+                <RegistrationCircle color={registration.color} />
+                <Text style={[GENERAL_STYLES.uiText]}>{registration.text}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+      </View>
     </BaseScreen>
   );
 };
+
+/**
+ * Finds the oldest registration and checks if corresponds to calendar current month
+ *
+ * @param userRegistrations all user's registrations
+ * @param currentDateData current calendar's date data
+ * @returns a boolean indicating if current calendar's month corresponds to oldest user registration
+ */
+function isCalendarOnOldestRegistration(
+  userRegistrations: ActivityRegistration[],
+  currentDateData: DateData,
+): boolean {
+  if (userRegistrations.length === 0) {
+    return false;
+  }
+
+  const oldestRegistration = userRegistrations.reduce(
+    (prevRegistration, currentRegistration) => {
+      const oldestRegistrationDate = Math.min(
+        prevRegistration.registration.registrationDate,
+        currentRegistration.registration.registrationDate,
+      );
+
+      return oldestRegistrationDate ===
+        prevRegistration.registration.registrationDate
+        ? prevRegistration
+        : currentRegistration;
+    },
+  );
+  return (
+    currentDateData.month - 1 ===
+    new Date(oldestRegistration.registration.registrationDate).getMonth()
+  );
+}

@@ -4,8 +4,6 @@ import { GENERAL_STYLES } from "../constants/general.styles";
 import { ButtonGroup } from "./ButtonGroup";
 import { useContext, useEffect, useState } from "react";
 import {
-  DAY_OF_WEEK_MONDAY,
-  DAY_OF_WEEK_SUNDAY,
   FONT_FAMILY_OPEN_DYSLEXIC,
   FONT_FAMILY_SERIF,
   FONT_SIZE_BIG,
@@ -58,16 +56,6 @@ function Settings() {
       value: FONT_FAMILY_OPEN_DYSLEXIC,
     },
   ];
-  const firstDayOfWeekRadioGroup: SettingsRadioButton[] = [
-    {
-      text: translationsContext!.translations.general.daysOfWeek.sunday,
-      value: DAY_OF_WEEK_SUNDAY,
-    },
-    {
-      text: translationsContext!.translations.general.daysOfWeek.monday,
-      value: DAY_OF_WEEK_MONDAY,
-    },
-  ];
   const userSettings = getSettings();
   const [areOnlineFeaturesEnabled, setAreOnlineFeaturesEnabled] =
     useState<boolean>(userSettings.general.enableOnlineFeatures);
@@ -86,12 +74,6 @@ function Settings() {
       (fontFamily) => fontFamily.value === userSettings.bookReader.fontFamily,
     ),
   );
-  const [selectedFirstDayOfWeek, setSelectedFirstDayOfWeek] = useState<number>(
-    firstDayOfWeekRadioGroup.findIndex(
-      (dayOfWeek) =>
-        dayOfWeek.value === userSettings.preferences.firstDayOfWeek,
-    ),
-  );
   useSaveOnExit({
     general: {
       enableOnlineFeatures: areOnlineFeaturesEnabled,
@@ -102,8 +84,7 @@ function Settings() {
       fontFamily: fontFamilyRadioGroup[selectedFontFamily].value as string,
     },
     preferences: {
-      firstDayOfWeek: firstDayOfWeekRadioGroup[selectedFirstDayOfWeek]
-        .value as string,
+      firstDayOfWeek: userSettings.preferences.firstDayOfWeek,
     },
   });
 
@@ -155,21 +136,6 @@ function Settings() {
             buttons={fontFamilyRadioGroup}
             selectedIndex={selectedFontFamily}
             setSelectedIndex={setSelectedFontFamily}
-          />
-        </View>
-      </View>
-      <View>
-        <Text
-          style={[GENERAL_STYLES.uiText, { fontSize: 25, marginBottom: 10 }]}
-        >
-          {settingsTranslations?.preferences}
-        </Text>
-        <View style={[GENERAL_STYLES.flexCol, GENERAL_STYLES.flexGap]}>
-          <ButtonGroup
-            label={settingsTranslations?.firstDayOfWeek}
-            buttons={firstDayOfWeekRadioGroup}
-            selectedIndex={selectedFirstDayOfWeek}
-            setSelectedIndex={setSelectedFirstDayOfWeek}
           />
         </View>
       </View>

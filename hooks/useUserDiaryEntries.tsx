@@ -3,6 +3,7 @@ import { getUserDiaryEntries } from "../services/diaryEntries.services";
 
 export function useUserDiaryEntries(userId: number) {
   const [userDiaryEntries, setUserDiaryEntries] = useState<DiaryEntry[]>();
+  const [error, setError] = useState<string>();
 
   useEffect(() => {
     getUserDiaryEntries(userId)
@@ -15,9 +16,9 @@ export function useUserDiaryEntries(userId: number) {
         );
       })
       .catch((error) => {
-        console.error(error);
+        setError(error);
       });
   }, []);
 
-  return { userDiaryEntries, setUserDiaryEntries };
+  return { userDiaryEntries, setUserDiaryEntries, error };
 }

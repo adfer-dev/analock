@@ -1,6 +1,6 @@
 import { LANGUAGE_ENGLISH, LANGUAGE_SPANISH } from "../constants/constants";
 import { englishTranslations } from "../translations/eng";
-import { spanishTranslations } from "../translations/spa";
+import { spanishTranslations } from "../translations/es";
 import { getSettings } from "./storage.services";
 
 export enum Language {

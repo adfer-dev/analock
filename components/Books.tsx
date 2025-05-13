@@ -7,14 +7,45 @@ import {
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import BookDetailScreen from "./Book";
 import { useContext, useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { downloadAndUnzipEpub } from "../services/download.services";
 import { generalOptions } from "./Home";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { LoadingIndicator } from "./LoadingIndicator";
+import { ErrorScreen } from "./ErrorScreen";
+import { getStorageUserData } from "../services/storage.services";
+import { BookSubjectSelection } from "./BookSubjectSelection";
 
-const BOOKS_NUMBER = 2;
+const BOOK_NUMBER = 2;
+
+export enum InternetArchiveSubject {
+  FICTION = "Fiction",
+  NON_FICTION = "Non-fiction",
+  HISTORY = "History",
+  SCIENCE = "Science",
+  PHILOSOPHY = "Philosophy",
+  RELIGION = "Religion",
+  BIOGRAPHY = "Biography",
+  LITERATURE = "Literature",
+  ART = "Art",
+  MUSIC = "Music",
+  TECHNOLOGY = "Technology",
+  MEDICINE = "Medicine",
+  LAW = "Law",
+  BUSINESS = "Business",
+  POLITICS = "Politics",
+  EDUCATION = "Education",
+  MATHEMATICS = "Mathematics",
+  COMPUTER_SCIENCE = "Computer Science",
+  SOCIAL_SCIENCES = "Social Sciences",
+  PSYCHOLOGY = "Psychology",
+  GEOGRAPHY = "Geography",
+  COOKING = "Cooking",
+  TRAVEL = "Travel",
+  POETRY = "Poetry",
+  DRAMA = "Drama",
+}
 
 const BooksScreen = () => {
   const BooksStack = createNativeStackNavigator();
@@ -23,7 +54,7 @@ const BooksScreen = () => {
     <BooksStack.Navigator initialRouteName="Books">
       <BooksStack.Screen
         name="Books"
-        component={Books}
+        component={BooksWrapper}
         options={{ ...generalOptions, headerTitle: translations?.books }}
       />
       <BooksStack.Screen
@@ -38,15 +69,66 @@ const BooksScreen = () => {
   );
 };
 
-const Books: React.FC = () => {
+const BooksWrapper: React.FC = () => {
+  const userData = getStorageUserData();
+  const [subject, setSubject] = useState<InternetArchiveSubject>();
+  const [shownSubjects, setShownSubjects] = useState<InternetArchiveSubject[]>(
+    [],
+  );
+  const MAX_SUBJECTS = 4;
+
+  useEffect(() => {
+    if (userData.selectedBookSubject !== undefined) {
+      setSubject(userData.selectedBookSubject as InternetArchiveSubject);
+    } else {
+      const subjectValues = Object.values(InternetArchiveSubject);
+      const selectedSubjects: InternetArchiveSubject[] = [];
+
+      for (let i = 0; i < MAX_SUBJECTS; i++) {
+        const randomIndex = Math.floor(Math.random() * subjectValues.length);
+        let duplicated = false;
+
+        for (let j = 0; j < selectedSubjects.length; j++) {
+          if (subjectValues[randomIndex] === selectedSubjects[j]) {
+            duplicated = true;
+            break;
+          }
+        }
+
+        if (!duplicated) {
+          selectedSubjects.push(subjectValues[randomIndex]);
+        } else {
+          i--;
+        }
+      }
+      setShownSubjects(selectedSubjects);
+    }
+  }, []);
+
+  return subject ? (
+    <Books subject={subject.valueOf()} />
+  ) : (
+    <BookSubjectSelection
+      shownSubjects={shownSubjects}
+      setSubject={setSubject}
+      userData={userData}
+    />
+  );
+};
+
+interface BooksProps {
+  subject: string;
+}
+
+const Books: React.FC<BooksProps> = ({ subject }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const res: useOpenLibraryBooksBySubjectResult = useOpenLibraryBooksBySubject({
-    subject: "science",
+    subject,
     sort: "rating desc",
-    limit: BOOKS_NUMBER,
+    limit: BOOK_NUMBER,
   });
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
-  console.log(!loading && errorMessage);
+  const translationsContext = useContext(TranslationsContext);
 
   const downloadBooks = async () => {
     if (res.openLibraryBooksBySubject) {
@@ -55,7 +137,7 @@ const Books: React.FC = () => {
           await downloadAndUnzipEpub(book);
         } catch {
           setErrorMessage(
-            "An error has ocurred when downloading the book. Please, try again later.",
+            translationsContext?.translations.errors.genericNetworkError,
           );
           setLoading(false);
         }
@@ -65,58 +147,62 @@ const Books: React.FC = () => {
   };
 
   useEffect(() => {
-    if (res.openLibraryBooksBySubject && loading) {
+    if (loading) {
       if (!res.error) {
-        downloadBooks()
-          .then(() => {
-            setLoading(false);
-          })
-          .catch(() => {
-            setErrorMessage(res.error);
-            setLoading(false);
-          });
+        if (res.openLibraryBooksBySubject.length > 0) {
+          downloadBooks()
+            .then(() => {
+              setLoading(false);
+            })
+            .catch(() => {
+              setErrorMessage(
+                translationsContext?.translations.errors.genericNetworkError,
+              );
+              setLoading(false);
+            });
+        }
       } else {
-        setErrorMessage(res.error);
+        setErrorMessage(
+          translationsContext?.translations.errors.genericNetworkError,
+        );
         setLoading(false);
       }
     }
   }, [res]);
 
   return (
-    <BaseScreen>
-      {loading && !errorMessage && (
-        <LoadingIndicator
-          text={
-            "We are downloading the required content.\nYou can minimize the app and check the progress on the notification bar."
-          }
-        />
-      )}
-      {!loading && (
-        <View
-          style={[
-            GENERAL_STYLES.flexCol,
-            GENERAL_STYLES.alignCenter,
-            GENERAL_STYLES.flexGrow,
-            { gap: 30 },
-          ]}
-        >
-          {!errorMessage ? (
-            res.openLibraryBooksBySubject?.map((book) => (
-              <BookCard
-                key={book.identifier}
-                id={book.identifier}
-                title={book.title}
-                author={book.creator}
-              />
-            ))
-          ) : (
-            <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBlack]}>
-              {errorMessage}
-            </Text>
-          )}
-        </View>
-      )}
-    </BaseScreen>
+    translationsContext && (
+      <BaseScreen>
+        {loading && !errorMessage && (
+          <LoadingIndicator
+            text={translationsContext.translations.books.donwloadingContent}
+          />
+        )}
+        {!loading && (
+          <View
+            style={[
+              GENERAL_STYLES.flexCol,
+              GENERAL_STYLES.alignCenter,
+              GENERAL_STYLES.flexGrow,
+              { gap: 30 },
+            ]}
+          >
+            {!errorMessage ? (
+              res.openLibraryBooksBySubject?.map((book) => (
+                <BookCard
+                  key={book.identifier}
+                  id={book.identifier}
+                  title={book.title}
+                  author={book.creator}
+                />
+              ))
+            ) : (
+              <ErrorScreen errorText={errorMessage} />
+            )}
+          </View>
+        )}
+      </BaseScreen>
+    )
   );
 };
 

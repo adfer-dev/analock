@@ -15,7 +15,7 @@ interface BookReaderSettings {
 }
 
 interface PreferencesSettings {
-  firstDayOfWeek: string;
+  firstDayOfWeek: number;
 }
 
 interface SettingsRadioButton {

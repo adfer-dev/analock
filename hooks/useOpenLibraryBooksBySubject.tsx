@@ -6,9 +6,9 @@ import {
 } from "../services/storage.services";
 
 export interface useOpenLibraryBooksBySubjectResult {
-  openLibraryBooksBySubject: InternetArchiveBook[] | undefined;
+  openLibraryBooksBySubject: InternetArchiveBook[];
   setOpenLibraryBooksBySubject: React.Dispatch<
-    React.SetStateAction<InternetArchiveBook[] | undefined>
+    React.SetStateAction<InternetArchiveBook[]>
   >;
   error: string | undefined;
 }
@@ -16,8 +16,9 @@ export interface useOpenLibraryBooksBySubjectResult {
 export function useOpenLibraryBooksBySubject(
   params: OpenLibraryRequest,
 ): useOpenLibraryBooksBySubjectResult {
-  const [openLibraryBooksBySubject, setOpenLibraryBooksBySubject] =
-    useState<InternetArchiveBook[]>();
+  const [openLibraryBooksBySubject, setOpenLibraryBooksBySubject] = useState<
+    InternetArchiveBook[]
+  >([]);
   const [error, setError] = useState<string>();
 
   useEffect(() => {

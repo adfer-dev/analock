@@ -3,7 +3,7 @@ import { Circle, G, Path, Svg } from "react-native-svg";
 
 export const SettingsIcon: React.FC = () => {
   return (
-    <View style={[{ width: 30, height: 30, position: "absolute", left: 0 }]}>
+    <View style={[{ width: 30, height: 30 }]}>
       <Svg width="100%" height="100%" viewBox={`0 0 24 24`} fill="none">
         <G>
           <Path

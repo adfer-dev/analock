@@ -5,11 +5,11 @@ export const AddIcon: React.FC = () => {
   const size = 40;
   return (
     <View>
-      <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Svg width={size} height={size} viewBox="0 0 24 24" fill="#ffffff">
         <G>
           <Path
             d="M6 12H12M12 12H18M12 12V18M12 12V6"
-            stroke={"#ffffff"}
+            stroke={"white"}
             strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"

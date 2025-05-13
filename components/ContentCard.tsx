@@ -36,8 +36,10 @@ export const ContentCard: React.FC<ContentCardProps> = ({
       }}
       style={[
         GENERAL_STYLES.flexGrow,
-        { paddingRight: paddingRight },
-        { paddingLeft: paddingLeft },
+        {
+          paddingRight: paddingRight,
+          paddingLeft: paddingLeft,
+        },
       ]}
     >
       <View style={[HOME_STYLES.contentCard]}>

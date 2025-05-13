@@ -65,17 +65,13 @@ function MySpace() {
   const profileTranslations =
     useContext(TranslationsContext)?.translations.profile;
   const userData = getStorageUserData();
-  const userRegistrations = userSettingsContext?.settings.general
-    .enableOnlineFeatures
-    ? useGetUserActivityRegistrations(userData.userId)
-    : [];
+  const { userRegistrations, error } = useGetUserActivityRegistrations(
+    userData.userId,
+  );
   const [streak, setStreak] = useState<number>(0);
 
   useEffect(() => {
-    if (
-      userRegistrations.length > 0 &&
-      userSettingsContext?.settings.general.enableOnlineFeatures
-    ) {
+    if (userRegistrations.length > 0) {
       const currentDate = new Date();
       let day = currentDate.getDate() - 1;
       let streak = 0;
@@ -122,6 +118,7 @@ function MySpace() {
             {userData.userName !== undefined ? userData.userName : "Guest"}
           </Text>
           {profileTranslations &&
+            !error &&
             userSettingsContext?.settings.general.enableOnlineFeatures && (
               <Text style={[GENERAL_STYLES.uiText]}>
                 {formatString(profileTranslations.streak, streak)}
@@ -129,18 +126,20 @@ function MySpace() {
             )}
         </View>
       </View>
-      {userSettingsContext?.settings.general.enableOnlineFeatures && (
-        <View style={{ marginBottom: 20 }}>
-          <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textTitle]}>
-            Weekly progress
-          </Text>
-          <WeeklyActivityChart userRegistrations={userRegistrations} />
+      {!error && userSettingsContext?.settings.general.enableOnlineFeatures && (
+        <View>
+          <View style={{ marginBottom: 20 }}>
+            <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textTitle]}>
+              {profileTranslations?.weeklyProgress}
+            </Text>
+            <WeeklyActivityChart userRegistrations={userRegistrations} />
+          </View>
         </View>
       )}
       <View style={[GENERAL_STYLES.flexRow, GENERAL_STYLES.flexGap]}>
         <TouchableOpacity
           onPressIn={() => {
-            navigation.push("Calendar");
+            navigation.push("Calendar", { userRegistrations });
           }}
           style={[
             GENERAL_STYLES.generalBorder,
@@ -152,7 +151,7 @@ function MySpace() {
             style={[
               GENERAL_STYLES.flexRow,
               GENERAL_STYLES.alignCenter,
-              GENERAL_STYLES.justifyCenter,
+              GENERAL_STYLES.flexGapSmall,
             ]}
           >
             <CalendarIcon />
@@ -181,7 +180,7 @@ function MySpace() {
             style={[
               GENERAL_STYLES.flexRow,
               GENERAL_STYLES.alignCenter,
-              GENERAL_STYLES.justifyCenter,
+              GENERAL_STYLES.flexGapSmall,
             ]}
           >
             <SettingsIcon />

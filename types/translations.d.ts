@@ -2,6 +2,8 @@ interface Translation {
   home: HomeTranslations;
   login: LoginTranslations;
   general: GeneralTranslations;
+  errors: ErrorTranslations;
+  books: BooksTranslations;
   games: GamesTranslations;
   diary: DiaryTranslations;
   profile: ProfileTranslations;
@@ -18,6 +20,10 @@ interface HomeTranslations {
   games: string;
   diary: string;
   profile: string;
+}
+
+interface BooksTranslations {
+  donwloadingContent: string;
 }
 
 interface GamesTranslations {
@@ -38,6 +44,7 @@ interface ProfileTranslations {
   settings: string;
   calendar: string;
   streak: string;
+  weeklyProgress: string;
 }
 
 interface SettingsTranslations {
@@ -72,4 +79,8 @@ interface LoginTranslations {
   loginTitle: string;
   googleSignIn: string;
   continueWithoutOnlineFeatures: string;
+}
+
+interface ErrorTranslations {
+  genericNetworkError: string;
 }

@@ -23,6 +23,14 @@ export const englishTranslations: Translation = {
       sunday: "Sunday",
     },
   },
+  errors: {
+    genericNetworkError:
+      "There was a connection error.\nPlease, try again later.",
+  },
+  books: {
+    donwloadingContent:
+      "We are downloading the required content.\nYou can minimize the app and check the progress on the notification bar.",
+  },
   games: {
     won: "You won!\nCome tommorrow and play again!",
   },
@@ -39,6 +47,7 @@ export const englishTranslations: Translation = {
     settings: "Settings",
     calendar: "Calendar",
     streak: "{0} days streak",
+    weeklyProgress: "Weekly progress",
   },
   settings: {
     general: "General",

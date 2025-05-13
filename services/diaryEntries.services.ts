@@ -34,7 +34,7 @@ export async function getIntervalUserDiaryEntries(
 
     userDiaryEntries = userDiaryEntriesResponse.data as DiaryEntry[];
   } catch (error) {
-    console.error(error);
+    throw error as Error;
   }
 
   return userDiaryEntries;

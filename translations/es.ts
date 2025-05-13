@@ -1,0 +1,69 @@
+export const spanishTranslations: Translation = {
+  home: {
+    books: "Libros",
+    games: "Juegos",
+    diary: "Diario",
+    profile: "Perfil",
+  },
+  login: {
+    loginTitle: "Inicio de Sesión",
+    googleSignIn: "Iniciar sesión con Google",
+    continueWithoutOnlineFeatures: "O continuar sin funciones en línea",
+  },
+  general: {
+    onlineFeaturesDisclaimer:
+      "Esta sección de la aplicación requiere que las funciones en línea se encuentren activadas y que inicie sesión con su cuenta.\nPuede activar las funciones en línea en Ajustes > General",
+    daysOfWeek: {
+      monday: "Lunes",
+      tuesday: "Martes",
+      wednesday: "Miércoles",
+      thursday: "Jueves",
+      friday: "Viernes",
+      saturday: "Sábado",
+      sunday: "Domingo",
+    },
+  },
+  errors: {
+    genericNetworkError:
+      "Ha habido un error de conexión.\n Por favor, vuelva a interntarlo más tarde.",
+  },
+  books: {
+    donwloadingContent:
+      "Estamos descargando el contenido.\nPuedes salir de la app y comprobar el estado en la barra de notificaciones.",
+  },
+  games: {
+    won: "¡Ganaste!\n¡Vuelve mañana para jugar más!",
+  },
+  diary: {
+    add: "Añadir",
+    save: "Guardar",
+    title: "Título",
+    content: "Contenido",
+    today: "Hoy",
+    addDiaryEntryHeader: "Añadir entrada de diario",
+    updateDiaryEntryHeader: "Entrada de diario",
+  },
+  profile: {
+    settings: "Ajustes",
+    calendar: "Calendario",
+    streak: "racha de {0} días",
+    weeklyProgress: "Progreso semanal",
+  },
+  settings: {
+    general: "General",
+    onlineFeatures: "Funciones en línea",
+    language: "Idioma",
+    laguageEng: "Inglés",
+    languageSpa: "Español",
+    bookReader: "Lector de libros",
+    textSize: "Tamaño del texto",
+    textSizeSmall: "Pequeño",
+    textSizeMedium: "Mediano",
+    textSizeBig: "Grande",
+    textFont: "Fuente del texto",
+    textFontSerif: "Serifa",
+    textFontOpenDyslexic: "Open Dyslexic",
+    preferences: "Preferencias",
+    firstDayOfWeek: "Primer día de la semana",
+  },
+};

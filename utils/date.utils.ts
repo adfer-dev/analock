@@ -1,4 +1,7 @@
 import { DateData } from "react-native-calendars";
+import { DAY_OF_WEEK_SUNDAY } from "../constants/constants";
+
+const currentDate = new Date();
 
 /**
  * Checks if dates are equal having only into account day, month and year.
@@ -9,10 +12,35 @@ import { DateData } from "react-native-calendars";
  */
 export function areDatesEqual(date1: Date, date2: Date): boolean {
   return (
-    date1.getDay() === date2.getDay() &&
+    date1.getDate() === date2.getDate() &&
     date1.getMonth() === date2.getMonth() &&
     date1.getFullYear() === date2.getFullYear()
   );
+}
+
+/**
+ * Function that checks if the given date is in the same week as the current.
+ * @param date the date
+ *
+ * @returns a boolean indicating whether the given date is in the same week as the current.
+ */
+export function areDateWeeksEqual(
+  date: Date,
+  userSettings: SettingsData,
+): boolean {
+  const firstDayOfWeek =
+    userSettings?.preferences.firstDayOfWeek === DAY_OF_WEEK_SUNDAY
+      ? getFirstDayOfWeekSunday()
+      : getFirstDayOfWeekMonday();
+  const lastDayOfWeekDate = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    firstDayOfWeek + 6,
+  );
+  emptyDateTime(lastDayOfWeekDate);
+  emptyDateTime(date);
+
+  return date.valueOf() <= lastDayOfWeekDate.valueOf();
 }
 
 /**
@@ -65,6 +93,28 @@ export function getMarkedDateFormatFromDate(date: Date): string {
 }
 
 /**
+ * Gets the date format to be displayed on the app for the given date
+ *
+ *  @param date the date to be formatted
+ *  @returns the formatted date string
+ */
+export function getDisplayDateFormatFromDate(
+  date: number,
+  translations: Translation,
+): string {
+  emptyDateTime(currentDate);
+  if (currentDate.valueOf() !== date) {
+    return new Date(date).toLocaleDateString(undefined, {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  } else {
+    return translations.diary.today;
+  }
+}
+
+/**
  * Sets the time of a date to cero
  * @param date the date
  */
@@ -103,7 +153,6 @@ export function getDayOfWeekTranslation(
  * @returns the first week sunday month day
  */
 export function getFirstDayOfWeekSunday(): number {
-  const currentDate = new Date();
   const firstDayOfWeek = currentDate.getDate() - currentDate.getDay();
 
   return firstDayOfWeek;
@@ -112,10 +161,9 @@ export function getFirstDayOfWeekSunday(): number {
 /**
  * Gets the current week's first monday month day
  *
- * @returns the first week monday month day
+ * @returns the first week sunday month day
  */
 export function getFirstDayOfWeekMonday(): number {
-  const currentDate = new Date();
   const firstDayOfWeek =
     currentDate.getDate() -
     currentDate.getDay() +

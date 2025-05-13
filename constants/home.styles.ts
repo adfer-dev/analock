@@ -2,7 +2,6 @@ import { StyleSheet } from "react-native";
 
 export const HOME_STYLES = StyleSheet.create({
   contentCard: {
-    padding: "12.75%",
     borderStyle: "solid",
     borderColor: "black",
     borderWidth: 2,
@@ -11,7 +10,7 @@ export const HOME_STYLES = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     width: "100%",
-    height: 200,
+    height: 225,
     gap: 10,
   },
   contentCardText: {

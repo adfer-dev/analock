@@ -30,7 +30,7 @@ async function getUserBookRegistrations(
 
     registrations = response.data as BookRegistration[];
   } catch (err) {
-    console.error(err);
+    throw err as Error;
   }
 
   return registrations;
@@ -60,7 +60,7 @@ async function getUserGameRegistrations(
 
     registrations = response.data as GameRegistration[];
   } catch (err) {
-    console.error(err);
+    throw err as Error;
   }
 
   return registrations;
@@ -110,8 +110,8 @@ export async function getUserRegistrations(
       ...gameRegistrations,
       ...diaryEntries,
     );
-  } catch (err) {
-    console.error(err);
+  } catch {
+    throw new Error();
   }
 
   return registrations;
