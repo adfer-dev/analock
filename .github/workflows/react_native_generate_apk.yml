@@ -101,8 +101,9 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: "v${{ needs.determine-build-type.outputs.version }}"
+          name: "Release ${{ needs.determine-build-type.outputs.version }}"
           files: |
-            analock-*.apk
+            analock-${{ needs.determine-build-type.outputs.version }.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
