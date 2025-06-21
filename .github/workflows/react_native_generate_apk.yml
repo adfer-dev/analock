@@ -74,9 +74,7 @@ jobs:
           node-version: '23.x'
 
       - name: Install dependencies
-        run: |
-          npm install -g yarn
-          yarn install
+        run: npm install
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
