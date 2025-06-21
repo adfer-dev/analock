@@ -96,7 +96,7 @@ jobs:
       - name: Prepare release assets
         run: |
           mv android/app/build/outputs/apk/release/app-release.apk \
-             app-${{ needs.create-version-tag.outputs.version }}-release.apk
+             analock-${{ needs.create-version-tag.outputs.version }}-release.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
