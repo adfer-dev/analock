@@ -9,5 +9,10 @@ interface AddDiaryEntryRequest {
   title: string;
   content: string;
   publishDate: number;
-  user_id: number;
+  userId: number;
+}
+interface UpdateDiaryEntryRequest {
+  title: string;
+  content: string;
+  publishDate: number;
 }

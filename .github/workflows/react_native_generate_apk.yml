@@ -1,0 +1,108 @@
+name: Build and Release Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  ANDROID_COMPILE_SDK: "34"
+  ANDROID_BUILD_TOOLS: "34.0.0"
+
+jobs:
+  # Generate tag from package.json
+  create-version-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=v${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+          # Check if tag already exists
+          if git rev-parse ${{ steps.version.outputs.tag }} >/dev/null 2>&1; then
+            echo "Tag already exists, skipping creation"
+          else
+            git tag ${{ steps.version.outputs.tag }}
+            git push origin ${{ steps.version.outputs.tag }}
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Then generate APK and release associated to the tag
+  build-and-release:
+    needs: create-version-tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.create-version-tag.outputs.tag }}
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Verify version
+        run: |
+          echo "Building version: ${{ needs.create-version-tag.outputs.version }}"
+          echo "From tag: ${{ needs.create-version-tag.outputs.tag }}"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '23.x'
+
+      - name: Install dependencies
+        run: |
+          npm install -g yarn
+          yarn install
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Update Android version info
+        run: |
+          sed -i "s/versionName .*/versionName \"${{ needs.create-version-tag.outputs.version }}\"/" android/app/build.gradle
+          CURRENT_CODE=$(grep 'versionCode' android/app/build.gradle | awk '{print $2}')
+          NEW_CODE=$((CURRENT_CODE + 1))
+          sed -i "s/versionCode .*/versionCode $NEW_CODE/" android/app/build.gradle
+
+      - name: Build Android APK
+        run: |
+          cd android
+          ./gradlew assembleRelease
+
+      - name: Prepare release assets
+        run: |
+          mv android/app/build/outputs/apk/release/app-release.apk \
+             app-${{ needs.create-version-tag.outputs.version }}-release.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.create-version-tag.outputs.tag }}
+          name: Release ${{ needs.create-version-tag.outputs.version }}
+          body: "Automated release for version ${{ needs.create-version-tag.outputs.version }}"
+          files: |
+            app-${{ needs.create-version-tag.outputs.version }}-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,28 +1,41 @@
 import { MMKV, Mode } from "react-native-mmkv";
 import { APP_DOCUMENTS_PATH } from "./download.services";
-import { GamesData, TTFEGameData } from "../types/game";
+import { GameData, GamesData, TTFEGameData } from "../types/game";
 import { SudokuGrid } from "../components/Sudoku";
+import { BookStorageData } from "../components/EPUBReader";
+import {
+  DAY_OF_WEEK_SUNDAY,
+  FONT_FAMILY_SERIF,
+  FONT_SIZE_MEDIUM,
+  SUDOKU_GAME_NAME,
+  TTFE_GAME_NAME,
+  localeFirstDayOfWeekMap,
+} from "../constants/constants";
+import { getLocales } from "react-native-localize";
 
 export type StorageData =
-  | SudokuGrid
-  | TTFEGameData
+  | GamesData
   | StorageBook
-  | StorageBookData
-  | UserData;
+  | BookStorageData
+  | UserData
+  | SettingsData;
 
 const storageInstance = new MMKV({
   id: `analock-storage`,
   path: APP_DOCUMENTS_PATH,
-  encryptionKey: process.env.REACT_APP_LOCAL_STORAGE_KEY,
+  encryptionKey: process.env.LOCAL_STORAGE_KEY,
   mode: Mode.SINGLE_PROCESS,
 });
 
 const USER_DATA_STORAGE_KEY = "userData";
+const AUTH_DATA_STORAGE_KEY = "authData";
 const BOOKS_DATA_STORAGE_KEY = "bookData";
 const BOOKS_STORAGE_KEY = "books";
 const GAMES_DATA_STORAGE_KEY = "gameData";
+const SETTINGS_STORAGE_KEY = "settings";
 const DEFAULT_USER_DATA: UserData = {
-  authenticated: true,
+  userId: -1,
+  authenticated: false,
 };
 
 // USER DATA FUNCTIONS
@@ -54,6 +67,33 @@ export function getStorageUserData(): UserData {
  */
 export function setStorageUserData(userData: UserData): void {
   storageInstance.set(USER_DATA_STORAGE_KEY, JSON.stringify(userData));
+}
+
+// AUTH DATA FUNCTIONS
+
+/**
+ * Gets authentication data from storage.
+ *
+ * @returns the stored authentication data
+ */
+export function getStorageAuthData(): StorageAuthData | undefined {
+  let authData: StorageAuthData | undefined;
+  const authDataString = storageInstance.getString(AUTH_DATA_STORAGE_KEY);
+
+  if (authDataString !== undefined) {
+    authData = JSON.parse(authDataString) as StorageAuthData;
+  }
+
+  return authData;
+}
+
+/**
+ * Sets the value of the locally stored authentication data.
+ *
+ * @param authData the authentication data to be stored
+ */
+export function setStorageAuthData(authData: StorageAuthData): void {
+  storageInstance.set(AUTH_DATA_STORAGE_KEY, JSON.stringify(authData));
 }
 
 // SELECTED BOOKS FUNCTIONS
@@ -166,44 +206,180 @@ export function deleteStorageBookData(): void {
 
 // GAME STORAGE
 
-export function getStorageGamesData(): GamesData | undefined {
+export function getStorageGamesData(): GamesData[] | undefined {
   const gameDataString = storageInstance.getString(GAMES_DATA_STORAGE_KEY);
-  let gameData: GamesData | undefined;
+  let gameData: GamesData[] | undefined;
 
   if (gameDataString) {
-    gameData = JSON.parse(gameDataString) as GamesData;
+    gameData = JSON.parse(gameDataString) as GamesData[];
   }
 
   return gameData;
 }
 
-export function setStorageGamesData(gameData: GamesData): void {
+export function setStorageGamesData(gameData: GamesData[]): void {
   storageInstance.set(GAMES_DATA_STORAGE_KEY, JSON.stringify(gameData));
 }
 
-export function saveStorageGamesSudoku(sudokuGrid: SudokuGrid) {
-  const currentGameData = getStorageGamesData();
-
-  if (currentGameData) {
-    currentGameData.sudokuGrid = sudokuGrid;
-    setStorageGamesData(currentGameData);
-  } else {
-    setStorageGamesData({ sudokuGrid: sudokuGrid });
+export function saveGamesData(gameData: GamesData): void {
+  if (isSudokuGrid(gameData.data)) {
+    saveStorageGamesSudoku(gameData);
+  } else if (isTTFEGameData(gameData.data)) {
+    saveStorageGamesTTFE(gameData);
   }
 }
 
-export function saveStorageGamesTTFE(ttfeGameData: TTFEGameData) {
+export function saveStorageGamesSudoku(gameData: GamesData) {
   const currentGameData = getStorageGamesData();
+  const currentSudokuGameDataIndex = currentGameData?.findIndex(
+    (data) => data.name === SUDOKU_GAME_NAME,
+  );
 
-  if (currentGameData?.ttfeGameData) {
-    currentGameData.ttfeGameData.ttfeBoard = ttfeGameData.ttfeBoard;
-    currentGameData.ttfeGameData.ttfeScore = ttfeGameData.ttfeScore;
-    setStorageGamesData(currentGameData);
+  if (currentGameData !== undefined) {
+    if (
+      currentSudokuGameDataIndex !== undefined &&
+      currentSudokuGameDataIndex !== -1
+    ) {
+      (currentGameData[currentSudokuGameDataIndex].data as SudokuGrid) =
+        gameData.data as SudokuGrid;
+      currentGameData[currentSudokuGameDataIndex].won = gameData.won;
+      setStorageGamesData(currentGameData);
+    } else {
+      currentGameData.push(gameData);
+      setStorageGamesData(currentGameData);
+    }
   } else {
-    setStorageGamesData({ ttfeGameData: ttfeGameData });
+    setStorageGamesData([gameData]);
+  }
+}
+
+export function saveStorageGamesTTFE(gameData: GamesData) {
+  const currentGameData = getStorageGamesData();
+  const currentTTFEGameDataIndex = currentGameData?.findIndex(
+    (data) => data.name === TTFE_GAME_NAME,
+  );
+
+  if (currentGameData !== undefined) {
+    if (
+      currentTTFEGameDataIndex !== undefined &&
+      currentTTFEGameDataIndex !== -1
+    ) {
+      (currentGameData[currentTTFEGameDataIndex].data as SudokuGrid) =
+        gameData.data as SudokuGrid;
+      currentGameData[currentTTFEGameDataIndex].won = gameData.won;
+      setStorageGamesData(currentGameData);
+    } else {
+      currentGameData.push(gameData);
+      setStorageGamesData(currentGameData);
+    }
+  } else {
+    setStorageGamesData([gameData]);
   }
 }
 
 export function deleteStorageGamesData(): void {
   storageInstance.delete(GAMES_DATA_STORAGE_KEY);
+}
+/**
+ * Checks if the given storage data is a Sudoku grid
+ *
+ * @param data the given data
+ * @returns a boolean indicating wether the given data is a Sudoku grid
+ */
+function isSudokuGrid(data: GameData): data is SudokuGrid {
+  // Check if data is an array
+  if (!Array.isArray(data)) {
+    return false;
+  }
+
+  // Check if every row is an array
+  for (const row of data) {
+    if (!Array.isArray(row)) {
+      return false;
+    }
+
+    // Check if every cell matches the SudokuCell structure
+    for (const cell of row) {
+      if (
+        typeof cell !== "object" ||
+        !("value" in cell) ||
+        !("editable" in cell) ||
+        !("valid" in cell)
+      ) {
+        return false;
+      }
+
+      // Check the types of the properties
+      if (
+        (cell.value !== null && typeof cell.value !== "number") ||
+        typeof cell.editable !== "boolean" ||
+        typeof cell.valid !== "boolean"
+      ) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Checks if the given storage data is a 2048 game data.
+ *
+ * @param data the given data
+ * @returns a boolean indicating wether the given data is a 2048 Game board
+ */
+function isTTFEGameData(data: GameData): data is TTFEGameData {
+  return "ttfeBoard" in data && "ttfeScore" in data;
+}
+
+// SETTINGS FUNCTIONS
+/**
+ * Gets user's stored settings
+ *
+ * @returns the stored settings
+ */
+export function getSettings(): SettingsData {
+  const gameDataString = storageInstance.getString(SETTINGS_STORAGE_KEY);
+
+  if (!gameDataString) {
+    return loadDefaultSettings();
+  }
+  return JSON.parse(gameDataString) as SettingsData;
+}
+
+/**
+ * Sets user's stored settings
+ *
+ * @param the updated settings
+ */
+export function setSettings(settings: SettingsData): void {
+  storageInstance.set(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+}
+
+/**
+ * Loads default settings to local storage
+ */
+function loadDefaultSettings(): SettingsData {
+  const deviceLocale = getLocales()[0];
+
+  const defaultSettings: SettingsData = {
+    general: {
+      enableOnlineFeatures: true,
+      language: deviceLocale.languageCode.toUpperCase(),
+    },
+    bookReader: {
+      fontSize: FONT_SIZE_MEDIUM,
+      fontFamily: FONT_FAMILY_SERIF,
+    },
+    preferences: {
+      firstDayOfWeek:
+        deviceLocale && localeFirstDayOfWeekMap[deviceLocale.languageTag]
+          ? localeFirstDayOfWeekMap[deviceLocale.languageTag]
+          : DAY_OF_WEEK_SUNDAY,
+    },
+  };
+  console.log(`loaded default settings: ${defaultSettings}`);
+  setSettings(defaultSettings);
+  return defaultSettings;
 }

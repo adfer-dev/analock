@@ -1,51 +1,54 @@
-import axios from 'axios'
-import {useContext} from 'react'
-import {getAccessToken, setAccessToken} from '../constants/auth'
-import {refreshToken} from './auth.services'
-import {UserDataContext} from '../contexts/userDataContext'
+import axios from "axios";
+import { refreshToken } from "./auth.services";
+import { getStorageUserData, setStorageUserData } from "./storage.services";
+import { getAccessToken, setAccessToken } from "../constants/auth.constants";
+import { navigationRef } from "../App";
 
-export const AXIOS_INSTANCE = axios.create()
+export const AXIOS_INSTANCE = axios.create();
 
 export const API_ERRORS = {
-  TOKEN_EXPIRED: 'token expired',
-  COOKIE_NOT_SET: 'refreshToken cookie must be set',
-}
+  TOKEN_EXPIRED: "token expired",
+  COOKIE_NOT_SET: "refreshToken cookie must be set",
+};
 
-AXIOS_INSTANCE.interceptors.request.use(async request => {
-  const allowedUrls = /\/api\/v1\/auth\/*/g
+AXIOS_INSTANCE.interceptors.request.use((request) => {
+  console.log(request.url);
+  const allowedUrls = /\/api\/v1\/auth\/*/g;
   if (request.url !== undefined && !allowedUrls.test(request.url)) {
-    const accessToken = getAccessToken()
-    if (accessToken != null) {
-      request.headers.Authorization = `Bearer ${accessToken}`
-    } else {
+    const accessToken = getAccessToken();
+    request.headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  return request;
+});
+
+AXIOS_INSTANCE.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    const { config, response } = error;
+    if (response && response.status === 401) {
       try {
-        const tokenPair = await refreshToken()
-        if (tokenPair !== undefined) {
-          setAccessToken(tokenPair.accessToken)
-          request.headers.Authorization = `Bearer ${tokenPair.accessToken}`
+        const refreshTokenResponse = await refreshToken();
+        if (refreshTokenResponse !== undefined) {
+          console.log(refreshTokenResponse);
+          setAccessToken(refreshTokenResponse.token);
+          return AXIOS_INSTANCE.request(config);
         }
       } catch (err) {
-        const error = err as APIError
-        console.log(error.description)
-
-        if (
-          error.description === API_ERRORS.TOKEN_EXPIRED ||
-          error.description === API_ERRORS.COOKIE_NOT_SET
-        ) {
-          const authInfoContext = useContext(UserDataContext)
-
-          if (authInfoContext != null) {
-            const userData = {...authInfoContext.userData}
-            // set user data's authenticated param to false
-            // this will make the app to ask the user to log in again.
-            userData.authenticated = false
-            authInfoContext.setUserData(userData)
-            console.error(err)
-          }
+        console.log(err);
+        const userData = getStorageUserData();
+        userData.authenticated = false;
+        setStorageUserData(userData);
+        if (navigationRef.isReady()) {
+          navigationRef.resetRoot({
+            index: 0,
+            routes: [{ name: "Home" }],
+          });
         }
       }
     }
-  }
-
-  return request
-})
+    return Promise.reject(error);
+  },
+);

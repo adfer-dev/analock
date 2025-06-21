@@ -1,9 +1,19 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
-import { getStorageGamesData } from "../services/storage.services";
+import { View, Text, TouchableOpacity } from "react-native";
+import {
+  getSettings,
+  getStorageGamesData,
+  getStorageUserData,
+} from "../services/storage.services";
 import { useSaveOnExit } from "../hooks/useSaveOnExit";
 import { addUserGameRegistration } from "../services/activityRegistrations.services";
 import { emptyDateTime } from "../utils/date.utils";
+import { SUDOKU_GAME_NAME } from "../constants/constants";
+import { GamesData } from "../types/game";
+import { GENERAL_STYLES } from "../constants/general.styles";
+import { GameWon } from "./GameWon";
+import { GAME_STYLES } from "../constants/games.styles";
+import { generateRandomNumberInInterval } from "../utils/utils";
 
 // Type definitions
 export type SudokuGrid = SudokuCell[][];
@@ -11,12 +21,13 @@ type Coordinates = { row: number; col: number };
 
 export interface SudokuCell {
   value: number | null;
+  expectedValue: number;
   editable: boolean;
   valid: boolean;
 }
 
 /**
- * Checks if an action is valid.
+ * Checks if placing the given number if the given position is a valid move according to sudoku rules.
  *
  * @param grid the Sudoku grid
  * @param number the number to check
@@ -76,8 +87,10 @@ function fillCells(grid: SudokuGrid): boolean {
   if (!isEmpty) return true;
 
   for (let num = 1; num <= 9; num++) {
-    if (isValid(grid, num, { row, col })) {
-      grid[row][col].value = num;
+    const randomNum = generateRandomNumberInInterval(1, 9)
+    if (isValid(grid, randomNum, { row, col })) {
+      grid[row][col].value = randomNum;
+      grid[row][col].expectedValue = randomNum;
       if (fillCells(grid)) return true;
       grid[row][col].value = null;
     }
@@ -91,22 +104,24 @@ function fillCells(grid: SudokuGrid): boolean {
  *
  * @returns the generated sudoku grid
  */
-function generateSudoku(): SudokuGrid {
-  let grid: SudokuGrid | undefined = getStorageGamesData()?.sudokuGrid;
+function generateSudoku(sudokuGameData: GamesData | undefined): SudokuGrid {
+  let grid: SudokuGrid;
 
-  if (!grid) {
+  if (!sudokuGameData || !sudokuGameData.data) {
     grid = Array(9)
       .fill(null)
       .map(() =>
         Array(9)
           .fill(null)
           .map(() => {
-            return { value: null, editable: false, valid: true };
+            return { value: null, expectedValue: -1, editable: false, valid: true };
           }),
       );
     // Generate a solved Sudoku and then hide numbers to create a puzzle
     fillCells(grid);
     hideNumbers(grid);
+  } else {
+    grid = sudokuGameData.data as SudokuGrid;
   }
 
   return grid;
@@ -118,7 +133,7 @@ function generateSudoku(): SudokuGrid {
  * @param grid the Sudoku grid
  */
 function hideNumbers(grid: SudokuGrid): void {
-  const cellsToHide = 60;
+  const cellsToHide = generateRandomNumberInInterval(60, 70);
 
   for (let i = 0; i < cellsToHide; i++) {
     const row = Math.floor(Math.random() * 9);
@@ -136,9 +151,21 @@ function hideNumbers(grid: SudokuGrid): void {
  * Sudoku game component.
  */
 export const SudokuGame = () => {
-  const [grid, setGrid] = useState<SudokuGrid>(() => generateSudoku());
+  const sudokuGameData: GamesData | undefined = getStorageGamesData()?.find(
+    (data) => data.name === SUDOKU_GAME_NAME,
+  );
+  const [grid, setGrid] = useState<SudokuGrid>(() =>
+    generateSudoku(sudokuGameData),
+  );
   const [selectedCell, setSelectedCell] = useState<Coordinates | null>(null);
-  useSaveOnExit(grid);
+  const [won, setWon] = useState<boolean>(
+    sudokuGameData ? sudokuGameData.won : false,
+  );
+  useSaveOnExit({
+    name: SUDOKU_GAME_NAME,
+    data: grid,
+    won,
+  });
 
   /**
    * @param row the row where the press action had place
@@ -150,33 +177,33 @@ export const SudokuGame = () => {
     }
   }
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.grid}>
+  return !won ? (
+    <View style={[GAME_STYLES.sudukuContainer, GENERAL_STYLES.backgroundColor]}>
+      <View style={[GAME_STYLES.sudokuGrid]}>
         {grid.map((row, rowIndex) => (
-          <View key={rowIndex} style={styles.row}>
+          <View key={rowIndex} style={GAME_STYLES.sudokuRow}>
             {row.map((cell, colIndex) => (
               <TouchableOpacity
                 key={`${rowIndex}-${colIndex}`}
                 style={[
-                  styles.cell,
+                  GAME_STYLES.sudokuCell,
                   !(
                     selectedCell?.row === rowIndex &&
                     selectedCell?.col === colIndex
                   )
-                    ? styles.normalCell
-                    : styles.selectedCell,
-                  (rowIndex + 1) % 3 === 0 && styles.bottomBorder,
-                  (colIndex + 1) % 3 === 0 && styles.rightBorder,
+                    ? GAME_STYLES.sudokuNormalCell
+                    : GAME_STYLES.sudokuSelectedCell,
+                  (rowIndex + 1) % 3 === 0 && GAME_STYLES.sudokuBottomBorder,
+                  (colIndex + 1) % 3 === 0 && GAME_STYLES.sudokuRightBorder,
                 ]}
-                onPress={() => handleCellPress(rowIndex, colIndex)}
+                onPressIn={() => handleCellPress(rowIndex, colIndex)}
               >
                 <Text
                   style={[
-                    styles.cellText,
+                    GAME_STYLES.sudoukuCellText,
                     grid[rowIndex][colIndex].valid
-                      ? styles.validCell
-                      : styles.notValidCell,
+                      ? GAME_STYLES.sudokuValidCell
+                      : GAME_STYLES.sudokuNotValidCell,
                   ]}
                 >
                   {cell.value || ""}
@@ -191,8 +218,12 @@ export const SudokuGame = () => {
         grid={grid}
         setGrid={setGrid}
         setSelectedCell={setSelectedCell}
+        won={won}
+        setWon={setWon}
       />
     </View>
+  ) : (
+    <GameWon />
   );
 };
 
@@ -201,6 +232,8 @@ interface NumberPadProps {
   grid: SudokuGrid;
   setGrid: React.Dispatch<React.SetStateAction<SudokuGrid>>;
   setSelectedCell: React.Dispatch<React.SetStateAction<Coordinates | null>>;
+  won: boolean
+  setWon: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 /**
@@ -211,6 +244,8 @@ const NumberPad: React.FC<NumberPadProps> = ({
   grid,
   setGrid,
   setSelectedCell,
+  won,
+  setWon,
 }) => {
   /**
    * Handler function for
@@ -219,113 +254,52 @@ const NumberPad: React.FC<NumberPadProps> = ({
     if (!selectedCell) return;
 
     const newGrid = grid.map((rowArr) => rowArr.map((cell) => ({ ...cell })));
-    const updatedCell = newGrid[selectedCell.row][selectedCell.col];
+    const focusedCell = newGrid[selectedCell.row][selectedCell.col];
 
-    updatedCell.value = num;
+    focusedCell.value = num;
 
-    if (isValid(newGrid, num, selectedCell)) {
-      updatedCell.valid = true;
-      updatedCell.editable = false;
+    if (focusedCell.value === focusedCell.expectedValue) {
+      focusedCell.valid = true;
+      focusedCell.editable = false;
 
       // Check if the puzzle is solved
       const isSolved = newGrid.every((row) =>
         row.every((cell) => cell.value !== null && cell.valid),
       );
 
-      if (isSolved) {
-        const currentDate = new Date();
-        emptyDateTime(currentDate);
-        addUserGameRegistration({
-          gameName: "Sudoku",
-          registrationDate: currentDate.valueOf(),
-          userId: 1,
-        });
-        Alert.alert("Congratulations!", "You solved the puzzle!");
+      if (isSolved && !won) {
+        const userSettings = getSettings();
+        if (userSettings.general.enableOnlineFeatures) {
+          const currentDate = new Date();
+          const userData = getStorageUserData();
+
+          emptyDateTime(currentDate);
+          addUserGameRegistration({
+            gameName: SUDOKU_GAME_NAME,
+            registrationDate: currentDate.valueOf(),
+            userId: userData.userId,
+          });
+        }
+        setWon(true);
       }
     } else {
-      updatedCell.valid = false;
+      focusedCell.valid = false;
     }
 
     setGrid(newGrid);
     setSelectedCell(null);
   }
   return (
-    <View style={styles.numberPad}>
+    <View style={GAME_STYLES.sudokuNumberPad}>
       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
         <TouchableOpacity
           key={num}
-          style={styles.numberButton}
-          onPress={() => handleNumberInput(num)}
+          style={GAME_STYLES.sudokuNumberButton}
+          onPressIn={() => handleNumberInput(num)}
         >
-          <Text style={styles.numberButtonText}>{num}</Text>
+          <Text style={GAME_STYLES.sudokuNumberButtonText}>{num}</Text>
         </TouchableOpacity>
       ))}
     </View>
   );
 };
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  grid: {
-    borderWidth: 2,
-    borderColor: "#000",
-  },
-  row: {
-    flexDirection: "row",
-  },
-  cell: {
-    width: 40,
-    height: 40,
-    borderWidth: 0.5,
-    borderColor: "#999",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff",
-  },
-  selectedCell: {
-    backgroundColor: "#e3f2fd",
-  },
-  normalCell: {
-    backgroundColor: "#f5f5f5",
-  },
-  validCell: {
-    color: "black",
-    fontWeight: "bold",
-  },
-  notValidCell: {
-    color: "red",
-  },
-  bottomBorder: {
-    borderBottomWidth: 2,
-  },
-  rightBorder: {
-    borderRightWidth: 2,
-  },
-  cellText: {
-    fontSize: 20,
-  },
-  numberPad: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    marginTop: 20,
-    width: 180,
-  },
-  numberButton: {
-    width: 50,
-    height: 50,
-    margin: 5,
-    backgroundColor: "#2196f3",
-    borderRadius: 25,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  numberButtonText: {
-    color: "#fff",
-    fontSize: 24,
-  },
-});

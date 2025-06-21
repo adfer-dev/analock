@@ -1,7 +1,15 @@
+interface User {
+  id: number;
+  email: string;
+  userName: string;
+  role: number;
+}
+
 interface UserData {
-  authenticated: boolean
-  userId?: string
-  idToken?: string
-  lastOpenedAppDate?: string
-  lastOpenedAppWeek?: number
+  authenticated: boolean;
+  userId: number;
+  userName?: string;
+  idToken?: string;
+  lastOpenedAppDate?: number;
+  selectedBookSubject?: string;
 }

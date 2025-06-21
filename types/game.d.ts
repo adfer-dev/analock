@@ -1,9 +1,12 @@
 import { TTFEBoard } from "../components/2048Game";
 import { SudokuGrid } from "../components/Sudoku";
 
+type GameData = SudokuGrid | TTFEGameData;
+
 interface GamesData {
-  sudokuGrid?: SudokuGrid;
-  ttfeGameData?: TTFEGameData;
+  name: string;
+  data: GameData;
+  won: boolean;
 }
 
 interface TTFEGameData {

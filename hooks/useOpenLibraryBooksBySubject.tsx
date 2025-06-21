@@ -1,38 +1,40 @@
-import {getOpenLibraryBooksBySubject} from '../services/books.services'
-import {useEffect, useState} from 'react'
-import {getSelectedBooks, setSelectedBooks} from '../services/storage.services'
+import { getOpenLibraryBooksBySubject } from "../services/books.services";
+import { useEffect, useState } from "react";
+import {
+  getSelectedBooks,
+  setSelectedBooks,
+} from "../services/storage.services";
 
 export interface useOpenLibraryBooksBySubjectResult {
-  openLibraryBooksBySubject: InternetArchiveBook[] | undefined
+  openLibraryBooksBySubject: InternetArchiveBook[];
   setOpenLibraryBooksBySubject: React.Dispatch<
-    React.SetStateAction<InternetArchiveBook[] | undefined>
-  >
+    React.SetStateAction<InternetArchiveBook[]>
+  >;
+  error: string | undefined;
 }
 
 export function useOpenLibraryBooksBySubject(
   params: OpenLibraryRequest,
 ): useOpenLibraryBooksBySubjectResult {
-  const [openLibraryBooksBySubject, setOpenLibraryBooksBySubject] =
-    useState<InternetArchiveBook[]>()
+  const [openLibraryBooksBySubject, setOpenLibraryBooksBySubject] = useState<
+    InternetArchiveBook[]
+  >([]);
+  const [error, setError] = useState<string>();
 
   useEffect(() => {
-    const selectedBooks = getSelectedBooks()
+    const selectedBooks = getSelectedBooks();
 
     if (selectedBooks) {
-      setOpenLibraryBooksBySubject(selectedBooks)
+      setOpenLibraryBooksBySubject(selectedBooks);
     } else {
       getOpenLibraryBooksBySubject(params)
-        .then(books => {
-          setOpenLibraryBooksBySubject(books)
-          setSelectedBooks(books)
+        .then((books) => {
+          setOpenLibraryBooksBySubject(books);
+          setSelectedBooks(books);
         })
-        .catch(error =>
-          console.error(
-            `Error retrieving books from open library API: ${error}`,
-          ),
-        )
+        .catch((error) => setError(error));
     }
-  }, [])
+  }, []);
 
-  return {openLibraryBooksBySubject, setOpenLibraryBooksBySubject}
+  return { openLibraryBooksBySubject, setOpenLibraryBooksBySubject, error };
 }

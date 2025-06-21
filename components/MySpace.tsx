@@ -1,189 +1,202 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Text, View } from "react-native";
-import { Calendar, DateData } from "react-native-calendars";
-import { useEffect, useState } from "react";
-import { MarkedDates } from "react-native-calendars/src/types";
-import {
-  ActivityRegistration,
-  getUserRegistrations,
-} from "../services/activityRegistrations.services";
-import {
-  areDatesEqual,
-  timestampToDate,
-  dateToDateData,
-  getMarkedDateFormatFromDate,
-} from "../utils/date.utils";
-import { getBookMetadata } from "../services/books.services";
+import { Text, TouchableOpacity } from "react-native";
+import { useContext, useEffect, useState } from "react";
+import { generalOptions } from "./Home";
+import { BaseScreen } from "./BaseScreen";
+import { TranslationsContext } from "../contexts/translationsContext";
+import { useNavigation } from "@react-navigation/native";
+import { CalendarScreen } from "./RegistrationsCalendar";
+import { WeeklyActivityChart } from "./WeeklyActivityChart";
+import { getStorageUserData } from "../services/storage.services";
+import { View } from "react-native";
+import { GENERAL_STYLES } from "../constants/general.styles";
+import { CalendarIcon } from "./icons/CalendarIcon";
+import { SettingsIcon } from "./icons/SettingsIcon";
+import { ProfileCircleContainer } from "./ProfileCircleContainer";
+import { ProfileIcon } from "./icons/ProfileIcon";
+import { useGetUserActivityRegistrations } from "../hooks/useGetUserActivityRegistrations";
+import { formatString } from "../utils/string.utils";
+import Settings from "./Settings";
+import { SettingsContext } from "../contexts/settingsContext";
+
+export type MySpaceStackParamList = {
+  MySpace: undefined;
+  Settings: undefined;
+};
+
+const MIN_ACTIVITY_NUMBER_FOR_STREAK = 1;
 
 const MySpaceScreen = () => {
+  const translations = useContext(TranslationsContext)?.translations;
   const MySpaceStack = createNativeStackNavigator();
   return (
     <MySpaceStack.Navigator initialRouteName="MySpace">
-      <MySpaceStack.Screen name="MySpace" component={MySpace} />
+      <MySpaceStack.Screen
+        name="MySpace"
+        component={MySpace}
+        options={{
+          ...generalOptions,
+          headerTitle: translations?.home.profile,
+        }}
+      />
+      <MySpaceStack.Screen
+        name="Calendar"
+        component={CalendarScreen}
+        options={{
+          ...generalOptions,
+          headerTitle: translations?.profile.calendar,
+        }}
+      />
+      <MySpaceStack.Screen
+        name="Settings"
+        component={Settings}
+        options={{
+          ...generalOptions,
+          headerTitle: translations?.profile.settings,
+        }}
+      />
     </MySpaceStack.Navigator>
   );
 };
 
-interface Dot {
-  key: string;
-  color: string;
-  selectedDotColor: string;
-}
-
-interface ShownObject {
-  text: string;
-  color: string;
-}
-
 function MySpace() {
-  const books: Dot = { key: "book", color: "red", selectedDotColor: "blue" };
-  const games: Dot = { key: "game", color: "blue", selectedDotColor: "blue" };
-  const diaryEntries = {
-    key: "diaryEntry",
-    color: "green",
-    selectedDotColor: "blue",
-  };
-  const currentDate = new Date();
-  const [markedDates, setMarkedDates] = useState<MarkedDates>({});
-  const [currentDateData, setCurrentDateData] = useState<DateData>(
-    dateToDateData(currentDate),
+  const navigation = useNavigation();
+  const userSettingsContext = useContext(SettingsContext);
+  const profileTranslations =
+    useContext(TranslationsContext)?.translations.profile;
+  const userData = getStorageUserData();
+  const { userRegistrations, error } = useGetUserActivityRegistrations(
+    userData.userId,
   );
-  const [selectedRegistrations, setSelectedRegistrations] = useState<
-    ShownObject[]
-  >([]);
+  const [streak, setStreak] = useState<number>(0);
 
-  /**
-   * Aux function to get the dots object from a registration object
-   *
-   * @param registration the registration object
-   * @returns the dots object
-   */
-  function getDotsFromRegistrationObject(
-    registration: ActivityRegistration,
-  ): Dot {
-    let dot: Dot = diaryEntries;
-    if ("internetArchiveId" in registration) {
-      dot = books;
-    } else if ("gameName" in registration) {
-      dot = games;
-    }
-
-    return dot;
-  }
-
-  /**
-   * Gets the shown text from registration object
-   * @param registration the registration object
-   * @returns the shown text
-   */
-  async function getTextFromRegistrationObject(
-    registration: ActivityRegistration,
-  ): Promise<string> {
-    let text: string = "";
-    if ("internetArchiveId" in registration) {
-      //request to internet archive
-      const metadata = await getBookMetadata({
-        id: (registration as BookRegistration).internetArchiveId,
-      });
-      text = metadata!.metadata.title;
-    } else if ("gameName" in registration) {
-      text = (registration as GameRegistration).gameName;
-    } else {
-      text = "Diary";
-    }
-
-    return text;
-  }
-
-  // Hook to mark the registrations on calendar of the current month
   useEffect(() => {
-    const startDate = new Date(
-      currentDateData.year,
-      currentDateData.month - 1,
-      2,
-      0,
-      0,
-      0,
-    );
+    if (userRegistrations.length > 0) {
+      const currentDate = new Date();
+      let day = currentDate.getDate() - 1;
+      let streak = 0;
+      let brokeStreak = false;
 
-    let endDate: Date;
-    if (
-      areDatesEqual(currentDate, timestampToDate(currentDateData.timestamp))
-    ) {
-      endDate = currentDate;
-    } else {
-      endDate = new Date(currentDateData.year, currentDateData.month);
-    }
-    const updatedMarkedDates: MarkedDates = { ...markedDates };
+      while (!brokeStreak) {
+        const date = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          day,
+        );
 
-    getUserRegistrations(1, startDate.valueOf(), endDate.valueOf())
-      .then((userRegistrations) => {
-        for (const userRegistration of userRegistrations) {
-          const registrationDate = new Date(
-            userRegistration.registration.registrationDate,
-          );
-          const dateToBeUpdated =
-            updatedMarkedDates[getMarkedDateFormatFromDate(registrationDate)];
-          const dot = getDotsFromRegistrationObject(userRegistration);
-
-          if (dateToBeUpdated !== undefined) {
-            dateToBeUpdated.dots = [...dateToBeUpdated.dots!, dot];
-          } else {
-            updatedMarkedDates[getMarkedDateFormatFromDate(registrationDate)] =
-              {
-                dots: [dot],
-              };
-          }
+        if (
+          userRegistrations.filter(
+            (registration) =>
+              registration.registration.registrationDate === date.valueOf(),
+          ).length >= MIN_ACTIVITY_NUMBER_FOR_STREAK
+        ) {
+          streak++;
+        } else {
+          brokeStreak = true;
         }
-        setMarkedDates(updatedMarkedDates);
-      })
-      .catch((err) => console.error(err));
-  }, [currentDateData]);
+        day--;
+      }
+      setStreak(streak);
+    }
+  }, [userRegistrations]);
 
   return (
-    <View>
-      <Text>Progress</Text>
-      <Calendar
-        markingType="multi-dot"
-        markedDates={markedDates}
-        onMonthChange={(dateData) => {
-          setCurrentDateData(dateData);
-        }}
-        onDayPress={(dateData) => {
-          const selectedDate = timestampToDate(dateData.timestamp);
-          const selectedMarkedDate =
-            markedDates[getMarkedDateFormatFromDate(selectedDate)];
-
-          if (selectedMarkedDate !== undefined) {
-            getUserRegistrations(
-              1,
-              selectedDate.valueOf(),
-              selectedDate.valueOf(),
-            )
-              .then(async (userRegistrations) => {
-                const shownObjects: ShownObject[] = [];
-                for (const userRegistration of userRegistrations) {
-                  const dots = getDotsFromRegistrationObject(userRegistration);
-                  const text =
-                    await getTextFromRegistrationObject(userRegistration);
-                  shownObjects.push({
-                    text,
-                    color: dots.color,
-                  });
-                }
-                setSelectedRegistrations(shownObjects);
-              })
-              .catch((err) => console.error(err));
-          }
-        }}
-      />
-      {selectedRegistrations.length > 0 &&
-        selectedRegistrations.map((registration) => (
-          <Text key={registration.text} style={{ color: registration.color }}>
-            {registration.text}
+    <BaseScreen>
+      <View
+        style={[
+          GENERAL_STYLES.flexRow,
+          GENERAL_STYLES.alignCenter,
+          GENERAL_STYLES.flexGap,
+          { marginBottom: 20 },
+        ]}
+      >
+        <ProfileCircleContainer iconSize={64}>
+          <ProfileIcon width={64} heigth={64} />
+        </ProfileCircleContainer>
+        <View style={[GENERAL_STYLES.flexCol, { alignSelf: "flex-start" }]}>
+          <Text style={[GENERAL_STYLES.uiText, { fontSize: 25 }]}>
+            {userData.userName !== undefined ? userData.userName : "Guest"}
           </Text>
-        ))}
-    </View>
+          {profileTranslations &&
+            !error &&
+            userSettingsContext?.settings.general.enableOnlineFeatures && (
+              <Text style={[GENERAL_STYLES.uiText]}>
+                {formatString(profileTranslations.streak, streak)}
+              </Text>
+            )}
+        </View>
+      </View>
+      {!error && userSettingsContext?.settings.general.enableOnlineFeatures && (
+        <View>
+          <View style={{ marginBottom: 20 }}>
+            <Text style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textTitle]}>
+              {profileTranslations?.weeklyProgress}
+            </Text>
+            <WeeklyActivityChart userRegistrations={userRegistrations} />
+          </View>
+        </View>
+      )}
+      <View style={[GENERAL_STYLES.flexRow, GENERAL_STYLES.flexGap]}>
+        <TouchableOpacity
+          onPressIn={() => {
+            navigation.push("Calendar", { userRegistrations });
+          }}
+          style={[
+            GENERAL_STYLES.generalBorder,
+            GENERAL_STYLES.smallPadding,
+            GENERAL_STYLES.flexGrow,
+          ]}
+        >
+          <View
+            style={[
+              GENERAL_STYLES.flexRow,
+              GENERAL_STYLES.alignCenter,
+              GENERAL_STYLES.flexGapSmall,
+            ]}
+          >
+            <CalendarIcon />
+            <Text
+              style={[
+                GENERAL_STYLES.uiText,
+                GENERAL_STYLES.textBold,
+                GENERAL_STYLES.alignCenter,
+              ]}
+            >
+              {profileTranslations?.calendar}
+            </Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPressIn={() => {
+            navigation.push("Settings");
+          }}
+          style={[
+            GENERAL_STYLES.generalBorder,
+            GENERAL_STYLES.smallPadding,
+            GENERAL_STYLES.flexGrow,
+          ]}
+        >
+          <View
+            style={[
+              GENERAL_STYLES.flexRow,
+              GENERAL_STYLES.alignCenter,
+              GENERAL_STYLES.flexGapSmall,
+            ]}
+          >
+            <SettingsIcon />
+            <Text
+              style={[
+                GENERAL_STYLES.uiText,
+                GENERAL_STYLES.textBold,
+                GENERAL_STYLES.alignCenter,
+              ]}
+            >
+              {profileTranslations?.settings}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    </BaseScreen>
   );
 }
 

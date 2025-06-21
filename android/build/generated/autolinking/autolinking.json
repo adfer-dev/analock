@@ -3,6 +3,30 @@
   "reactNativePath": "/home/adferdev-lap/repos/analock/node_modules/react-native",
   "reactNativeVersion": "0.75",
   "dependencies": {
+    "@react-native-cookies/cookies": {
+      "root": "/home/adferdev-lap/repos/analock/node_modules/@react-native-cookies/cookies",
+      "name": "@react-native-cookies/cookies",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/home/adferdev-lap/repos/analock/node_modules/@react-native-cookies/cookies/react-native-cookies.podspec",
+          "version": "6.2.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/home/adferdev-lap/repos/analock/node_modules/@react-native-cookies/cookies/android",
+          "packageImportPath": "import com.reactnativecommunity.cookies.CookieManagerPackage;",
+          "packageInstance": "new CookieManagerPackage()",
+          "buildTypes": [],
+          "componentDescriptors": [],
+          "cmakeListsPath": "/home/adferdev-lap/repos/analock/node_modules/@react-native-cookies/cookies/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
     "@react-native-google-signin/google-signin": {
       "root": "/home/adferdev-lap/repos/analock/node_modules/@react-native-google-signin/google-signin",
       "name": "@react-native-google-signin/google-signin",
@@ -82,6 +106,31 @@
         }
       }
     },
+    "react-native-localize": {
+      "root": "/home/adferdev-lap/repos/analock/node_modules/react-native-localize",
+      "name": "react-native-localize",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/home/adferdev-lap/repos/analock/node_modules/react-native-localize/RNLocalize.podspec",
+          "version": "3.4.1",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/home/adferdev-lap/repos/analock/node_modules/react-native-localize/android",
+          "packageImportPath": "import com.zoontek.rnlocalize.RNLocalizePackage;",
+          "packageInstance": "new RNLocalizePackage()",
+          "buildTypes": [],
+          "libraryName": "RNLocalizeSpec",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/home/adferdev-lap/repos/analock/node_modules/react-native-localize/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
     "react-native-mmkv": {
       "root": "/home/adferdev-lap/repos/analock/node_modules/react-native-mmkv",
       "name": "react-native-mmkv",
@@ -107,17 +156,29 @@
         }
       }
     },
-    "react-native-render-html": {
-      "root": "/home/adferdev-lap/repos/analock/node_modules/react-native-render-html",
-      "name": "react-native-render-html",
+    "react-native-reanimated": {
+      "root": "/home/adferdev-lap/repos/analock/node_modules/react-native-reanimated",
+      "name": "react-native-reanimated",
       "platforms": {
         "ios": {
-          "podspecPath": "/home/adferdev-lap/repos/analock/node_modules/react-native-render-html/react-native-render-html.podspec",
-          "version": "6.3.4",
+          "podspecPath": "/home/adferdev-lap/repos/analock/node_modules/react-native-reanimated/RNReanimated.podspec",
+          "version": "3.17.5",
           "configurations": [],
           "scriptPhases": []
         },
-        "android": null
+        "android": {
+          "sourceDir": "/home/adferdev-lap/repos/analock/node_modules/react-native-reanimated/android",
+          "packageImportPath": "import com.swmansion.reanimated.ReanimatedPackage;",
+          "packageInstance": "new ReanimatedPackage()",
+          "buildTypes": [],
+          "libraryName": "rnreanimated",
+          "componentDescriptors": [],
+          "cmakeListsPath": "/home/adferdev-lap/repos/analock/node_modules/react-native-reanimated/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
       }
     },
     "react-native-safe-area-context": {
@@ -228,6 +289,33 @@
             "RNSVGUseComponentDescriptor"
           ],
           "cmakeListsPath": "/home/adferdev-lap/repos/analock/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt",
+          "cxxModuleCMakeListsModuleName": null,
+          "cxxModuleCMakeListsPath": null,
+          "cxxModuleHeaderName": null,
+          "isPureCxxDependency": false
+        }
+      }
+    },
+    "react-native-webview": {
+      "root": "/home/adferdev-lap/repos/analock/node_modules/react-native-webview",
+      "name": "react-native-webview",
+      "platforms": {
+        "ios": {
+          "podspecPath": "/home/adferdev-lap/repos/analock/node_modules/react-native-webview/react-native-webview.podspec",
+          "version": "13.13.5",
+          "configurations": [],
+          "scriptPhases": []
+        },
+        "android": {
+          "sourceDir": "/home/adferdev-lap/repos/analock/node_modules/react-native-webview/android",
+          "packageImportPath": "import com.reactnativecommunity.webview.RNCWebViewPackage;",
+          "packageInstance": "new RNCWebViewPackage()",
+          "buildTypes": [],
+          "libraryName": "RNCWebViewSpec",
+          "componentDescriptors": [
+            "RNCWebViewComponentDescriptor"
+          ],
+          "cmakeListsPath": "/home/adferdev-lap/repos/analock/node_modules/react-native-webview/android/build/generated/source/codegen/jni/CMakeLists.txt",
           "cxxModuleCMakeListsModuleName": null,
           "cxxModuleCMakeListsPath": null,
           "cxxModuleHeaderName": null,

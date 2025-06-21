@@ -1,62 +1,64 @@
-import {useEffect} from 'react'
+import { useContext, useEffect, useState } from "react";
 import {
   deleteSelectedBooks,
   deleteStorageBookData,
   deleteStorageGamesData,
   getStorageUserData,
   setStorageUserData,
-} from '../services/storage.services'
-import {areDatesEqual, getWeekOfYear} from '../utils/date.utils'
+} from "../services/storage.services";
+import {
+  areDateWeeksEqual,
+  areDatesEqual,
+  timestampToDate,
+} from "../utils/date.utils";
+import { SettingsContext } from "../contexts/settingsContext";
 
 // hook to handle daily and weekly content wipes
-export function useWipePeriodicContent(): void {
+export function useWipePeriodicContent(): boolean {
+  const [wiped, setWiped] = useState<boolean>(false);
+  const userSettings = useContext(SettingsContext)?.settings;
+
   useEffect(() => {
-    const userData = getStorageUserData()
-    const currentDate: Date = new Date()
-    const currentWeek = getWeekOfYear(currentDate)
-    let dailyWipe = false
-    let weeklyWipe = false
+    if (userSettings) {
+      let dailyWipe = false;
+      let weeklyWipe = false;
+      const userData = getStorageUserData();
+      const currentDate: Date = new Date();
 
-    // if user opened app on a different day than previous, reset daily progress.
-    if (userData.lastOpenedAppDate) {
-      const lastDate: Date = new Date(userData.lastOpenedAppDate)
+      // if user opened app on a different day than previous, reset daily progress.
+      if (userData.lastOpenedAppDate) {
+        const lastDate: Date = timestampToDate(userData.lastOpenedAppDate);
 
-      // execute daily wipe
-      if (!areDatesEqual(lastDate, currentDate)) {
-        // wipe daily content
-        dailyWipe = true
+        // execute daily wipe
+        if (!areDatesEqual(lastDate, currentDate)) {
+          // wipe daily content
+          dailyWipe = true;
+        }
+
+        // if user opened app on a diferent week than previous time, reset weekly progress.
+        if (!areDateWeeksEqual(currentDate, lastDate, userSettings)) {
+          weeklyWipe = true;
+        }
+        console.log(`last used app date: ${lastDate}, 
+                        current date: ${currentDate}`);
+        if (dailyWipe) {
+          console.log("performing daily wipe...");
+          deleteStorageBookData();
+          deleteStorageGamesData();
+        }
+
+        if (weeklyWipe) {
+          console.log("performing weekly wipe...");
+          deleteSelectedBooks();
+        }
       }
 
-      console.log(`last used app date: ${lastDate}, 
-                        current date: ${currentDate}`)
-    }
+      // set last oppened date
+      userData.lastOpenedAppDate = currentDate.valueOf();
+      setStorageUserData(userData);
 
-    // if user opened app on a diferent week than previous time, reset weekly progress.
-    if (
-      userData.lastOpenedAppWeek &&
-      userData.lastOpenedAppWeek !== currentWeek
-    ) {
-      weeklyWipe = true
+      setWiped(dailyWipe || weeklyWipe);
     }
-
-    console.log(`last used app week: ${userData.lastOpenedAppWeek}, 
-                current date app week: ${getWeekOfYear(currentDate)}`)
-    // set last oppened date
-    userData.lastOpenedAppDate = currentDate.toString()
-    // update last oppened date
-    userData.lastOpenedAppWeek = currentWeek
-    setStorageUserData(userData)
-    console.log(userData)
-
-    if (dailyWipe) {
-      console.log('performing daily wipe...')
-      deleteStorageBookData()
-      deleteStorageGamesData()
-    }
-
-    if (weeklyWipe) {
-      console.log('performing weekly wipe')
-      deleteSelectedBooks()
-    }
-  }, [])
+  }, [userSettings]);
+  return wiped;
 }

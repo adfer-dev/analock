@@ -9,7 +9,7 @@ import axios from "axios";
 export async function getOpenLibraryBooksBySubject(
   req: OpenLibraryRequest,
 ): Promise<InternetArchiveBook[]> {
-  const GET_BOOKS_QUERY = `https://archive.org/advancedsearch.php?q=collection:opensource+AND+language:english+AND+subject:${req.subject}+AND+mediatype:texts&fl=title,creator,identifier&sort[]=downloads+desc&sort[]=avg_rating+desc&rows=${req.limit}&page=1&output=json`;
+  const GET_BOOKS_QUERY = `https://archive.org/advancedsearch.php?q=collection:opensource+AND+language:english+AND+subject:${encodeURIComponent(req.subject)}+AND+mediatype:texts&fl=title,creator,identifier&sort[]=downloads+desc&sort[]=avg_rating+desc&rows=${req.limit}&page=1&output=json`;
   let books: InternetArchiveBook[] = [];
 
   try {
@@ -27,8 +27,8 @@ export async function getOpenLibraryBooksBySubject(
         (file) => file.format === "EPUB",
       )?.name;
     }
-  } catch (error) {
-    console.error(error);
+  } catch {
+    throw Error("Error retrieving books from open library API");
   }
 
   return books;

@@ -1,80 +1,186 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import DiaryEntryDetailScreen from "./DiaryEntry";
 import { useUserDiaryEntries } from "../hooks/useUserDiaryEntries";
 import { BaseScreen } from "./BaseScreen";
-import { ScrollView, Text, TextInput, TouchableOpacity } from "react-native";
-import { CustomModal } from "./CustomModal";
-import { addUserDiaryEntry } from "../services/diaryEntries.services";
-import { emptyDateTime } from "../utils/date.utils";
+import { FlatList, Text, TouchableOpacity } from "react-native";
+import { areDatesEqual } from "../utils/date.utils";
+import { getSettings, getStorageUserData } from "../services/storage.services";
+import { timestampToDate } from "../utils/date.utils";
+import { generalOptions } from "./Home";
+import { GENERAL_STYLES } from "../constants/general.styles";
+import { TranslationsContext } from "../contexts/translationsContext";
+import { OnlineFeaturesDisclaimer } from "./OnlineFeaturesDisclaimer";
+import { useNavigation } from "@react-navigation/native";
+import { LoadingIndicator } from "./LoadingIndicator";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { AddIcon } from "./icons/AddIcon";
+import { ErrorScreen } from "./ErrorScreen";
 
 const DiaryScreen = () => {
+  const translations = useContext(TranslationsContext)?.translations;
   const DiaryEntriesStack = createNativeStackNavigator();
   return (
     <DiaryEntriesStack.Navigator initialRouteName="DiaryEntries">
-      <DiaryEntriesStack.Screen name="DiaryEntries" component={DiaryEntries} />
+      <DiaryEntriesStack.Screen
+        name="DiaryEntries"
+        component={DiaryEntriesScreen}
+        options={{ ...generalOptions, headerTitle: translations!.home.diary }}
+      />
       <DiaryEntriesStack.Screen
         name="DiaryEntry"
         component={DiaryEntryDetailScreen}
+        options={({ route }) => ({
+          ...generalOptions,
+          headerTitle: (route.params?.isUpdate as boolean)
+            ? translations?.diary.updateDiaryEntryHeader
+            : translations?.diary.addDiaryEntryHeader,
+        })}
       />
     </DiaryEntriesStack.Navigator>
   );
 };
 
-const DiaryEntries: React.FC = () => {
-  const userDiaryEntries = useUserDiaryEntries(1);
-  const [showAddDiaryEntryModal, setShowAddDiaryEntryModal] =
-    useState<boolean>(false);
-  const [titleInput, setTitleInput] = useState<string>("");
-  const [contentInput, setContentInput] = useState<string>("");
-  return (
-    <BaseScreen navTitle="Diary">
-      <TouchableOpacity onPress={() => setShowAddDiaryEntryModal(true)}>
-        <Text>Add</Text>
-      </TouchableOpacity>
-      <ScrollView>
-        {userDiaryEntries &&
-          userDiaryEntries.map((diaryEntry) => (
-            <Text key={diaryEntry.id}>{diaryEntry.title}</Text>
-          ))}
-      </ScrollView>
-      <CustomModal
-        visibleIndicator={showAddDiaryEntryModal}
-        onRequestCloseHandler={() => setShowAddDiaryEntryModal(false)}
-      >
-        <TextInput
-          placeholder="Title"
-          onChange={(event) => setTitleInput(event.nativeEvent.text)}
-        />
-        <TextInput
-          placeholder="Content"
-          onChange={(event) => setContentInput(event.nativeEvent.text)}
-        />
+const DiaryEntriesScreen: React.FC = () => {
+  const userSettings = getSettings();
 
-        <TouchableOpacity
-          onPress={() => {
-            const currentDate = new Date();
-            emptyDateTime(currentDate);
-            const diaryEntry: AddDiaryEntryRequest = {
-              title: titleInput,
-              content: contentInput,
-              publishDate: currentDate.valueOf(),
-              user_id: 1,
-            };
-            addUserDiaryEntry(diaryEntry)
-              .then((savedEntry) => {
-                console.log(savedEntry);
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          }}
-        >
-          <Text>Save</Text>
-        </TouchableOpacity>
-      </CustomModal>
-    </BaseScreen>
+  return userSettings && userSettings.general.enableOnlineFeatures ? (
+    <DiaryEntries />
+  ) : (
+    <OnlineFeaturesDisclaimer />
   );
 };
+
+const DiaryEntries: React.FC = () => {
+  const userData = getStorageUserData();
+  const { userDiaryEntries, setUserDiaryEntries, error } = useUserDiaryEntries(
+    userData.userId,
+  );
+  const [loading, setLoading] = useState<boolean>(true);
+  const navigation = useNavigation();
+  const translationsContext = useContext(TranslationsContext);
+
+  // Hook to set the loading state when user's diary' entries are loaded
+  useEffect(() => {
+    if (userDiaryEntries) {
+      setLoading(false);
+    }
+  }, [userDiaryEntries]);
+
+  return !error ? (
+    <BaseScreen>
+      <TouchableOpacity
+        disabled={isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading)}
+        onPressIn={() => {
+          navigation.push("DiaryEntry", {
+            isUpdate: false,
+            userDiaryEntries,
+            setUserDiaryEntries,
+          });
+        }}
+        style={[
+          GENERAL_STYLES.uiButton,
+          GENERAL_STYLES.floatingRightButton,
+          isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading) &&
+            GENERAL_STYLES.buttonDisabled,
+        ]}
+      >
+        <AddIcon />
+      </TouchableOpacity>
+      {loading ? (
+        <LoadingIndicator />
+      ) : (
+        <SafeAreaView>
+          {userDiaryEntries && (
+            <FlatList
+              numColumns={2}
+              data={userDiaryEntries}
+              keyExtractor={(entry) => entry.id.toString()}
+              removeClippedSubviews={false}
+              contentContainerStyle={[GENERAL_STYLES.flexGap]}
+              renderItem={({ item, index }) => {
+                const diaryEntry = item;
+                return (
+                  <TouchableOpacity
+                    key={diaryEntry.id}
+                    style={[
+                      GENERAL_STYLES.flexCol,
+                      GENERAL_STYLES.flexGapSmall,
+                      GENERAL_STYLES.flexGrow,
+                      GENERAL_STYLES.generalBorder,
+                      {
+                        paddingHorizontal: 20,
+                        paddingBottom: 10,
+                        paddingTop: 5,
+                        marginRight:
+                          index !== userDiaryEntries.length - 1 &&
+                          index % 2 === 0
+                            ? 10
+                            : 0,
+                        marginLeft:
+                          userDiaryEntries.length % 2 !== 0 &&
+                          index !== userDiaryEntries.length - 1 &&
+                          index % 2 !== 0
+                            ? 10
+                            : 0,
+                      },
+                    ]}
+                    delayPressIn={500}
+                    onPressIn={() => {
+                      navigation.push("DiaryEntry", {
+                        id: diaryEntry.id,
+                        title: diaryEntry.title,
+                        content: diaryEntry.content,
+                        publishDate: diaryEntry.registration.registrationDate,
+                        isUpdate: true,
+                        userDiaryEntries,
+                        setUserDiaryEntries,
+                      });
+                    }}
+                  >
+                    <Text
+                      numberOfLines={1}
+                      style={[GENERAL_STYLES.uiText, GENERAL_STYLES.textBold]}
+                    >
+                      {diaryEntry.title}
+                    </Text>
+                    <Text numberOfLines={3} style={[GENERAL_STYLES.uiText]}>
+                      {diaryEntry.content.replaceAll(/(\n)/g, " ")}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          )}
+        </SafeAreaView>
+      )}
+    </BaseScreen>
+  ) : (
+    <ErrorScreen
+      errorText={translationsContext?.translations.errors.genericNetworkError}
+    />
+  );
+};
+
+/**
+ * Checks if the add diary entry button should be disabled.
+ *
+ *   @param userDiaryEntries the user's diary entries
+ *   @returns a boolean indicating whether the add diary entry button should be disabled
+ */
+function isAddDiaryEntryButtonDisabled(
+  userDiaryEntries: DiaryEntry[],
+  loading: boolean,
+): boolean {
+  return (
+    loading ||
+    userDiaryEntries?.find((diaryEntry) =>
+      areDatesEqual(
+        timestampToDate(diaryEntry.registration.registrationDate),
+        new Date(),
+      ),
+    ) !== undefined
+  );
+}
 
 export default DiaryScreen;
