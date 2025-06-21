@@ -23,14 +23,27 @@ import { SWIPE_THRESHOLD, TTFE_GAME_NAME } from "../constants/constants";
 import { TTFEGameData } from "../types/game";
 import { GameWon } from "./GameWon";
 import { GENERAL_STYLES } from "../constants/general.styles";
+import Animated, { runOnJS, useSharedValue } from "react-native-reanimated";
+import { getMatrixColumn, setMatrixColumn } from "../utils/utils";
 
 type Direction = "up" | "down" | "left" | "right";
 export type TTFEBoard = number[][];
+
+/**
+ *  Interface representing a move status.
+ */
+interface BoardMoveStatus {
+  updatedRow: number[],
+  moveScore: number
+  moved: boolean
+  moveWon: boolean
+}
 
 const { width } = Dimensions.get("window");
 const BOARD_SIZE = width - 32;
 const CELL_SIZE = BOARD_SIZE / 4;
 const CELL_MARGIN = 4;
+const BOARD_DIMENSIONS = 4
 const colors: Record<number, string> = {
   0: "#CDC1B4",
   2: "#EEE4DA",
@@ -94,9 +107,9 @@ export function Game2048() {
    * @returns an empty 2048 game board
    */
   function generateEmptyBoard(): TTFEBoard {
-    const board = Array(4)
+    const board = Array(BOARD_DIMENSIONS)
       .fill(null)
-      .map(() => Array(4).fill(0));
+      .map(() => Array(BOARD_DIMENSIONS).fill(0));
     addNewTile(board);
     addNewTile(board);
 
@@ -108,8 +121,8 @@ export function Game2048() {
    */
   function addNewTile(board: TTFEBoard): void {
     const emptyCells = [];
-    for (let i = 0; i < 4; i++) {
-      for (let j = 0; j < 4; j++) {
+    for (let i = 0; i < BOARD_DIMENSIONS; i++) {
+      for (let j = 0; j < BOARD_DIMENSIONS; j++) {
         if (board[i][j] === 0) {
           emptyCells.push({ i, j });
         }
@@ -125,59 +138,46 @@ export function Game2048() {
 
   const moveTiles = useCallback(
     (direction: Direction) => {
-      if (gameOver) return;
+      if (gameOver || won) return
 
-      const newBoard = board.map((row) => [...row]);
-      let moved = false;
-      let newScore = score;
+      const isHorizontalMove = direction !== 'up' && direction !== 'down'
+      let newBoard = board.map((row) => [...row])
+      let newScore = score
+      let moved = false
+      let moveWon = false
 
-      const rotateBoard = (times: number) => {
-        for (let t = 0; t < times; t++) {
-          const rotated = Array(4)
-            .fill(null)
-            .map(() => Array(4).fill(0));
-          for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-              rotated[i][j] = newBoard[3 - j][i];
-            }
-          }
-          for (let i = 0; i < 4; i++) {
-            for (let j = 0; j < 4; j++) {
-              newBoard[i][j] = rotated[i][j];
-            }
-          }
+      for (let i = 0; i < newBoard.length; i++) {
+        let moveStatus: BoardMoveStatus
+
+        // update board row/column depending on move direction
+        if (isHorizontalMove) {
+          moveStatus = performRowMove(newBoard[i], direction)
+          newBoard[i] = moveStatus.updatedRow
+        } else {
+          moveStatus = performRowMove(getMatrixColumn(newBoard, i), direction)
+          setMatrixColumn(newBoard, moveStatus.updatedRow, i)
         }
-      };
 
-      if (direction === "up") rotateBoard(3);
-      else if (direction === "right") rotateBoard(2);
-      else if (direction === "down") rotateBoard(1);
-
-      for (let i = 0; i < 4; i++) {
-        const row = newBoard[i].filter((cell) => cell !== 0);
-        for (let j = 0; j < row.length - 1; j++) {
-          if (row[j] === row[j + 1]) {
-            row[j] *= 2;
-            newScore += row[j];
-            row.splice(j + 1, 1);
-            moved = true;
-          }
+        // update common fields
+        console.log(`move score: ${moveStatus.moveScore}`)
+        console.log(`score: ${newScore}`)
+        newScore += moveStatus.moveScore
+        console.log(`updated score: ${newScore}`)
+        if (moveStatus.moved) {
+          moved = true
         }
-        const newRow = [...row, ...Array(4 - row.length).fill(0)];
-        if (newRow.join(",") !== newBoard[i].join(",")) moved = true;
-        newBoard[i] = newRow;
+        if (moveStatus.moveWon) {
+          moveWon = true
+          break
+        }
       }
 
-      if (direction === "up") rotateBoard(1);
-      else if (direction === "right") rotateBoard(2);
-      else if (direction === "down") rotateBoard(3);
-
+      // if board moved
       if (moved) {
-        addNewTile(newBoard);
-        setBoard(newBoard);
-        setScore(newScore);
-
-        if (score >= 2048 && !ttfeGameData?.won) {
+        addNewTile(newBoard)
+        setBoard(newBoard)
+        setScore(newScore)
+        if (moveWon && !ttfeGameData?.won) {
           const userSettings = getSettings();
           if (userSettings.general.enableOnlineFeatures) {
             const currentDate = new Date();
@@ -194,9 +194,56 @@ export function Game2048() {
           setGameOver(true);
         }
       }
-    },
-    [board, gameOver, score],
-  );
+    }, [board, gameOver, score],
+  )
+
+  /**
+   * Performs the move of the given row.
+   * 
+   * @param row the row in which perform the move 
+   * @param direction the move direction 
+   * @returns the move status
+   */
+  function performRowMove(row: number[], direction: Direction): BoardMoveStatus {
+    const positive = direction == 'down' || direction == 'right'
+    let updatedRow = row.filter(value => value > 0)
+    const moveStatus = {
+      updatedRow: row,
+      moveScore: 0,
+      moved: false,
+      moveWon: false
+    }
+
+    if (updatedRow.length > 0) {
+      for (let i = 1; i < updatedRow.length; i++) {
+        if (updatedRow[i] === updatedRow[i - 1]) {
+          // update cell value
+          updatedRow[i] *= 2
+          // update score and check if won
+          moveStatus.moveScore += updatedRow[i]
+          if (updatedRow[i] >= 2048) {
+            moveStatus.moveWon = true
+          }
+          // remove previous cell from array
+          updatedRow.splice(i - 1, 1)
+        }
+      }
+
+      // fill remaining with 0s
+      // if positive, fill with 0s the left
+      // else, fill with 0s the right
+      if (positive) {
+        updatedRow = [...Array(BOARD_DIMENSIONS - updatedRow.length).fill(0), ...updatedRow]
+      } else {
+        updatedRow = [...updatedRow, ...Array(BOARD_DIMENSIONS - updatedRow.length).fill(0)]
+      }
+
+      moveStatus.updatedRow = updatedRow
+      moveStatus.moved = row !== updatedRow
+    }
+
+    return moveStatus
+  }
 
   /**
    * Checks if a move can be made in the active board.
@@ -218,39 +265,50 @@ export function Game2048() {
     return false;
   }
 
-  const panGesture = Gesture.Pan().onEnd((event) => {
-    const { translationX, translationY } = event;
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      translateX.value = 0;
+      translateY.value = 0;
+    })
+    .onEnd((event) => {
+      const { translationX, translationY } = event;
+      translateX.value = translationX;
+      translateY.value = translationY;
 
-    if (Math.abs(translationX) > Math.abs(translationY)) {
-      if (Math.abs(translationX) > SWIPE_THRESHOLD) {
-        if (translationX > 0) {
-          moveTiles("right");
-        } else {
-          moveTiles("left");
+      if (Math.abs(translationX) > Math.abs(translationY)) {
+        if (Math.abs(translationX) > SWIPE_THRESHOLD) {
+          if (translationX > 0) {
+            runOnJS(moveTiles)("right");
+          } else {
+            runOnJS(moveTiles)("left");
+          }
+        }
+      } else {
+        if (Math.abs(translationY) > SWIPE_THRESHOLD) {
+          if (translationY > 0) {
+            runOnJS(moveTiles)("down");
+          } else {
+            runOnJS(moveTiles)("up");
+          }
         }
       }
-    } else {
-      if (Math.abs(translationY) > SWIPE_THRESHOLD) {
-        if (translationY > 0) {
-          moveTiles("down");
-        } else {
-          moveTiles("up");
-        }
-      }
-    }
-  });
+      translateX.value = 0;
+      translateY.value = 0;
+    });
 
-  const getTextColor = (value: number): string => {
+  function getTextColor(value: number): string {
     return value <= 4 ? "#776E65" : "#F9F6F2";
   };
 
-  const getFontSize = (value: number): number => {
+  function getFontSize(value: number): number {
     if (value >= 1024) return 20;
     if (value >= 100) return 24;
     return 32;
   };
 
-  const resetGame = () => {
+  function resetGame(): void {
     setBoard(generateEmptyBoard());
     setScore(0);
     setGameOver(false);
@@ -269,12 +327,12 @@ export function Game2048() {
       </View>
 
       <GestureDetector gesture={panGesture}>
-        <View style={styles.board}>
+        <Animated.View style={styles.board} testID="game-board">
           {board.map((row, i) => (
             <View key={i} style={styles.row}>
               {row.map((cell, j) => (
                 <View
-                  key={`${i}-${j}`}
+                  key={`${i} - ${j}`}
                   style={[styles.cell, { backgroundColor: colors[cell] }]}
                 >
                   {cell !== 0 && (
@@ -294,7 +352,7 @@ export function Game2048() {
               ))}
             </View>
           ))}
-        </View>
+        </Animated.View>
       </GestureDetector>
 
       {gameOver && (

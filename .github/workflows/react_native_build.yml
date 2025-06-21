@@ -1,0 +1,27 @@
+name: React Native build and test
+
+on:
+  pull_request:
+    branches: [ "main", "development" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: write
+
+    steps:
+    - name: Checkout Code 
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '23.x'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Execute unit tests
+      run: npm run test

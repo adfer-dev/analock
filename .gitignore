@@ -1,7 +1,16 @@
 .env
 *.db
-*.apk
 node_modules
-android/app/build
 .idea
 .cxx
+# Android
+android/.gradle/
+android/.idea/
+android/app/build/
+android/build/
+android/local.properties
+android/*.iml
+android/app/*.iml
+*.apk
+# Jest
+.jest

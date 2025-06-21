@@ -13,6 +13,7 @@ import { GamesData } from "../types/game";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { GameWon } from "./GameWon";
 import { GAME_STYLES } from "../constants/games.styles";
+import { generateRandomNumberInInterval } from "../utils/utils";
 
 // Type definitions
 export type SudokuGrid = SudokuCell[][];
@@ -20,12 +21,13 @@ type Coordinates = { row: number; col: number };
 
 export interface SudokuCell {
   value: number | null;
+  expectedValue: number;
   editable: boolean;
   valid: boolean;
 }
 
 /**
- * Checks if an action is valid.
+ * Checks if placing the given number if the given position is a valid move according to sudoku rules.
  *
  * @param grid the Sudoku grid
  * @param number the number to check
@@ -85,8 +87,10 @@ function fillCells(grid: SudokuGrid): boolean {
   if (!isEmpty) return true;
 
   for (let num = 1; num <= 9; num++) {
-    if (isValid(grid, num, { row, col })) {
-      grid[row][col].value = num;
+    const randomNum = generateRandomNumberInInterval(1, 9)
+    if (isValid(grid, randomNum, { row, col })) {
+      grid[row][col].value = randomNum;
+      grid[row][col].expectedValue = randomNum;
       if (fillCells(grid)) return true;
       grid[row][col].value = null;
     }
@@ -110,7 +114,7 @@ function generateSudoku(sudokuGameData: GamesData | undefined): SudokuGrid {
         Array(9)
           .fill(null)
           .map(() => {
-            return { value: null, editable: false, valid: true };
+            return { value: null, expectedValue: -1, editable: false, valid: true };
           }),
       );
     // Generate a solved Sudoku and then hide numbers to create a puzzle
@@ -129,7 +133,7 @@ function generateSudoku(sudokuGameData: GamesData | undefined): SudokuGrid {
  * @param grid the Sudoku grid
  */
 function hideNumbers(grid: SudokuGrid): void {
-  const cellsToHide = 60;
+  const cellsToHide = generateRandomNumberInInterval(60, 70);
 
   for (let i = 0; i < cellsToHide; i++) {
     const row = Math.floor(Math.random() * 9);
@@ -214,6 +218,7 @@ export const SudokuGame = () => {
         grid={grid}
         setGrid={setGrid}
         setSelectedCell={setSelectedCell}
+        won={won}
         setWon={setWon}
       />
     </View>
@@ -227,6 +232,7 @@ interface NumberPadProps {
   grid: SudokuGrid;
   setGrid: React.Dispatch<React.SetStateAction<SudokuGrid>>;
   setSelectedCell: React.Dispatch<React.SetStateAction<Coordinates | null>>;
+  won: boolean
   setWon: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -238,6 +244,7 @@ const NumberPad: React.FC<NumberPadProps> = ({
   grid,
   setGrid,
   setSelectedCell,
+  won,
   setWon,
 }) => {
   /**
@@ -247,20 +254,20 @@ const NumberPad: React.FC<NumberPadProps> = ({
     if (!selectedCell) return;
 
     const newGrid = grid.map((rowArr) => rowArr.map((cell) => ({ ...cell })));
-    const updatedCell = newGrid[selectedCell.row][selectedCell.col];
+    const focusedCell = newGrid[selectedCell.row][selectedCell.col];
 
-    updatedCell.value = num;
+    focusedCell.value = num;
 
-    if (isValid(newGrid, num, selectedCell)) {
-      updatedCell.valid = true;
-      updatedCell.editable = false;
+    if (focusedCell.value === focusedCell.expectedValue) {
+      focusedCell.valid = true;
+      focusedCell.editable = false;
 
       // Check if the puzzle is solved
       const isSolved = newGrid.every((row) =>
         row.every((cell) => cell.value !== null && cell.valid),
       );
 
-      if (isSolved && !sudokuGameData?.won) {
+      if (isSolved && !won) {
         const userSettings = getSettings();
         if (userSettings.general.enableOnlineFeatures) {
           const currentDate = new Date();
@@ -276,7 +283,7 @@ const NumberPad: React.FC<NumberPadProps> = ({
         setWon(true);
       }
     } else {
-      updatedCell.valid = false;
+      focusedCell.valid = false;
     }
 
     setGrid(newGrid);

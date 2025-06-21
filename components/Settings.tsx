@@ -56,7 +56,9 @@ function Settings() {
       value: FONT_FAMILY_OPEN_DYSLEXIC,
     },
   ];
+
   const userSettings = getSettings();
+  console.log(userSettings)
   const [areOnlineFeaturesEnabled, setAreOnlineFeaturesEnabled] =
     useState<boolean>(userSettings.general.enableOnlineFeatures);
   const [selectedLanguage, setSelectedLanguage] = useState<number>(

@@ -8,6 +8,9 @@ interface Translation {
   diary: DiaryTranslations;
   profile: ProfileTranslations;
   settings: SettingsTranslations;
+  bookSubjects: {
+    [key in keyof typeof InternetArchiveBookSubject]?: string;
+  };
 }
 
 interface GeneralTranslations {

@@ -6,7 +6,7 @@ export const FONT_SIZE_MEDIUM = 14;
 export const FONT_SIZE_BIG = 16;
 export const FONT_FAMILY_SERIF = "Merryweather";
 export const FONT_FAMILY_OPEN_DYSLEXIC = "OpenDyslexic";
-export const LANGUAGE_ENGLISH = "ENG";
+export const LANGUAGE_ENGLISH = "EN";
 export const LANGUAGE_SPANISH = "ES";
 export const DAY_OF_WEEK_SUNDAY = 0;
 export const DAY_OF_WEEK_MONDAY = 1;
@@ -15,7 +15,6 @@ export const localeFirstDayOfWeekMap: { [key: string]: number } = {
   "en-CA": 0,
   "ja-JP": 0,
   "ko-KR": 0,
-
   "en-GB": 1,
   "fr-FR": 1,
   "de-DE": 1,

@@ -125,6 +125,7 @@ const DiaryEntries: React.FC = () => {
                             : 0,
                       },
                     ]}
+                    delayPressIn={500}
                     onPressIn={() => {
                       navigation.push("DiaryEntry", {
                         id: diaryEntry.id,
@@ -171,7 +172,6 @@ function isAddDiaryEntryButtonDisabled(
   userDiaryEntries: DiaryEntry[],
   loading: boolean,
 ): boolean {
-  console.log(`loading: ${loading}`);
   return (
     loading ||
     userDiaryEntries?.find((diaryEntry) =>

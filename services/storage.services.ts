@@ -12,7 +12,6 @@ import {
   localeFirstDayOfWeekMap,
 } from "../constants/constants";
 import { getLocales } from "react-native-localize";
-import { InternetArchiveBook, StorageBook } from "../types/books";
 
 export type StorageData =
   | GamesData
@@ -363,7 +362,6 @@ export function setSettings(settings: SettingsData): void {
  */
 function loadDefaultSettings(): SettingsData {
   const deviceLocale = getLocales()[0];
-  console.log(deviceLocale);
 
   const defaultSettings: SettingsData = {
     general: {
@@ -381,7 +379,7 @@ function loadDefaultSettings(): SettingsData {
           : DAY_OF_WEEK_SUNDAY,
     },
   };
-  console.log(defaultSettings);
+  console.log(`loaded default settings: ${defaultSettings}`);
   setSettings(defaultSettings);
   return defaultSettings;
 }

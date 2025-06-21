@@ -25,22 +25,22 @@ export function areDatesEqual(date1: Date, date2: Date): boolean {
  * @returns a boolean indicating whether the given date is in the same week as the current.
  */
 export function areDateWeeksEqual(
-  date: Date,
+  date1: Date,
+  date2: Date,
   userSettings: SettingsData,
 ): boolean {
-  const firstDayOfWeek =
-    userSettings?.preferences.firstDayOfWeek === DAY_OF_WEEK_SUNDAY
-      ? getFirstDayOfWeekSunday()
-      : getFirstDayOfWeekMonday();
-  const lastDayOfWeekDate = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    firstDayOfWeek + 6,
-  );
-  emptyDateTime(lastDayOfWeekDate);
-  emptyDateTime(date);
+  let firstDayOfWeekDate1;
+  let firstDayOfWeekDate2;
 
-  return date.valueOf() <= lastDayOfWeekDate.valueOf();
+  if (userSettings.preferences.firstDayOfWeek === DAY_OF_WEEK_SUNDAY) {
+    firstDayOfWeekDate1 = getFirstDayOfWeekSunday(date1);
+    firstDayOfWeekDate2 = getFirstDayOfWeekSunday(date2);
+  } else {
+    firstDayOfWeekDate1 = getFirstDayOfWeekMonday(date1);
+    firstDayOfWeekDate2 = getFirstDayOfWeekMonday(date2);
+  }
+
+  return firstDayOfWeekDate1 === firstDayOfWeekDate2;
 }
 
 /**
@@ -150,24 +150,23 @@ export function getDayOfWeekTranslation(
 /**
  * Gets the current week's first sunday month day
  *
+ * @param date the date to get its first day of week
  * @returns the first week sunday month day
  */
-export function getFirstDayOfWeekSunday(): number {
-  const firstDayOfWeek = currentDate.getDate() - currentDate.getDay();
-
+export function getFirstDayOfWeekSunday(date: Date): number {
+  const firstDayOfWeek = date.getDate() - date.getDay();
   return firstDayOfWeek;
 }
 
 /**
  * Gets the current week's first monday month day
  *
+ * @param date the date to get its first day of week
  * @returns the first week sunday month day
  */
-export function getFirstDayOfWeekMonday(): number {
+export function getFirstDayOfWeekMonday(date: Date): number {
   const firstDayOfWeek =
-    currentDate.getDate() -
-    currentDate.getDay() +
-    (currentDate.getDay() == 0 ? -6 : 1);
+    date.getDate() - date.getDay() + (date.getDay() == 0 ? -6 : 1);
 
   return firstDayOfWeek;
 }

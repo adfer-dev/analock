@@ -52,8 +52,8 @@ export const WeeklyActivityChart: React.FC<WeeklyActivityChartProps> = ({
     const currentDate = new Date();
     const firstDayOfWeek =
       settings?.preferences.firstDayOfWeek === DAY_OF_WEEK_SUNDAY
-        ? getFirstDayOfWeekSunday()
-        : getFirstDayOfWeekMonday();
+        ? getFirstDayOfWeekSunday(currentDate)
+        : getFirstDayOfWeekMonday(currentDate);
     const firstDayOfWeekDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
