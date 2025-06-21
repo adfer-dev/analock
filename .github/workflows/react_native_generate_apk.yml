@@ -101,10 +101,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ needs.create-version-tag.outputs.tag }}
-          name: Release ${{ needs.create-version-tag.outputs.version }}
-          body: "Automated release for version ${{ needs.create-version-tag.outputs.version }}"
+          tag_name: ${{ github.ref_name }}
           files: |
-            app-${{ needs.create-version-tag.outputs.version }}-release.apk
+            analock-*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
