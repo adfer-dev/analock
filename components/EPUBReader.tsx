@@ -4,7 +4,7 @@ import { useProcessEpub } from "../hooks/useProcessEpub";
 import RNFS from "react-native-fs";
 import { APP_DOCUMENTS_PATH } from "../services/download.services";
 import {
-  addStorageBookData,
+  updateStorageBookData,
   getSettings,
   getStorageBookData,
   getStorageUserData,
@@ -73,7 +73,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
         firstFileIndex = randomIndex;
         setMaxEpubPages(randomIndex)
           .then(() => {
-            addStorageBookData({
+            updateStorageBookData({
               id: ebookId,
               data: {
                 maxPages: MAX_PAGES,
@@ -330,7 +330,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
   return (
     <GestureHandlerRootView>
       <GestureDetector gesture={panGesture}>
-        <View style={[GENERAL_STYLES.backgroundColor, GENERAL_STYLES.flexGrow]}>
+        <View style={[GENERAL_STYLES.whiteBackgroundColor, GENERAL_STYLES.flexGrow]}>
           {loading && <LoadingIndicator />}
           {!loading && (
             <WebView
@@ -349,7 +349,7 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
               allowFileAccessFromFileURLs={true}
               allowUniversalAccessFromFileURLs={true}
               allowsBackForwardNavigationGestures={false}
-              style={[GENERAL_STYLES.backgroundColor]}
+              style={[GENERAL_STYLES.whiteBackgroundColor]}
               scalesPageToFit={false}
               scrollEnabled={false}
               bounces={false}

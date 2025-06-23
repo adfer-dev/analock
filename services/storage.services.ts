@@ -177,15 +177,13 @@ export function getStorageBookData(
  *
  * @param book the book data to be stored
  */
-export function addStorageBookData(book: StorageBook): void {
-  let books = getStorageBooks();
-
-  if (!books) {
-    books = [];
+export function updateStorageBookData(book: StorageBook): void {
+  const books = getStorageBooks();
+  if (books) {
+    const bookToBeUpdatedIndex = books?.findIndex(storageBook => storageBook.id === book.id)
+    books[bookToBeUpdatedIndex].data = book.data
+    storageInstance.set(BOOKS_DATA_STORAGE_KEY, JSON.stringify(books));
   }
-
-  books.push(book);
-  storageInstance.set(BOOKS_DATA_STORAGE_KEY, JSON.stringify(books));
 }
 
 /**
@@ -193,7 +191,7 @@ export function addStorageBookData(book: StorageBook): void {
  *
  *@param books the book data to be stored
  */
-export function setStorageBookData(books: StorageBook[]): void {
+export function setStorageBook(books: StorageBook[]): void {
   storageInstance.set(BOOKS_DATA_STORAGE_KEY, JSON.stringify(books));
 }
 

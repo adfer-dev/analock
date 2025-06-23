@@ -2,15 +2,11 @@ import { StyleSheet } from "react-native";
 
 export const HOME_STYLES = StyleSheet.create({
   contentCard: {
-    borderStyle: "solid",
-    borderColor: "black",
-    borderWidth: 2,
-    borderRadius: 10,
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
     width: "100%",
-    height: 225,
+    height: 240,
     gap: 10,
   },
   contentCardText: {
@@ -22,11 +18,23 @@ export const HOME_STYLES = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 20,
-    padding: 20,
-    borderStyle: "solid",
-    borderColor: "black",
-    borderWidth: 2,
-    borderRadius: 10,
+    paddingHorizontal: 25,
+    paddingVertical: 30,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+  },
+  statusBarTimeText: {
+    fontSize: 22,
+    fontWeight: "bold",
+  },
+  statusBarprogressContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  statusBarprogressText: {
+    position: "absolute",
+    fontSize: 12,
+    fontWeight: "bold",
   },
   row: {
     flexDirection: "row",

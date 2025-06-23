@@ -29,13 +29,13 @@ class BackgroundDownloadModule(
     fun startDownload(url: String, filename: String, promise: Promise) {
         val context = reactApplicationContext
         downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        Log.d("BackgroundDownloadModule", "Called download module with $url")
 
         try {
             val uri = Uri.parse("$url/$filename")
             val externalFilesDir = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
             val absoluteFilePath = File(externalFilesDir, filename).absolutePath
             val query = DownloadManager.Query().apply {
-                // Filter by active download states (not completed/failed)
                 setFilterByStatus(
                     DownloadManager.STATUS_PENDING or
                             DownloadManager.STATUS_RUNNING or
@@ -62,7 +62,6 @@ class BackgroundDownloadModule(
                     setTitle(filename)
                     setDescription("Downloading")
                     setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-
                     setDestinationUri(Uri.fromFile(File(absoluteFilePath)))
                 }
 

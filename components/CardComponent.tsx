@@ -30,7 +30,7 @@ export const CardComponent: React.FC<CardComponentProps> = ({
         },
       ]}
     >
-      <View style={[HOME_STYLES.contentCard, GENERAL_STYLES.flexRow]}>
+      <View style={[HOME_STYLES.contentCard, GENERAL_STYLES.defaultBorder, GENERAL_STYLES.flexRow]}>
         {Icon && <Icon />}
         <Text
           style={[

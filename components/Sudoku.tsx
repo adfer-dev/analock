@@ -178,7 +178,7 @@ export const SudokuGame = () => {
   }
 
   return !won ? (
-    <View style={[GAME_STYLES.sudukuContainer, GENERAL_STYLES.backgroundColor]}>
+    <View style={[GAME_STYLES.sudukuContainer, GENERAL_STYLES.whiteBackgroundColor]}>
       <View style={[GAME_STYLES.sudokuGrid]}>
         {grid.map((row, rowIndex) => (
           <View key={rowIndex} style={GAME_STYLES.sudokuRow}>

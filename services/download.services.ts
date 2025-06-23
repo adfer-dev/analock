@@ -30,7 +30,6 @@ export async function downloadAndUnzipEpub(book: InternetArchiveBook) {
           console.log(
             `book ${book.epubFile} has been downloaded to ${downloadedFilePath}`,
           );
-
           // Unzip the EPUB file
           await unzip(downloadedFilePath, unzipPath);
           console.log("Unzipped to:", unzipPath);
@@ -38,6 +37,8 @@ export async function downloadAndUnzipEpub(book: InternetArchiveBook) {
           // Remove the EPUB file to free space
           await RNFS.unlink(downloadedFilePath);
         } catch {
+          // Remove ebook unzip directory. If donwload fails unzip will create it anyways.
+          await RNFS.unlink(unzipPath)
           throw new Error("Download error");
         }
       }

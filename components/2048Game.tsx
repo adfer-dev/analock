@@ -159,10 +159,7 @@ export function Game2048() {
         }
 
         // update common fields
-        console.log(`move score: ${moveStatus.moveScore}`)
-        console.log(`score: ${newScore}`)
         newScore += moveStatus.moveScore
-        console.log(`updated score: ${newScore}`)
         if (moveStatus.moved) {
           moved = true
         }
@@ -316,7 +313,7 @@ export function Game2048() {
 
   return !won ? (
     <GestureHandlerRootView
-      style={[styles.container, GENERAL_STYLES.backgroundColor]}
+      style={[styles.container, GENERAL_STYLES.whiteBackgroundColor]}
     >
       <View style={styles.header}>
         <Text style={styles.title}>2048</Text>

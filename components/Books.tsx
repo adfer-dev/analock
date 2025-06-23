@@ -9,13 +9,13 @@ import BookDetailScreen from "./Book";
 import { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
 import { downloadAndUnzipEpub } from "../services/download.services";
-import { generalOptions } from "./Home";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { ErrorScreen } from "./ErrorScreen";
 import { getStorageUserData } from "../services/storage.services";
 import { BookSubjectSelection } from "./BookSubjectSelection";
+import { NavigationHeader } from "./NavigationHeader";
 
 const BOOK_NUMBER = 2;
 
@@ -51,17 +51,19 @@ const BooksScreen = () => {
   const BooksStack = createNativeStackNavigator();
   const translations = useContext(TranslationsContext)?.translations.home;
   return (
-    <BooksStack.Navigator initialRouteName="Books">
+    <BooksStack.Navigator
+      initialRouteName="Books"
+      screenOptions={{ header: (props) => <NavigationHeader {...props} /> }}
+    >
       <BooksStack.Screen
         name="Books"
         component={BooksWrapper}
-        options={{ ...generalOptions, headerTitle: translations?.books }}
+        options={{ headerTitle: translations?.books }}
       />
       <BooksStack.Screen
         name="Book"
         component={BookDetailScreen}
         options={({ route }) => ({
-          ...generalOptions,
           headerTitle: route.params?.title as string,
         })}
       />
@@ -77,6 +79,7 @@ const BooksWrapper: React.FC = () => {
   );
   const MAX_SUBJECTS = 4;
 
+  // hook to show subject selection
   useEffect(() => {
     if (userData.selectedBookSubject !== undefined) {
       setSubject(userData.selectedBookSubject as InternetArchiveSubject);
@@ -86,20 +89,8 @@ const BooksWrapper: React.FC = () => {
 
       for (let i = 0; i < MAX_SUBJECTS; i++) {
         const randomIndex = Math.floor(Math.random() * subjectValues.length);
-        let duplicated = false;
-
-        for (let j = 0; j < selectedSubjects.length; j++) {
-          if (subjectValues[randomIndex] === selectedSubjects[j]) {
-            duplicated = true;
-            break;
-          }
-        }
-
-        if (!duplicated) {
-          selectedSubjects.push(subjectValues[randomIndex]);
-        } else {
-          i--;
-        }
+        selectedSubjects.push(subjectValues[randomIndex]);
+        subjectValues.splice(randomIndex, 1)
       }
       setShownSubjects(selectedSubjects);
     }
@@ -122,7 +113,7 @@ interface BooksProps {
 
 const Books: React.FC<BooksProps> = ({ subject }) => {
   const [loading, setLoading] = useState<boolean>(true);
-  const res: useOpenLibraryBooksBySubjectResult = useOpenLibraryBooksBySubject({
+  const openLibraryResponse: useOpenLibraryBooksBySubjectResult = useOpenLibraryBooksBySubject({
     subject,
     sort: "rating desc",
     limit: BOOK_NUMBER,
@@ -130,26 +121,31 @@ const Books: React.FC<BooksProps> = ({ subject }) => {
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const translationsContext = useContext(TranslationsContext);
 
-  const downloadBooks = async () => {
-    if (res.openLibraryBooksBySubject) {
-      for (const book of res.openLibraryBooksBySubject) {
-        try {
-          await downloadAndUnzipEpub(book);
-        } catch {
-          setErrorMessage(
-            translationsContext?.translations.errors.genericNetworkError,
-          );
-          setLoading(false);
-        }
-        setTimeout(() => {}, 1000);
+  /**
+   * Aux function to perform download of books returned by Internet Archive response.
+   */
+  async function downloadBooks(): Promise<void> {
+    if (openLibraryResponse.openLibraryBooksBySubject) {
+      const bookDownloadPromises: Promise<void>[] = []
+      for (const book of openLibraryResponse.openLibraryBooksBySubject) {
+        bookDownloadPromises.push(downloadAndUnzipEpub(book))
+      }
+      try {
+        await Promise.all(bookDownloadPromises)
+      } catch {
+        setErrorMessage(
+          translationsContext?.translations.errors.genericNetworkError,
+        );
+        setLoading(false);
       }
     }
   };
 
+  // Hook to start downloading process with the books given by Internet Archive  
   useEffect(() => {
     if (loading) {
-      if (!res.error) {
-        if (res.openLibraryBooksBySubject.length > 0) {
+      if (!openLibraryResponse.error) {
+        if (openLibraryResponse.openLibraryBooksBySubject.length > 0) {
           downloadBooks()
             .then(() => {
               setLoading(false);
@@ -168,7 +164,7 @@ const Books: React.FC<BooksProps> = ({ subject }) => {
         setLoading(false);
       }
     }
-  }, [res]);
+  }, [openLibraryResponse]);
 
   return (
     translationsContext && (
@@ -188,7 +184,7 @@ const Books: React.FC<BooksProps> = ({ subject }) => {
             ]}
           >
             {!errorMessage ? (
-              res.openLibraryBooksBySubject?.map((book) => (
+              openLibraryResponse.openLibraryBooksBySubject?.map((book) => (
                 <BookCard
                   key={book.identifier}
                   id={book.identifier}
