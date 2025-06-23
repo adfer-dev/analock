@@ -3,27 +3,28 @@ import { SudokuGame } from "./Sudoku";
 import { GameCard } from "./GameCard";
 import GameDetailScreen from "./Game";
 import { Game2048 } from "./2048Game";
-
-import { generalOptions } from "./Home";
 import { BaseScreen } from "./BaseScreen";
 import { useContext } from "react";
 import { TranslationsContext } from "../contexts/translationsContext";
+import { NavigationHeader } from "./NavigationHeader";
 
 const GamesScreen = () => {
   const GamesStack = createNativeStackNavigator();
   const translations = useContext(TranslationsContext)?.translations;
   return (
-    <GamesStack.Navigator initialRouteName="Games">
+    <GamesStack.Navigator
+      initialRouteName="Games"
+      screenOptions={{ header: (props) => <NavigationHeader {...props} /> }}
+    >
       <GamesStack.Screen
         name="Games"
         component={Games}
-        options={{ ...generalOptions, headerTitle: translations?.home.games }}
+        options={{ headerTitle: translations?.home.games }}
       />
       <GamesStack.Screen
         name="Game"
         component={GameDetailScreen}
         options={({ route }) => ({
-          ...generalOptions,
           headerTitle: route.params?.name as string,
         })}
       />

@@ -14,14 +14,14 @@ export const BaseScreen: React.FC<BaseScreenProps> = ({
     <>
       <StatusBar
         animated={true}
-        backgroundColor="#e9e9e9"
-        barStyle={"dark-content"}
+        backgroundColor="#343233"
+        barStyle={"light-content"}
       />
       <View
         style={[
           GENERAL_STYLES.flexCol,
           GENERAL_STYLES.flexGrow,
-          GENERAL_STYLES.backgroundColor,
+          GENERAL_STYLES.whiteBackgroundColor,
           GENERAL_STYLES.baseScreenPadding,
         ]}
       >

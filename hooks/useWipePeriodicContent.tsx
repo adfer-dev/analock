@@ -3,8 +3,10 @@ import {
   deleteSelectedBooks,
   deleteStorageBookData,
   deleteStorageGamesData,
+  getStorageBooks,
   getStorageUserData,
   setStorageUserData,
+  updateStorageBookData,
 } from "../services/storage.services";
 import {
   areDateWeeksEqual,
@@ -43,13 +45,21 @@ export function useWipePeriodicContent(): boolean {
                         current date: ${currentDate}`);
         if (dailyWipe) {
           console.log("performing daily wipe...");
-          deleteStorageBookData();
+          // delete StorageBook data property for each stored book
+          const bookData = getStorageBooks()
+          if (bookData) {
+            for (const savedBook of bookData) {
+              updateStorageBookData({ id: savedBook.id })
+            }
+          }
+          // delete game data
           deleteStorageGamesData();
         }
 
         if (weeklyWipe) {
           console.log("performing weekly wipe...");
           deleteSelectedBooks();
+          deleteStorageBookData()
         }
       }
 

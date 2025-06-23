@@ -41,7 +41,7 @@ export const Login: React.FC<LoginProps> = ({ setAuthenticated }) => {
         <View style={[GENERAL_STYLES.flexCol, GENERAL_STYLES.flexGap]}>
           <TouchableOpacity
             style={[
-              GENERAL_STYLES.backgroundColor,
+              GENERAL_STYLES.whiteBackgroundColor,
               GENERAL_STYLES.loginSignInButton,
             ]}
             onPress={() => {

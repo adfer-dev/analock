@@ -4,6 +4,7 @@ import xml2js from "react-native-xml2js";
 import { Dimensions } from "react-native";
 import { APP_DOCUMENTS_PATH } from "../services/download.services";
 import { getStorageBookData } from "../services/storage.services";
+import { epubReaderHeaderHeight } from "../constants/constants";
 
 interface ProcessEpubResult {
   htmlFiles: ParsedItem[];
@@ -196,13 +197,13 @@ async function addCustomCSS(unzipPath: string, cssPath: string) {
   let updatedStyles = getCustomElementStyles(
     css,
     "body",
-    `height: ${dimensions.height * 0.9}px; width: ${dimensions.width * 0.95}px; column-width: ${dimensions.width * 0.95}px; column-gap: 0px;column-fill: auto;-webkit-column-width: ${dimensions.width * 2}px;-webkit-column-gap: 0px;overflow-x: hidden;overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;`,
+    `height: ${(dimensions.height - epubReaderHeaderHeight) - 10}px; width: ${dimensions.width * 0.95}px; column-width: ${dimensions.width * 0.95}px; column-gap: 0px;column-fill: auto;-webkit-column-width: ${dimensions.width * 2}px;-webkit-column-gap: 0px;overflow-x: hidden;overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;`,
   );
 
   updatedStyles = getCustomElementStyles(
     updatedStyles,
     "html",
-    `margin: 0;padding: 0;height: ${dimensions.height * 0.9}px;width: ${dimensions.width * 0.95}px;overflow: hidden; touch-action: none;`,
+    `margin: 0;padding: 0;height: ${(dimensions.height - epubReaderHeaderHeight) - 10}px;width: ${dimensions.width * 0.95}px;overflow: hidden; touch-action: none;`,
   );
 
   updatedStyles = getCustomElementStyles(

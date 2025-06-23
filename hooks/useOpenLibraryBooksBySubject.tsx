@@ -3,13 +3,11 @@ import { useEffect, useState } from "react";
 import {
   getSelectedBooks,
   setSelectedBooks,
+  setStorageBook,
 } from "../services/storage.services";
 
 export interface useOpenLibraryBooksBySubjectResult {
   openLibraryBooksBySubject: InternetArchiveBook[];
-  setOpenLibraryBooksBySubject: React.Dispatch<
-    React.SetStateAction<InternetArchiveBook[]>
-  >;
   error: string | undefined;
 }
 
@@ -31,10 +29,11 @@ export function useOpenLibraryBooksBySubject(
         .then((books) => {
           setOpenLibraryBooksBySubject(books);
           setSelectedBooks(books);
+          setStorageBook(books.map(book => ({ id: book.identifier } as StorageBook)))
         })
         .catch((error) => setError(error));
     }
   }, []);
 
-  return { openLibraryBooksBySubject, setOpenLibraryBooksBySubject, error };
+  return { openLibraryBooksBySubject, error };
 }
