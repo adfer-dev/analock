@@ -1,5 +1,9 @@
 import { StyleSheet } from "react-native";
 
+export const grayColor = "#343233"
+export const whiteColor = "#D9D9D9"
+export const whiteBackgroundColor = "#E5E1DE"
+
 export const GENERAL_STYLES = StyleSheet.create({
   baseScreenPadding: {
     paddingHorizontal: 20,
@@ -41,6 +45,9 @@ export const GENERAL_STYLES = StyleSheet.create({
   alignCenter: {
     alignItems: "center",
   },
+  alignStart: {
+    alignItems: 'flex-start'
+  },
   uiText: {
     fontFamily: "Inter",
   },
@@ -63,24 +70,27 @@ export const GENERAL_STYLES = StyleSheet.create({
     fontStyle: "italic",
   },
   textBlack: {
-    color: "black",
+    color: grayColor,
   },
   textWhite: {
-    color: "white",
+    color: whiteColor
   },
   textGray: {
     color: "gray",
   },
   navBar: {
     fontFamily: "Inter",
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "bold",
   },
   navBarRigth: {
     flexGrow: 0.1,
   },
-  backgroundColor: {
-    backgroundColor: "#e9e9e9",
+  whiteBackgroundColor: {
+    backgroundColor: whiteBackgroundColor,
+  },
+  grayBackgroundColor: {
+    backgroundColor: grayColor
   },
   justifyCenter: {
     justifyContent: "center",
@@ -100,6 +110,11 @@ export const GENERAL_STYLES = StyleSheet.create({
     borderColor: "black",
     borderWidth: 2,
     borderRadius: 10,
+  },
+  defaultBorder: {
+    borderStyle: "solid",
+    borderColor: grayColor,
+    borderWidth: 2.5,
   },
   uiButton: {
     borderStyle: "solid",
@@ -124,4 +139,16 @@ export const GENERAL_STYLES = StyleSheet.create({
     justifyContent: "center",
     elevation: 5,
   },
+  navigationHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 25,
+    paddingVertical: 30,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+  },
+  navigationHeaderSideBalanceSpace: {
+    width: 40,
+  }
 });

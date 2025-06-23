@@ -10,6 +10,7 @@ import DiaryScreen from "./components/DiaryEntries";
 import Home from "./components/Home";
 import { TranslationsProvider } from "./contexts/translationsContext";
 import { SettingsProvider } from "./contexts/settingsContext";
+import { NavigationHeader } from "./components/NavigationHeader";
 
 export const navigationRef = createNavigationContainerRef();
 function App(): React.JSX.Element {
@@ -18,7 +19,9 @@ function App(): React.JSX.Element {
     <SettingsProvider>
       <TranslationsProvider>
         <NavigationContainer ref={navigationRef}>
-          <Stack.Navigator initialRouteName="Home">
+          <Stack.Navigator
+            initialRouteName="Home"
+          >
             <Stack.Screen
               name="Home"
               component={Home}

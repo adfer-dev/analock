@@ -110,7 +110,7 @@ interface InternetArchiveMetadata {
 
 interface StorageBook {
   id: string;
-  data: StorageBookData;
+  data?: StorageBookData;
 }
 
 interface StorageBookData {

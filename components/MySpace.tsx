@@ -1,7 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Text, TouchableOpacity } from "react-native";
 import { useContext, useEffect, useState } from "react";
-import { generalOptions } from "./Home";
 import { BaseScreen } from "./BaseScreen";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { useNavigation } from "@react-navigation/native";
@@ -18,6 +17,7 @@ import { useGetUserActivityRegistrations } from "../hooks/useGetUserActivityRegi
 import { formatString } from "../utils/string.utils";
 import Settings from "./Settings";
 import { SettingsContext } from "../contexts/settingsContext";
+import { NavigationHeader } from "./NavigationHeader";
 
 export type MySpaceStackParamList = {
   MySpace: undefined;
@@ -30,12 +30,14 @@ const MySpaceScreen = () => {
   const translations = useContext(TranslationsContext)?.translations;
   const MySpaceStack = createNativeStackNavigator();
   return (
-    <MySpaceStack.Navigator initialRouteName="MySpace">
+    <MySpaceStack.Navigator
+      initialRouteName="MySpace"
+      screenOptions={{ header: (props) => <NavigationHeader {...props} /> }}
+    >
       <MySpaceStack.Screen
         name="MySpace"
         component={MySpace}
         options={{
-          ...generalOptions,
           headerTitle: translations?.home.profile,
         }}
       />
@@ -43,7 +45,6 @@ const MySpaceScreen = () => {
         name="Calendar"
         component={CalendarScreen}
         options={{
-          ...generalOptions,
           headerTitle: translations?.profile.calendar,
         }}
       />
@@ -51,7 +52,6 @@ const MySpaceScreen = () => {
         name="Settings"
         component={Settings}
         options={{
-          ...generalOptions,
           headerTitle: translations?.profile.settings,
         }}
       />

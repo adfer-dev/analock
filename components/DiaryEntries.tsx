@@ -7,7 +7,6 @@ import { FlatList, Text, TouchableOpacity } from "react-native";
 import { areDatesEqual } from "../utils/date.utils";
 import { getSettings, getStorageUserData } from "../services/storage.services";
 import { timestampToDate } from "../utils/date.utils";
-import { generalOptions } from "./Home";
 import { GENERAL_STYLES } from "../constants/general.styles";
 import { TranslationsContext } from "../contexts/translationsContext";
 import { OnlineFeaturesDisclaimer } from "./OnlineFeaturesDisclaimer";
@@ -16,22 +15,25 @@ import { LoadingIndicator } from "./LoadingIndicator";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AddIcon } from "./icons/AddIcon";
 import { ErrorScreen } from "./ErrorScreen";
+import { NavigationHeader } from "./NavigationHeader";
 
 const DiaryScreen = () => {
   const translations = useContext(TranslationsContext)?.translations;
   const DiaryEntriesStack = createNativeStackNavigator();
   return (
-    <DiaryEntriesStack.Navigator initialRouteName="DiaryEntries">
+    <DiaryEntriesStack.Navigator
+      initialRouteName="DiaryEntries"
+      screenOptions={{ header: (props) => <NavigationHeader {...props} /> }}
+    >
       <DiaryEntriesStack.Screen
         name="DiaryEntries"
-        component={DiaryEntriesScreen}
-        options={{ ...generalOptions, headerTitle: translations!.home.diary }}
+        component={DiaryEntriesWrapper}
+        options={{ headerTitle: translations!.home.diary }}
       />
       <DiaryEntriesStack.Screen
         name="DiaryEntry"
         component={DiaryEntryDetailScreen}
         options={({ route }) => ({
-          ...generalOptions,
           headerTitle: (route.params?.isUpdate as boolean)
             ? translations?.diary.updateDiaryEntryHeader
             : translations?.diary.addDiaryEntryHeader,
@@ -41,7 +43,7 @@ const DiaryScreen = () => {
   );
 };
 
-const DiaryEntriesScreen: React.FC = () => {
+const DiaryEntriesWrapper: React.FC = () => {
   const userSettings = getSettings();
 
   return userSettings && userSettings.general.enableOnlineFeatures ? (
@@ -82,7 +84,7 @@ const DiaryEntries: React.FC = () => {
           GENERAL_STYLES.uiButton,
           GENERAL_STYLES.floatingRightButton,
           isAddDiaryEntryButtonDisabled(userDiaryEntries!, loading) &&
-            GENERAL_STYLES.buttonDisabled,
+          GENERAL_STYLES.buttonDisabled,
         ]}
       >
         <AddIcon />
@@ -114,13 +116,13 @@ const DiaryEntries: React.FC = () => {
                         paddingTop: 5,
                         marginRight:
                           index !== userDiaryEntries.length - 1 &&
-                          index % 2 === 0
+                            index % 2 === 0
                             ? 10
                             : 0,
                         marginLeft:
                           userDiaryEntries.length % 2 !== 0 &&
-                          index !== userDiaryEntries.length - 1 &&
-                          index % 2 !== 0
+                            index !== userDiaryEntries.length - 1 &&
+                            index % 2 !== 0
                             ? 10
                             : 0,
                       },

@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
 import { getUserDiaryEntries } from "../services/diaryEntries.services";
 
-export function useUserDiaryEntries(userId: number) {
-  const [userDiaryEntries, setUserDiaryEntries] = useState<DiaryEntry[]>();
+interface UseUserDiaryEntriesResult {
+  userDiaryEntries: DiaryEntry[]
+  setUserDiaryEntries: React.Dispatch<React.SetStateAction<DiaryEntry[]>>
+  error: string | undefined
+}
+
+export function useUserDiaryEntries(userId: number): UseUserDiaryEntriesResult {
+  const [userDiaryEntries, setUserDiaryEntries] = useState<DiaryEntry[]>([]);
   const [error, setError] = useState<string>();
 
   useEffect(() => {
