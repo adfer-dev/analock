@@ -184,9 +184,12 @@ async function getOpfItems(path: string): Promise<void> {
 }
 
 /**
- * Adds custom styles to EPUB's' existent CSS file
+ * Adds custom CSS to the book's css file.
+ * 
+ * @param unzipPath the path where the book was unziped 
+ * @param cssPath the path where the css file is located
  */
-async function addCustomCSS(unzipPath: string, cssPath: string) {
+async function addCustomCSS(unzipPath: string, cssPath: string): Promise<void> {
   const dimensions = Dimensions.get("window");
   const css = await RNFS.readFile(
     `${unzipPath}/${contentPath}${cssPath}`,
@@ -197,13 +200,13 @@ async function addCustomCSS(unzipPath: string, cssPath: string) {
   let updatedStyles = getCustomElementStyles(
     css,
     "body",
-    `height: ${(dimensions.height - epubReaderHeaderHeight) - 10}px; width: ${dimensions.width * 0.95}px; column-width: ${dimensions.width * 0.95}px; column-gap: 0px;column-fill: auto;-webkit-column-width: ${dimensions.width * 2}px;-webkit-column-gap: 0px;overflow-x: hidden;overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;`,
+    `height: calc(100vh - 10px); width: ${dimensions.width * 0.95}px; column-width: ${dimensions.width * 0.95}px; column-gap: 0px;column-fill: auto;-webkit-column-width: ${dimensions.width * 2}px;-webkit-column-gap: 0px;overflow-x: hidden;overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;`,
   );
 
   updatedStyles = getCustomElementStyles(
     updatedStyles,
     "html",
-    `margin: 0;padding: 0;height: ${(dimensions.height - epubReaderHeaderHeight) - 10}px;width: ${dimensions.width * 0.95}px;overflow: hidden; touch-action: none;`,
+    `margin: 0;padding: 0;height: calc(100vh - 10px);width: ${dimensions.width * 0.95}px;overflow: hidden; touch-action: none;`,
   );
 
   updatedStyles = getCustomElementStyles(
