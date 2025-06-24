@@ -69,9 +69,9 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
         setHasFinishedReading(bookData.finished);
         loadFullHtmlContent();
       } else {
-        const randomIndex = Math.floor(Math.random() * htmlFiles.length);
+        const randomIndex = Math.floor(Math.random() * (htmlFiles.length - 20));
         firstFileIndex = randomIndex;
-        setMaxEpubPages(randomIndex)
+        loadFullHtmlContent()
           .then(() => {
             updateStorageBookData({
               id: ebookId,
@@ -82,9 +82,8 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
                 finished: hasFinishedReading,
               },
             });
-            loadFullHtmlContent();
           })
-          .catch((error) => console.error(error));
+          .catch(err => console.error(`error loading the full HTML document: ${err}}`));
       }
     }
   }, [htmlFiles]);
@@ -109,43 +108,6 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
       }
     }
   }, [currentFilePage]);
-
-  /**
-   * Sets the maximum EPUB pages that the user can read.
-   * This is calculated knowing that the average reading time is 200 words per minute.
-   * The maximum number of pages is calculated parsing the paragraph items from the EPUB's HTML
-   * files and extracting the number of words of each.
-   *
-   * @param firstIndex the random index where the reading starts
-   */
-  async function setMaxEpubPages(firstIndex: number) {
-    const htmlParagraphRegex = /<p>(.*?)<\/p>/g;
-    const maxWords = AVERAGE_WORDS_PER_MINUTE * MAX_MINUTES;
-    let currentWords = 0;
-
-    for (let i = firstIndex; i < htmlFiles.length; i++) {
-      const selectedItem = htmlFiles[i];
-      let pageWords = 0;
-      let matches;
-
-      const content = await RNFS.readFile(
-        `${unzipPath}/${contentPath}${selectedItem.href}`,
-        "utf8",
-      );
-
-      while ((matches = htmlParagraphRegex.exec(content)) !== null) {
-        pageWords += matches[1].split(" ").length;
-      }
-
-      currentWords += pageWords;
-
-      if (currentWords < maxWords) {
-        MAX_PAGES++;
-      } else {
-        break;
-      }
-    }
-  }
 
   /**
    * Loads the full HTML content with selected daily content
@@ -177,20 +139,41 @@ const EpubReader: React.FC<EpubReaderProps> = ({ ebookId }) => {
     </head>
     <body>
         <div class="content-wrapper">`;
+    const htmlTextRegex = /<script[^>]*>[\s\S]*?<\/script>|<style[^>]*>[\s\S]*?<\/style>|<!--[\s\S]*?-->|<[^>]+>/g;
+    const maxWords = AVERAGE_WORDS_PER_MINUTE * MAX_MINUTES;
+    let currentWords = 0;
 
-    for (let i = firstFileIndex; i < firstFileIndex + MAX_PAGES; i++) {
-      const content = await RNFS.readFile(
-        `${unzipPath}/${contentPath}${htmlFiles[i].href}`,
-        "utf8",
-      );
-      fullHtmlContent = fullHtmlContent.concat(
-        "\n",
-        content.substring(
-          content.indexOf("<body>") + 7,
-          content.indexOf("</body>"),
-        ),
-      );
+    // Iterate over all remaining html files
+    for (let i = firstFileIndex; i < htmlFiles.length; i++) {
+      const selectedItem = htmlFiles[i];
+
+      // Add file content to body (if file exists)
+      const doesHtmlFileExist = await RNFS.exists(`${unzipPath}/${contentPath}${selectedItem.href}`)
+      if (doesHtmlFileExist) {
+        const content = await RNFS.readFile(
+          `${unzipPath}/${contentPath}${selectedItem.href}`,
+          "utf8",
+        );
+        fullHtmlContent = fullHtmlContent.concat(
+          "\n",
+          content.substring(
+            content.indexOf("<body>") + 7,
+            content.indexOf("</body>"),
+          ),
+        );
+
+        // update word count
+        currentWords += content.replace(htmlTextRegex, "").trim().split(" ").length;
+
+        // Stop iterating when reached maximum words
+        if (currentWords < maxWords) {
+          MAX_PAGES++;
+        } else {
+          break;
+        }
+      }
     }
+
     fullHtmlContent = setResourcePaths(fullHtmlContent);
     fullHtmlContent = fullHtmlContent.concat(
       "\n</div>",
